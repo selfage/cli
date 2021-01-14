@@ -1,0 +1,6 @@
+{
+  "extends": "@selfage/tsconfig/tsconfig",
+  "exclude": [
+    "test_data"
+  ]
+}
