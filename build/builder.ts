@@ -26,7 +26,7 @@ export function readCompilerOptions(tsconfigFile: string): any {
   let tsconfig = JSON.parse(fs.readFileSync(tsconfigFile).toString());
   let compilerOptions = tsconfig.compilerOptions;
   if (tsconfig.extends) {
-    let baseDir = path.parse(tsconfigFile).dir;
+    let baseDir = path.dirname(tsconfigFile);
     let baseTsconfigFile = resolve.sync(tsconfig.extends, {
       basedir: baseDir,
       extensions: [".json"],
