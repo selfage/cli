@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "target": "ES2",
+    "strict": true
+  }
+}

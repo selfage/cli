@@ -1,0 +1,9 @@
+{
+  "extends": "./otherconfig",
+  "compilerOptions": {
+    "target": "ES6",
+    "alwaysStrict": true,
+    "noImplicitAny": false,
+    "noImplicitThis": true
+  }
+}

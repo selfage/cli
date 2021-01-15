@@ -1,0 +1,7 @@
+{
+  "extends": "./inside/tsconfig",
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": false
+  }
+}
