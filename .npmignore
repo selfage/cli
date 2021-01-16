@@ -1,0 +1,7 @@
+test_data/
+*.d.ts
+*.ts
+*.tsbuildinfo
+tsconfig.json
+*_test.*
+test_suite.js
