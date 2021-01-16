@@ -14,12 +14,12 @@ export function build(file: string): boolean {
       incremental = true;
     }
   }
-  if (incremental) {
-    args.push("--tsBuildInfoFile", `${file}.tsbuildinfo`);
-  }
 
-  let tsFile = stripFileExtension(file);
-  let res = spawnSync("npx", ["tsc", ...args, `${tsFile}.ts`], {
+  let strippedFile = stripFileExtension(file);
+  if (incremental) {
+    args.push("--tsBuildInfoFile", `${strippedFile}.tsbuildinfo`);
+  }
+  let res = spawnSync("npx", ["tsc", ...args, `${strippedFile}.ts`], {
     stdio: "inherit",
   });
   return res.status === 0;
