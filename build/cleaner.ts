@@ -1,8 +1,8 @@
 import fs = require("fs");
 import path = require("path");
 
-export async function clean(rootDir: string): Promise<void> {
-  let files = await findFiles(rootDir);
+export async function clean(): Promise<void> {
+  let files = await findFiles(".");
   let promisesToUnlink = files.map(async (file) => {
     await fs.promises.unlink(file);
   });
