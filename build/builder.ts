@@ -1,6 +1,7 @@
 import fs = require("fs");
 import path = require("path");
 import resolve = require("resolve");
+import { stripFileExtension } from "../io_helper";
 import { spawnSync } from "child_process";
 
 export function build(file: string): boolean {
@@ -16,7 +17,9 @@ export function build(file: string): boolean {
   if (incremental) {
     args.push("--tsBuildInfoFile", `${file}.tsbuildinfo`);
   }
-  let res = spawnSync("npx", ["tsc", ...args, `${file}.ts`], {
+
+  let tsFile = stripFileExtension(file);
+  let res = spawnSync("npx", ["tsc", ...args, `${tsFile}.ts`], {
     stdio: "inherit",
   });
   return res.status === 0;
