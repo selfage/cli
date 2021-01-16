@@ -13,7 +13,9 @@ async function main(): Promise<void> {
   program
     .command("build <file>")
     .description(
-      `Build/Compile a single TypeScript source file. ` + EXPLAIN_FILE_TYPE
+      `Build/Compile a single TypeScript source file while respecting ` +
+        `compilerOptions in tsconfig.json. ` +
+        EXPLAIN_FILE_TYPE
     )
     .action((file) => {
       build(file);
