@@ -16,7 +16,7 @@ Options:
   -h, --help                   display help for command
 
 Commands:
-  build <file>                 Build/Compile a single TypeScript source file. The file type can be neglected and is always fixed as '.ts'.
+  build <file>                 Build/Compile a single TypeScript source file while respecting compilerOptions in tsconfig.json. The file type can be neglected and is always fixed as '.ts'.
   clean                        Delete all files generated from building and bundling.
   run <file>                   Compile and run the specified file. The file type can be neglected and is always fixed as '.ts'. Pass through arguments to the executable file after --.
   format|fmt [options] <file>  Format the specified file. The file type is always fixed as '.ts'.
@@ -29,7 +29,7 @@ Commands:
 $ selfage build -h
 Usage: selfage build [options] <file>
 
-Build/Compile a single TypeScript source file. The file type can be neglected and is always fixed as '.ts'.
+Build/Compile a single TypeScript source file while respecting compilerOptions in tsconfig.json. The file type can be neglected and is always fixed as '.ts'.
 
 Options:
   -h, --help  display help for command
