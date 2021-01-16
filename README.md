@@ -25,6 +25,12 @@ Commands:
 
 ## Build
 
+Please make sure it's run from the directory where your tsconfig.json is defined.
+
+If you specified `incremental: true` in your tsconfig.json, `tsBuildInfoFile` will not be respected and will be overriden by `${filename}.tsbuildinfo`.
+
+Respect merging base tsconfig via `extends`.
+
 ```
 $ selfage build -h
 Usage: selfage build [options] <file>
@@ -61,7 +67,7 @@ Options:
 
 ## Format
 
-On top of `prettier`, add support to sort imports in a deterministic way but will not keep comments between import statements in place.
+On top of `prettier`, add support to sort imports in a deterministic way but will not keep comments between import statements in place. Please leave comments on top of all import statements.
 
 ```
 $ selfage format -h
