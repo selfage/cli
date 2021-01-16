@@ -61,6 +61,8 @@ Options:
 
 ## Format
 
+On top of `prettier`, add support to sort imports in a deterministic way but will not keep comments between import statements in place.
+
 ```
 $ selfage format -h
 Usage: selfage format|fmt [options] <file>
