@@ -27,7 +27,7 @@ async function findFilesRecursively(dir: string): Promise<Array<string>> {
       let fullPath = path.join(dir, item);
       let fileStats = await fs.promises.stat(fullPath);
       if (fileStats.isDirectory()) {
-        if (item === "node_modules") {
+        if (item === "node_modules" || item === "test_data") {
           return;
         } else {
           let filesFromSubDirectory = await findFilesRecursively(fullPath);
