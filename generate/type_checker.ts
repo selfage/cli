@@ -1,0 +1,57 @@
+import fs = require("fs");
+import path = require("path");
+import resolve = require("resolve");
+import ono from "@jsdevtools/ono";
+import { Definition, MessageDefinition } from "./definition";
+
+export class TypeChecker {
+  private currentDir: string;
+  private currentModuleBase: string;
+  private cachedPathToNameToMessages = new Map<
+    string,
+    Map<string, MessageDefinition>
+  >();
+
+  public constructor(currentModulePath: string) {
+    let pathObj = path.parse(currentModulePath);
+    this.currentDir = pathObj.dir;
+    this.currentModuleBase = pathObj.base;
+  }
+
+  public getMessage(typeName: string, importPath?: string): MessageDefinition {
+    if (!importPath) {
+      importPath = "./" + this.currentModuleBase;
+    }
+    let filePath = resolve.sync(importPath, {
+      basedir: this.currentDir,
+      extensions: [".json"],
+    });
+    let nameToMessages = this.cachedPathToNameToMessages.get(filePath);
+    if (!nameToMessages) {
+      nameToMessages = new Map<string, MessageDefinition>();
+      this.cachedPathToNameToMessages.set(filePath, nameToMessages);
+
+      let jsonStr = fs.readFileSync(filePath).toString();
+      let definitions: Array<Definition>;
+      try {
+        definitions = JSON.parse(jsonStr) as Array<Definition>;
+      } catch (e) {
+        throw ono(e, `Failed to parse JSON read from "${filePath}".`);
+      }
+      for (let definition of definitions) {
+        if (definition.message) {
+          nameToMessages.set(definition.message.name, definition.message);
+        }
+      }
+    }
+    return nameToMessages.get(typeName);
+  }
+
+  public isMessage(typeName: string, importPath?: string): boolean {
+    if (this.getMessage(typeName, importPath)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
