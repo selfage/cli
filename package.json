@@ -1,6 +1,6 @@
 {
   "name": "@selfage/cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI toolkit for all @selfage packages as well as frontend and backend development.",
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@selfage/counter": "^1.0.4",
+    "@selfage/message": "^1.0.0",
     "@selfage/test_base": "^1.0.6",
     "@selfage/tsconfig": "^1.0.3",
     "@types/node": "^14.14.20",

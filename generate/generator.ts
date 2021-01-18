@@ -9,7 +9,7 @@ import { TypeChecker } from "./type_checker";
 
 export function generate(
   file: string,
-  dryRun: boolean
+  dryRun?: boolean
 ): void {
   let modulePath = stripFileExtension(file);
   let definitions = JSON.parse(

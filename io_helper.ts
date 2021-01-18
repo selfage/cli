@@ -11,7 +11,7 @@ export function stripFileExtension(file: string): string {
 export function writeFileSync(
   file: string,
   content: string,
-  dryRun: boolean
+  dryRun?: boolean
 ): void {
   if (dryRun) {
     console.log(content);

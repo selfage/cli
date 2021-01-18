@@ -5,6 +5,7 @@ export interface EnumValue {
 }
 
 export interface EnumDefinition {
+  // Must be of upper camel case.
   name: string;
   values: Array<EnumValue>;
   comment?: string;
@@ -27,6 +28,7 @@ export interface MessageExtendDefinition {
 }
 
 export interface MessageDefinition {
+  // Must be of upper camel case.
   name: string;
   fields: Array<MessageFieldDefinition>;
   extends?: Array<MessageExtendDefinition>;

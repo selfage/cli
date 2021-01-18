@@ -14,7 +14,7 @@ import {
   createSourceFile,
 } from "typescript";
 
-export function format(file: string, dryRun: boolean): void {
+export function format(file: string, dryRun?: boolean): void {
   let tsFile = stripFileExtension(file) + ".ts";
   let sortedContent = sortImports(tsFile);
   let formattedContent = prettier.format(sortedContent, {

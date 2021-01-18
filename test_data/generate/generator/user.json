@@ -1,0 +1,18 @@
+[{
+  "message": {
+    "name": "User",
+    "fields": [{
+      "name": "id",
+      "type": "string"
+    }, {
+      "name": "userInfo",
+      "type": "UserInfo",
+      "import": "./user_info"
+    }, {
+      "name": "creditCards",
+      "type": "CreditCard",
+      "isArray": true,
+      "import": "./inside/credit_card"
+    }]
+  }
+}]
