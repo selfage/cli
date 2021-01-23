@@ -1,11 +1,6 @@
 import { TypeChecker } from "./type_checker";
-import {
-  assertThat,
-  assertThrow,
-  eq,
-  eqError,
-} from "@selfage/test_base/matcher";
-import { TEST_RUNNER } from "@selfage/test_base/runner";
+import { assertThat, assertThrow, eq, eqError } from "@selfage/test_matcher";
+import { TEST_RUNNER } from "@selfage/test_runner";
 
 TEST_RUNNER.run({
   name: "TypeCheckerTest",

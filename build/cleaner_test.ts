@@ -1,6 +1,6 @@
 import { findFiles } from "./cleaner";
-import { assertThat, eq, eqArray } from "@selfage/test_base/matcher";
-import { TEST_RUNNER } from "@selfage/test_base/runner";
+import { assertThat, eq, eqArray } from "@selfage/test_matcher";
+import { TEST_RUNNER } from "@selfage/test_runner";
 
 TEST_RUNNER.run({
   name: "CleanerTest",

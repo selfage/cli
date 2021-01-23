@@ -1,6 +1,6 @@
 import fs = require("fs");
 import { generate } from "./generator";
-import { TEST_RUNNER } from "@selfage/test_base/runner";
+import { TEST_RUNNER } from "@selfage/test_runner";
 import { spawnSync } from "child_process";
 
 function assertCompile(file: string): void {

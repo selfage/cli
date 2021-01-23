@@ -2,8 +2,8 @@ import { Importer } from "./importer";
 import { generateObservableDescriptor } from "./observable_generator";
 import { TypeChecker } from "./type_checker";
 import { Counter } from "@selfage/counter";
-import { assertThat, eq } from "@selfage/test_base/matcher";
-import { TEST_RUNNER } from "@selfage/test_base/runner";
+import { assertThat, eq } from "@selfage/test_matcher";
+import { TEST_RUNNER } from "@selfage/test_runner";
 
 TEST_RUNNER.run({
   name: "ObservableGeneratorTest",
