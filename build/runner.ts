@@ -4,7 +4,7 @@ import { spawnSync } from "child_process";
 
 export function run(file: string, args?: Array<string>): void {
   build(file);
-  let jsFile = stripFileExtension(file);
+  let jsFile = stripFileExtension(file) + ".js";
   let cliArgs: Array<string>;
   if (!args) {
     cliArgs = new Array<string>();

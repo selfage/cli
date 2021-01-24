@@ -15,11 +15,11 @@ export function build(file: string): boolean {
     }
   }
 
-  let strippedFile = stripFileExtension(file);
+  let modulePath = stripFileExtension(file);
   if (incremental) {
-    args.push("--tsBuildInfoFile", `${strippedFile}.tsbuildinfo`);
+    args.push("--tsBuildInfoFile", `${modulePath}.tsbuildinfo`);
   }
-  let res = spawnSync("npx", ["tsc", ...args, `${strippedFile}.ts`], {
+  let res = spawnSync("npx", ["tsc", ...args, `${modulePath}.ts`], {
     stdio: "inherit",
   });
   return res.status === 0;
