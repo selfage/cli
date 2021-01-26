@@ -5,7 +5,10 @@ export class Importer {
   public importFromDatastoreModelDescriptor(
     ...namedImports: Array<string>
   ): void {
-    this.importFromPath("@selfage/datastore/descriptor", ...namedImports);
+    this.importFromPath(
+      "@selfage/datastore_client/model_descriptor",
+      ...namedImports
+    );
   }
 
   public importFromMessageDescriptor(...namedImports: Array<string>): void {

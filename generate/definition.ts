@@ -1,17 +1,19 @@
 export interface EnumValue {
+  // Recommended to be SNAKE_CASE.
   name: string;
   value: number;
   comment?: string;
 }
 
 export interface EnumDefinition {
-  // Must be of upper camel case.
+  // Must be of CamelCase.
   name: string;
   values: Array<EnumValue>;
   comment?: string;
 }
 
 export interface MessageFieldDefinition {
+  // Recommended to be camelCase.
   name: string;
   // Can be 'number', 'string', 'boolean' or the name of a message or enum.
   type: string;
@@ -28,7 +30,7 @@ export interface MessageExtendDefinition {
 }
 
 export interface MessageDefinition {
-  // Must be of upper camel case.
+  // Must be of CamelCase, which will be the name of a class or interface.
   name: string;
   fields: Array<MessageFieldDefinition>;
   extends?: Array<MessageExtendDefinition>;
@@ -37,16 +39,19 @@ export interface MessageDefinition {
 }
 
 export interface IndexProperty {
-  name: string;
+  // The name of `MessageFieldDefinition`.
+  fieldName: string;
   descending?: boolean;
 }
 
 export interface IndexDefinition {
+  // Recommended to be CamelCase, which will be part of a function name.
   name: string;
   properties: Array<IndexProperty>;
 }
 
 export interface DatastoreDefinition {
+  // The name of `MessageDefinition`.
   messageName: string;
   import?: string;
   key: string;

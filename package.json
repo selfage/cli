@@ -30,7 +30,7 @@
     "@selfage/tsconfig": "^1.0.3",
     "@types/node": "^14.14.22",
     "@types/prettier": "^2.1.6",
-    "@types/resolve": "^1.17.1"
+    "@types/resolve": "^1.19.0"
   },
   "dependencies": {
     "@jsdevtools/ono": "^7.1.3",
