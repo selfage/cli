@@ -1,7 +1,7 @@
 import { MessageDefinition } from "./definition";
 import { Importer } from "./importer";
 import { TypeChecker } from "./type_checker";
-import { flattenFieldType, generateComment, toUpperSnaked } from "./util";
+import { generateComment, toUpperSnaked } from "./util";
 
 // `contentList` and `importer` are expected to be modified.
 export function generateMessageDescriptor(
@@ -59,27 +59,22 @@ export let ${descriptorName}: MessageDescriptor<${messageName}> = {
     contentList.push(`
     {
       name: '${field.name}',`);
-    let { primitiveTypeName, enumTypeName, messageTypeName } = flattenFieldType(
-      typeChecker,
+    let { isPrimitive, isEnum, isMessage } = typeChecker.categorizeType(
       field.type,
       field.import
     );
-    if (primitiveTypeName) {
+    if (isPrimitive) {
       importer.importFromMessageDescriptor("PrimitiveType");
       contentList.push(`
-      primitiveType: PrimitiveType.${primitiveTypeName.toUpperCase()},`);
-    } else if (enumTypeName) {
-      let enumDescriptorName = toUpperSnaked(enumTypeName);
-      importer.importFromPath(field.import, enumTypeName, enumDescriptorName);
+      primitiveType: PrimitiveType.${field.type.toUpperCase()},`);
+    } else if (isEnum) {
+      let enumDescriptorName = toUpperSnaked(field.type);
+      importer.importFromPath(field.import, field.type, enumDescriptorName);
       contentList.push(`
       enumDescriptor: ${enumDescriptorName},`);
-    } else if (messageTypeName) {
-      let messageDescriptorName = toUpperSnaked(messageTypeName);
-      importer.importFromPath(
-        field.import,
-        messageTypeName,
-        messageDescriptorName
-      );
+    } else if (isMessage) {
+      let messageDescriptorName = toUpperSnaked(field.type);
+      importer.importFromPath(field.import, field.type, messageDescriptorName);
       contentList.push(`
       messageDescriptor: ${messageDescriptorName},`);
     }

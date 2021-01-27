@@ -40,12 +40,20 @@ TEST_RUNNER.run({
       },
     },
     {
-      name: "GetMessageFromCurrentAndImportedFile",
+      name: "CategorizeTypeAndGetMessage",
       execute: () => {
         // Prepare
         let typeChecker = new TypeChecker(
           "./test_data/generate/type_checker/basic"
         );
+
+        // Execute
+        let category = typeChecker.categorizeType("string");
+
+        // Verify
+        assertThat(category.isPrimitive, eq(true), "string isPrimitive");
+        assertThat(category.isEnum, eq(undefined), "string isEnum");
+        assertThat(category.isMessage, eq(undefined), "string isMessage");
 
         // Execute
         let messageDefinition = typeChecker.getMessage("BasicData");
@@ -59,10 +67,24 @@ TEST_RUNNER.run({
         );
 
         // Execute
-        let isMessage = typeChecker.isMessage("BasicData");
+        category = typeChecker.categorizeType("BasicData");
 
         // Verify
-        assertThat(isMessage, eq(true), "BasicData isMessage");
+        assertThat(
+          category.isPrimitive,
+          eq(undefined),
+          "BasicData isPrimitive"
+        );
+        assertThat(category.isEnum, eq(undefined), "BasicData isEnum");
+        assertThat(category.isMessage, eq(true), "BasicData isMessage");
+
+        // Execute
+        category = typeChecker.categorizeType("SomeEnum");
+
+        // Verify
+        assertThat(category.isPrimitive, eq(undefined), "SomeEnum isPrimitive");
+        assertThat(category.isEnum, eq(true), "SomeEnum isEnum");
+        assertThat(category.isMessage, eq(undefined), "SomeEnum isMessage");
 
         // Execute
         let messageDefinition2 = typeChecker.getMessage("BasicData");

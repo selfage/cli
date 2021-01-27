@@ -1,38 +1,4 @@
-import { TypeChecker } from "./type_checker";
-
-export let PRIMITIVE_TYPE_STRING = "string";
-export let PRIMITIVE_TYPE_NUMBER = "number";
-export let PRIMITIVE_TYPE_BOOLEAN = "boolean";
 let UPPER_CASES_REGEXP = /[A-Z]/;
-
-export function flattenFieldType(
-  typeChecker: TypeChecker,
-  typeName: string,
-  importPath?: string
-): {
-  primitiveTypeName?: string;
-  enumTypeName?: string;
-  messageTypeName?: string;
-} {
-  if (
-    typeName === PRIMITIVE_TYPE_STRING ||
-    typeName === PRIMITIVE_TYPE_NUMBER ||
-    typeName === PRIMITIVE_TYPE_BOOLEAN
-  ) {
-    return {
-      primitiveTypeName: typeName,
-    };
-  }
-  if (typeChecker.isMessage(typeName, importPath)) {
-    return {
-      messageTypeName: typeName,
-    };
-  } else {
-    return {
-      enumTypeName: typeName,
-    };
-  }
-}
 
 export function generateComment(comment: string): string {
   if (comment) {

@@ -1,15 +1,12 @@
 import { DatastoreIndexBuilder } from "./datastore_index_builder";
 import { DatastoreDefinition, MessageFieldDefinition } from "./definition";
 import { Importer } from "./importer";
-import { TypeChecker } from "./type_checker";
 import {
   PRIMITIVE_TYPE_NUMBER,
   PRIMITIVE_TYPE_STRING,
-  flattenFieldType,
-  generateComment,
-  toCapitalized,
-  toUpperSnaked,
-} from "./util";
+  TypeChecker,
+} from "./type_checker";
+import { generateComment, toCapitalized, toUpperSnaked } from "./util";
 
 // `contentList`, `indexBuilder` and `importer` are expected to be modified.
 export function generateDatastoreModel(
@@ -85,20 +82,20 @@ export class ${index.name}QueryBuilder {
         }
 
         let fieldDefinition = fieldToDefinitions.get(property.fieldName);
-        let { enumTypeName, messageTypeName } = flattenFieldType(
-          typeChecker,
+        let { isEnum, isMessage } = typeChecker.categorizeType(
           fieldDefinition.type,
           fieldDefinition.import
         );
-        if (messageTypeName) {
+        if (isMessage) {
           throw new Error(
-            `${messageTypeName} cannot be used as a filter in Datastore.`
+            `${fieldDefinition.type} cannot be used as a filter in Datastore.`
           );
         }
-        if (enumTypeName) {
-          importer.importFromPath(fieldDefinition.import, enumTypeName);
+        if (isEnum) {
+          importer.importFromPath(fieldDefinition.import, fieldDefinition.type);
         }
         excludedIndexes.delete(property.fieldName);
+
         contentList.push(`
   public filterBy${toCapitalized(
     property.fieldName

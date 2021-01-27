@@ -1,3 +1,4 @@
+import { MessageDefinition } from "./definition";
 import { Importer } from "./importer";
 import { generateObservableDescriptor } from "./observable_generator";
 import { TypeChecker } from "./type_checker";
@@ -20,9 +21,9 @@ TEST_RUNNER.run({
             super("");
           }
 
-          public isMessage(): boolean {
-            counter.increment("isMessage");
-            return false;
+          public getMessage(): MessageDefinition {
+            counter.increment("getMessage");
+            return undefined;
           }
         })();
 
@@ -67,6 +68,7 @@ TEST_RUNNER.run({
         );
 
         // Verify
+        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
         assertThat(
           contentList.join(""),
           eq(`
@@ -230,7 +232,6 @@ import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
 `),
           `importer`
         );
-        assertThat(counter.get("isMessage"), eq(0), `isMessage called`);
       },
     },
     {
@@ -329,31 +330,34 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
             super("");
           }
 
-          public isMessage(typeName: string, importPath?: string): boolean {
-            counter.increment("isMessage");
-            switch (counter.get("isMessage")) {
+          public getMessage(
+            typeName: string,
+            importPath?: string
+          ): MessageDefinition {
+            counter.increment("getMessage");
+            switch (counter.get("getMessage")) {
               case 1:
                 assertThat(typeName, eq("BasicData"), `1st typeName`);
                 assertThat(importPath, eq(undefined), `1st importPath`);
-                return true;
+                return { name: "any", fields: [] };
               case 2:
                 assertThat(typeName, eq("BasicData2"), `2nd typeName`);
                 assertThat(importPath, eq("./some_file"), `2nd importPath`);
-                return true;
+                return { name: "any", fields: [] };
               case 3:
                 assertThat(typeName, eq("TestEnum"), `3rd typeName`);
                 assertThat(importPath, eq(undefined), `3rd importPath`);
-                return false;
+                return undefined;
               case 4:
                 assertThat(typeName, eq("BasicData"), `4th typeName`);
                 assertThat(importPath, eq(undefined), `4th importPath`);
-                return true;
+                return { name: "any", fields: [] };
               case 5:
                 assertThat(typeName, eq("TestEnum"), `5th typeName`);
                 assertThat(importPath, eq(undefined), `5th importPath`);
-                return false;
+                return undefined;
               default:
-                throw new Error("Unpexpected");
+                throw new Error(`Unexpected.`);
             }
           }
         })();
@@ -404,6 +408,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
         );
 
         // Verify
+        assertThat(counter.get("getMessage"), eq(5), "getMessage called");
         assertThat(
           contentList.join(""),
           eq(`
@@ -547,7 +552,6 @@ import { BasicData2, BASIC_DATA2 } from './some_file';
 `),
           `importer`
         );
-        assertThat(counter.get("isMessage"), eq(5), "isMessage called");
       },
     },
   ],

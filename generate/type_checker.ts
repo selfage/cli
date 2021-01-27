@@ -4,6 +4,10 @@ import resolve = require("resolve");
 import ono from "@jsdevtools/ono";
 import { Definition, MessageDefinition } from "./definition";
 
+export let PRIMITIVE_TYPE_STRING = "string";
+export let PRIMITIVE_TYPE_NUMBER = "number";
+export let PRIMITIVE_TYPE_BOOLEAN = "boolean";
+
 export class TypeChecker {
   private currentDir: string;
   private currentModuleBase: string;
@@ -47,11 +51,27 @@ export class TypeChecker {
     return nameToMessages.get(typeName);
   }
 
-  public isMessage(typeName: string, importPath?: string): boolean {
+  public categorizeType(
+    typeName: string,
+    importPath?: string
+  ): {
+    isPrimitive?: boolean;
+    isEnum?: boolean;
+    isMessage?: boolean;
+  } {
+    if (
+      typeName === PRIMITIVE_TYPE_STRING ||
+      typeName === PRIMITIVE_TYPE_NUMBER ||
+      typeName === PRIMITIVE_TYPE_BOOLEAN
+    ) {
+      return {
+        isPrimitive: true,
+      };
+    }
     if (this.getMessage(typeName, importPath)) {
-      return true;
+      return { isMessage: true };
     } else {
-      return false;
+      return { isEnum: true };
     }
   }
 }

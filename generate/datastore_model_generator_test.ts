@@ -134,29 +134,32 @@ TEST_RUNNER.run({
             typeName: string,
             importPath?: string
           ): MessageDefinition {
-            counter.increment("getMessage");
-            assertThat(typeName, eq(`Task`), `typeName`);
-            assertThat(importPath, eq(undefined), `importPath`);
-            return {
-              name: "Task",
-              fields: [
-                {
-                  name: "id",
-                  type: "number",
-                },
-                {
-                  name: "payload",
-                  type: "Payload",
-                },
-              ],
-            };
-          }
-
-          public isMessage(typeName: string, importPath?: string): boolean {
-            counter.increment("isMessage");
-            assertThat(typeName, eq(`Payload`), `typeName for isMessage`);
-            assertThat(importPath, eq(undefined), `importPath for isMessage`);
-            return true;
+            if (typeName === "Task") {
+              counter.increment("Task for getMessage");
+              assertThat(importPath, eq(undefined), `importPath`);
+              return {
+                name: "Task",
+                fields: [
+                  {
+                    name: "id",
+                    type: "number",
+                  },
+                  {
+                    name: "payload",
+                    type: "Payload",
+                  },
+                ],
+              };
+            } else if (typeName === "Payload") {
+              counter.increment("Payload for getMessage");
+              assertThat(importPath, eq(undefined), `importPath for isMessage`);
+              return {
+                name: "any",
+                fields: [],
+              };
+            } else {
+              throw new Error("Unexpected.");
+            }
           }
         })();
         let indexBuilderMock = new (class extends DatastoreIndexBuilder {
@@ -193,8 +196,16 @@ TEST_RUNNER.run({
           eqError(new Error("Payload cannot be used as a filter")),
           `error`
         );
-        assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
-        assertThat(counter.get("isMessage"), eq(1), `isMessage called`);
+        assertThat(
+          counter.get("Task for getMessage"),
+          eq(1),
+          `Task for getMessage called`
+        );
+        assertThat(
+          counter.get("Payload for getMessage"),
+          eq(1),
+          `Payload for getMessage called`
+        );
       },
     },
     {
@@ -369,70 +380,68 @@ TEST_RUNNER.run({
             typeName: string,
             importPath?: string
           ): MessageDefinition {
-            counter.increment("getMessage");
-            assertThat(typeName, eq(`Task`), `typeName`);
-            assertThat(importPath, eq("./inside/task_def"), `importPath`);
-            return {
-              name: "Task",
-              fields: [
-                {
-                  name: "id",
-                  type: "number",
-                },
-                {
-                  name: "payload",
-                  type: "Payload",
-                },
-                {
-                  name: "tags",
-                  type: "string",
-                  isArray: true,
-                },
-                {
-                  name: "done",
-                  type: "boolean",
-                },
-                {
-                  name: "priority",
-                  type: "Priority",
-                  import: "./inside/task_priority",
-                },
-                {
-                  name: "subPriority",
-                  type: "SubPriority",
-                },
-                {
-                  name: "collaborators",
-                  type: "string",
-                  isArray: true,
-                },
-                {
-                  name: "created",
-                  type: "number",
-                },
-              ],
-            };
-          }
-
-          public isMessage(typeName: string, importPath?: string): boolean {
-            if (typeName === "Priority") {
-              counter.increment("Priority isMessage");
+            if (typeName === "Task") {
+              counter.increment("Task for getMessage");
+              assertThat(importPath, eq("./inside/task_def"), `importPath`);
+              return {
+                name: "Task",
+                fields: [
+                  {
+                    name: "id",
+                    type: "number",
+                  },
+                  {
+                    name: "payload",
+                    type: "Payload",
+                  },
+                  {
+                    name: "tags",
+                    type: "string",
+                    isArray: true,
+                  },
+                  {
+                    name: "done",
+                    type: "boolean",
+                  },
+                  {
+                    name: "priority",
+                    type: "Priority",
+                    import: "./inside/task_priority",
+                  },
+                  {
+                    name: "subPriority",
+                    type: "SubPriority",
+                  },
+                  {
+                    name: "collaborators",
+                    type: "string",
+                    isArray: true,
+                  },
+                  {
+                    name: "created",
+                    type: "number",
+                  },
+                ],
+              };
+            } else if (typeName === "Priority") {
+              counter.increment("Priority for getMessage");
               assertThat(
                 importPath,
                 eq("./inside/task_priority"),
-                `Priority for isMessage`
+                `Priority path for getMessage`
               );
+              return undefined;
             } else if (typeName === "SubPriority") {
-              counter.increment("SubPriority isMessage");
+              counter.increment("SubPriority for getMessage");
               assertThat(
                 importPath,
                 eq(undefined),
                 `SubPriority path for isMessage`
               );
+              return undefined;
             } else {
               throw new Error("Unexpected typeName.");
             }
-            return false;
           }
         })();
         let taskModelDefinition: DatastoreDefinition = {
@@ -508,16 +517,20 @@ TEST_RUNNER.run({
         );
 
         // Verify
-        assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
         assertThat(
-          counter.get("Priority isMessage"),
+          counter.get("Task for getMessage"),
           eq(1),
-          `Priority isMessage called`
+          `Task for getMessage called`
         );
         assertThat(
-          counter.get("SubPriority isMessage"),
+          counter.get("Priority for getMessage"),
           eq(1),
-          `SubPriority isMessage called`
+          `Priority for getMessage called`
+        );
+        assertThat(
+          counter.get("SubPriority for getMessage"),
+          eq(1),
+          `SubPriority for getMessage called`
         );
         assertThat(counter.get("addIndex"), eq(1), `addIndex called`);
         assertThat(
