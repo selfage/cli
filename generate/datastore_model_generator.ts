@@ -51,19 +51,21 @@ export class ${index.name}QueryBuilder {
   private datastoreQuery: DatastoreQuery<${messageName}>;
 
   public constructor() {
-    let filters = new Array<DatastoreFilter>();
-    let orderings = new Array<DatastoreOrdering>();`);
+    this.datastoreQuery = {
+      filters: new Array<DatastoreFilter>(),
+      orderings: [`);
       for (let property of index.properties) {
         if (property.descending !== undefined) {
           contentList.push(`
-    orderings.push({
-      indexName: "${property.fieldName}",
-      descending: ${property.descending}
-    });`);
+        {
+          indexName: "${property.fieldName}",
+          descending: ${property.descending}
+        },`);
         }
       }
       contentList.push(`
-    this.datastoreQuery = {filters: filters, orderings: orderings};
+      ]
+    }
   }
   public start(token: string): this {
     this.datastoreQuery.startToken = token;

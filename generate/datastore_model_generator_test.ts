@@ -540,9 +540,11 @@ export class TaskDoneQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task>;
 
   public constructor() {
-    let filters = new Array<DatastoreFilter>();
-    let orderings = new Array<DatastoreOrdering>();
-    this.datastoreQuery = {filters: filters, orderings: orderings};
+    this.datastoreQuery = {
+      filters: new Array<DatastoreFilter>(),
+      orderings: [
+      ]
+    }
   }
   public start(token: string): this {
     this.datastoreQuery.startToken = token;
@@ -569,17 +571,19 @@ export class TaskDonePriorityQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task>;
 
   public constructor() {
-    let filters = new Array<DatastoreFilter>();
-    let orderings = new Array<DatastoreOrdering>();
-    orderings.push({
-      indexName: "priority",
-      descending: true
-    });
-    orderings.push({
-      indexName: "subPriority",
-      descending: true
-    });
-    this.datastoreQuery = {filters: filters, orderings: orderings};
+    this.datastoreQuery = {
+      filters: new Array<DatastoreFilter>(),
+      orderings: [
+        {
+          indexName: "priority",
+          descending: true
+        },
+        {
+          indexName: "subPriority",
+          descending: true
+        },
+      ]
+    }
   }
   public start(token: string): this {
     this.datastoreQuery.startToken = token;
@@ -622,13 +626,15 @@ export class TaskCollbasQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task>;
 
   public constructor() {
-    let filters = new Array<DatastoreFilter>();
-    let orderings = new Array<DatastoreOrdering>();
-    orderings.push({
-      indexName: "created",
-      descending: false
-    });
-    this.datastoreQuery = {filters: filters, orderings: orderings};
+    this.datastoreQuery = {
+      filters: new Array<DatastoreFilter>(),
+      orderings: [
+        {
+          indexName: "created",
+          descending: false
+        },
+      ]
+    }
   }
   public start(token: string): this {
     this.datastoreQuery.startToken = token;
@@ -663,13 +669,15 @@ export class CreatedTimeQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task>;
 
   public constructor() {
-    let filters = new Array<DatastoreFilter>();
-    let orderings = new Array<DatastoreOrdering>();
-    orderings.push({
-      indexName: "created",
-      descending: true
-    });
-    this.datastoreQuery = {filters: filters, orderings: orderings};
+    this.datastoreQuery = {
+      filters: new Array<DatastoreFilter>(),
+      orderings: [
+        {
+          indexName: "created",
+          descending: true
+        },
+      ]
+    }
   }
   public start(token: string): this {
     this.datastoreQuery.startToken = token;
