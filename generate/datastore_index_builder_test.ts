@@ -17,7 +17,7 @@ TEST_RUNNER.run({
         );
 
         // Verify
-        assertThat(content, eq(``), `content`);
+        assertThat(content, eq(`indexes: []\n`), `content`);
       },
     },
     {
@@ -69,7 +69,7 @@ TEST_RUNNER.run({
         );
 
         // Verify
-        assertThat(content, eq(""), `content`);
+        assertThat(content, eq(`indexes: []\n`), `content`);
       },
     },
     {
@@ -162,15 +162,15 @@ TEST_RUNNER.run({
           eq(`indexes:
   - kind: Task
     properties:
-      - name: done
-      - name: priority
-        direction: asc
-  - kind: Task
-    properties:
       - name: collaborators
         direction: asc
       - name: created
         direction: desc
+  - kind: Task
+    properties:
+      - name: done
+      - name: priority
+        direction: asc
   - kind: TaskList
     properties:
       - name: precentComplete
@@ -245,24 +245,35 @@ TEST_RUNNER.run({
           eq(`indexes:
   - kind: Task
     properties:
+      - name: collaborators
+        direction: asc
+      - name: created
+        direction: desc
+  - kind: Task
+    properties:
       - name: done
       - name: priority
         direction: asc
   - kind: Task
     properties:
-      - name: collaborators
-        direction: asc
-      - name: created
+      - name: done
+      - name: priority
         direction: desc
+  - kind: TaskList
+    properties:
+      - name: percentComplete
+        direction: asc
+      - name: type
+        direction: asc
   - kind: TaskList
     properties:
       - name: precentComplete
       - name: type
   - kind: User
     properties:
-      - name: username
       - name: created
         direction: desc
+      - name: username
 `),
           `content`
         );

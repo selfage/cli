@@ -18,7 +18,7 @@ export class TypeChecker {
 
   public constructor(currentModulePath: string) {
     let pathObj = path.parse(currentModulePath);
-    this.currentDir = pathObj.dir;
+    this.currentDir = pathObj.dir || "./";
     this.currentModuleBase = pathObj.base;
   }
 

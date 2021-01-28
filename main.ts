@@ -51,11 +51,19 @@ async function main(): Promise<void> {
         `is fixed as '.ts'.`
     )
     .option(
+      "-i, --index-file <indexFile>",
+      `The index yaml file for Google Cloud Datastore composite index. The ` +
+        `file type is fixed as '.yaml'. Requried only if your source file ` +
+        `includes a datastore definition.`
+    )
+    .option(
       "--dry-run",
       "Print the generated content instead of writing it to the destination " +
         "file."
     )
-    .action((file, options) => generate(file, options.dryRun));
+    .action((file, options) =>
+      generate(file, options.dryRun, options.indexFile)
+    );
   await program.parseAsync();
 }
 

@@ -14,6 +14,7 @@ export function writeFileSync(
   dryRun?: boolean
 ): void {
   if (dryRun) {
+    console.log(file);
     console.log(content);
   } else {
     fs.writeFileSync(file, content);

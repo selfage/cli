@@ -2,32 +2,31 @@ import fs = require("fs");
 import YAML = require("yaml");
 import { DatastoreDefinition } from "./definition";
 
-// Mimic the structure to be uploaded to datastore composite index yaml.
-interface DatastoreCompositeIndexProperty {
+// Mimic the structure of datastore composite index yaml.
+interface CompositeIndexProperty {
   name: string;
   direction?: string;
 }
 
-interface DatastoreCompositeIndex {
+interface CompositeIndex {
   kind: string;
-  properties: Array<DatastoreCompositeIndexProperty>;
+  properties: Array<CompositeIndexProperty>;
 }
 
-interface DatastoreCompositeIndexList {
-  indexes: Array<DatastoreCompositeIndex>;
+interface CompositeIndexList {
+  indexes: Array<CompositeIndex>;
 }
 
 export class DatastoreIndexBuilder {
-  private kindToIndexes = new Map<string, Array<DatastoreCompositeIndex>>();
+  private jsonToIndexes = new Map<string, CompositeIndex>();
 
   public addIndex(datastoreDefinition: DatastoreDefinition): void {
-    let compositeIndexes = new Array<DatastoreCompositeIndex>();
     for (let index of datastoreDefinition.indexes) {
       if (index.properties.length < 2) {
         continue;
       }
 
-      let compositeIndexProperties = new Array<DatastoreCompositeIndexProperty>();
+      let compositeIndexProperties = new Array<CompositeIndexProperty>();
       for (let property of index.properties) {
         if (property.descending !== undefined) {
           let direction: string;
@@ -46,47 +45,52 @@ export class DatastoreIndexBuilder {
           });
         }
       }
-      compositeIndexes.push({
+      compositeIndexProperties.sort(DatastoreIndexBuilder.compareIndexProperty);
+      let compsiteIndex = {
         kind: datastoreDefinition.messageName,
         properties: compositeIndexProperties,
-      });
-    }
-    if (compositeIndexes.length > 0) {
-      this.kindToIndexes.set(datastoreDefinition.messageName, compositeIndexes);
+      };
+      this.jsonToIndexes.set(JSON.stringify(compsiteIndex), compsiteIndex);
     }
   }
 
   public mergeIndexes(indexFile: string): string {
-    if (this.kindToIndexes.size === 0) {
-      return "";
-    }
-
-    let kindToIndexes = new Map<string, Array<DatastoreCompositeIndex>>();
     if (fs.existsSync(indexFile)) {
       let indexList = YAML.parse(
         fs.readFileSync(indexFile).toString()
-      ) as DatastoreCompositeIndexList;
+      ) as CompositeIndexList;
       for (let index of indexList.indexes) {
-        let compositeIndexes = kindToIndexes.get(index.kind);
-        if (!compositeIndexes) {
-          compositeIndexes = new Array<DatastoreCompositeIndex>();
-          kindToIndexes.set(index.kind, compositeIndexes);
-        }
-        compositeIndexes.push(index);
+        index.properties.sort(DatastoreIndexBuilder.compareIndexProperty);
+        this.jsonToIndexes.set(JSON.stringify(index), index);
       }
     }
-
-    for (let [kind, indexes] of this.kindToIndexes.entries()) {
-      kindToIndexes.set(kind, indexes);
+    let mergedIndexes = new Array<CompositeIndex>();
+    for (let key of Array.from(this.jsonToIndexes.keys()).sort()) {
+      mergedIndexes.push(this.jsonToIndexes.get(key));
     }
-
-    let resultIndexes = new Array<DatastoreCompositeIndex>();
-    for (let indexes of kindToIndexes.values()) {
-      resultIndexes.push(...indexes);
-    }
-    let resultIndexList: DatastoreCompositeIndexList = {
-      indexes: resultIndexes,
+    let mergedIndexList: CompositeIndexList = {
+      indexes: mergedIndexes,
     };
-    return YAML.stringify(resultIndexList);
+    return YAML.stringify(mergedIndexList);
+  }
+
+  private static compareIndexProperty(
+    left: CompositeIndexProperty,
+    right: CompositeIndexProperty
+  ): number {
+    let nameRes = left.name.localeCompare(right.name);
+    if (nameRes !== 0) {
+      return nameRes;
+    }
+    if (left.direction === right.direction) {
+      return 0;
+    }
+    if (left.direction === undefined) {
+      return -1;
+    }
+    if (right.direction === undefined) {
+      return 1;
+    }
+    return left.direction.localeCompare(right.direction);
   }
 }
