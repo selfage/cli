@@ -304,7 +304,7 @@ TEST_RUNNER.run({
         // Verify
         assertThat(
           error,
-          eqError(new Error("key can only be a string or a number")),
+          eqError(new Error("key can only be a string")),
           `error`
         );
         assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
@@ -388,7 +388,7 @@ TEST_RUNNER.run({
                 fields: [
                   {
                     name: "id",
-                    type: "number",
+                    type: "string",
                   },
                   {
                     name: "payload",

@@ -1,11 +1,7 @@
 import { DatastoreIndexBuilder } from "./datastore_index_builder";
 import { DatastoreDefinition, MessageFieldDefinition } from "./definition";
 import { Importer } from "./importer";
-import {
-  PRIMITIVE_TYPE_NUMBER,
-  PRIMITIVE_TYPE_STRING,
-  TypeChecker,
-} from "./type_checker";
+import { PRIMITIVE_TYPE_STRING, TypeChecker } from "./type_checker";
 import { generateComment, toCapitalized, toUpperSnaked } from "./util";
 
 // `contentList`, `indexBuilder` and `importer` are expected to be modified.
@@ -126,12 +122,9 @@ export class ${index.name}QueryBuilder {
         `${messageName}.`
     );
   }
-  if (
-    keyDefinition.type !== PRIMITIVE_TYPE_STRING &&
-    keyDefinition.type !== PRIMITIVE_TYPE_NUMBER
-  ) {
+  if (keyDefinition.type !== PRIMITIVE_TYPE_STRING) {
     throw new Error(
-      `Datastore key can only be a string or a number, but it is ` +
+      `Datastore key can only be a string, but it is ` +
         `${keyDefinition.type}.`
     );
   }
