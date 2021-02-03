@@ -546,8 +546,8 @@ export class TaskDoneQueryBuilder {
       ]
     }
   }
-  public start(token: string): this {
-    this.datastoreQuery.startToken = token;
+  public start(cursor: string): this {
+    this.datastoreQuery.startCursor = cursor;
     return this;
   }
   public limit(num: number): this {
@@ -556,8 +556,8 @@ export class TaskDoneQueryBuilder {
   }
   public filterByDone(operator: Operator, value: boolean): this {
     this.datastoreQuery.filters.push({
-      indexName: "done",
-      indexValue: value,
+      fieldName: "done",
+      fieldValue: value,
       operator: operator,
     });
     return this;
@@ -575,18 +575,18 @@ export class TaskDonePriorityQueryBuilder {
       filters: new Array<DatastoreFilter>(),
       orderings: [
         {
-          indexName: "priority",
+          fieldName: "priority",
           descending: true
         },
         {
-          indexName: "subPriority",
+          fieldName: "subPriority",
           descending: true
         },
       ]
     }
   }
-  public start(token: string): this {
-    this.datastoreQuery.startToken = token;
+  public start(cursor: string): this {
+    this.datastoreQuery.startCursor = cursor;
     return this;
   }
   public limit(num: number): this {
@@ -595,24 +595,24 @@ export class TaskDonePriorityQueryBuilder {
   }
   public filterByDone(operator: Operator, value: boolean): this {
     this.datastoreQuery.filters.push({
-      indexName: "done",
-      indexValue: value,
+      fieldName: "done",
+      fieldValue: value,
       operator: operator,
     });
     return this;
   }
   public filterByPriority(operator: Operator, value: Priority): this {
     this.datastoreQuery.filters.push({
-      indexName: "priority",
-      indexValue: value,
+      fieldName: "priority",
+      fieldValue: value,
       operator: operator,
     });
     return this;
   }
   public filterBySubPriority(operator: Operator, value: SubPriority): this {
     this.datastoreQuery.filters.push({
-      indexName: "subPriority",
-      indexValue: value,
+      fieldName: "subPriority",
+      fieldValue: value,
       operator: operator,
     });
     return this;
@@ -630,14 +630,14 @@ export class TaskCollbasQueryBuilder {
       filters: new Array<DatastoreFilter>(),
       orderings: [
         {
-          indexName: "created",
+          fieldName: "created",
           descending: false
         },
       ]
     }
   }
-  public start(token: string): this {
-    this.datastoreQuery.startToken = token;
+  public start(cursor: string): this {
+    this.datastoreQuery.startCursor = cursor;
     return this;
   }
   public limit(num: number): this {
@@ -646,16 +646,16 @@ export class TaskCollbasQueryBuilder {
   }
   public filterByCollaborators(operator: Operator, value: string): this {
     this.datastoreQuery.filters.push({
-      indexName: "collaborators",
-      indexValue: value,
+      fieldName: "collaborators",
+      fieldValue: value,
       operator: operator,
     });
     return this;
   }
   public filterByCreated(operator: Operator, value: number): this {
     this.datastoreQuery.filters.push({
-      indexName: "created",
-      indexValue: value,
+      fieldName: "created",
+      fieldValue: value,
       operator: operator,
     });
     return this;
@@ -673,14 +673,14 @@ export class CreatedTimeQueryBuilder {
       filters: new Array<DatastoreFilter>(),
       orderings: [
         {
-          indexName: "created",
+          fieldName: "created",
           descending: true
         },
       ]
     }
   }
-  public start(token: string): this {
-    this.datastoreQuery.startToken = token;
+  public start(cursor: string): this {
+    this.datastoreQuery.startCursor = cursor;
     return this;
   }
   public limit(num: number): this {
@@ -689,8 +689,8 @@ export class CreatedTimeQueryBuilder {
   }
   public filterByCreated(operator: Operator, value: number): this {
     this.datastoreQuery.filters.push({
-      indexName: "created",
-      indexValue: value,
+      fieldName: "created",
+      fieldValue: value,
       operator: operator,
     });
     return this;

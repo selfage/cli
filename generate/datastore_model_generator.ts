@@ -54,7 +54,7 @@ export class ${index.name}QueryBuilder {
         if (property.descending !== undefined) {
           contentList.push(`
         {
-          indexName: "${property.fieldName}",
+          fieldName: "${property.fieldName}",
           descending: ${property.descending}
         },`);
         }
@@ -63,8 +63,8 @@ export class ${index.name}QueryBuilder {
       ]
     }
   }
-  public start(token: string): this {
-    this.datastoreQuery.startToken = token;
+  public start(cursor: string): this {
+    this.datastoreQuery.startCursor = cursor;
     return this;
   }
   public limit(num: number): this {
@@ -99,8 +99,8 @@ export class ${index.name}QueryBuilder {
     property.fieldName
   )}(operator: Operator, value: ${fieldDefinition.type}): this {
     this.datastoreQuery.filters.push({
-      indexName: "${property.fieldName}",
-      indexValue: value,
+      fieldName: "${property.fieldName}",
+      fieldValue: value,
       operator: operator,
     });
     return this;
