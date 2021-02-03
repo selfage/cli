@@ -33,6 +33,8 @@ export function generateDatastoreModel(
     fieldToDefinitions.set(field.name, field);
     excludedIndexes.add(field.name);
   }
+  let messageDescriptorName = toUpperSnaked(messageName);
+  let indexContentList = new Array<string>();
   if (datastoreDefinition.indexes) {
     indexBuilder.addIndex(datastoreDefinition);
     for (let index of datastoreDefinition.indexes) {
@@ -42,24 +44,25 @@ export function generateDatastoreModel(
         "DatastoreOrdering",
         "Operator"
       );
-      contentList.push(`
+      indexContentList.push(`
 export class ${index.name}QueryBuilder {
   private datastoreQuery: DatastoreQuery<${messageName}>;
 
   public constructor() {
     this.datastoreQuery = {
+      modelDescriptor: ${messageDescriptorName}_MODEL,
       filters: new Array<DatastoreFilter>(),
       orderings: [`);
       for (let property of index.properties) {
         if (property.descending !== undefined) {
-          contentList.push(`
+          indexContentList.push(`
         {
           fieldName: "${property.fieldName}",
           descending: ${property.descending}
         },`);
         }
       }
-      contentList.push(`
+      indexContentList.push(`
       ]
     }
   }
@@ -94,7 +97,7 @@ export class ${index.name}QueryBuilder {
         }
         excludedIndexes.delete(property.fieldName);
 
-        contentList.push(`
+        indexContentList.push(`
   public filterBy${toCapitalized(
     property.fieldName
   )}(operator: Operator, value: ${fieldDefinition.type}): this {
@@ -106,7 +109,7 @@ export class ${index.name}QueryBuilder {
     return this;
   }`);
       }
-      contentList.push(`
+      indexContentList.push(`
   public build(): DatastoreQuery<${messageName}> {
     return this.datastoreQuery;
   }
@@ -131,7 +134,6 @@ export class ${index.name}QueryBuilder {
   if (keyDefinition.isArray) {
     throw new Error(`Datastore key cannot be an array.`);
   }
-  let messageDescriptorName = toUpperSnaked(messageName);
   importer.importFromPath(
     datastoreDefinition.import,
     messageName,
@@ -146,4 +148,5 @@ export let ${messageDescriptorName}_MODEL: DatastoreModelDescriptor<${messageNam
   valueDescriptor: ${messageDescriptorName},
 }
 `);
+  contentList.push(...indexContentList);
 }

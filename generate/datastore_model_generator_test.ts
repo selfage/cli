@@ -536,11 +536,19 @@ TEST_RUNNER.run({
         assertThat(
           contentList.join(""),
           eq(`
+export let TASK_MODEL: DatastoreModelDescriptor<Task> = {
+  name: "Task",
+  key: "id",
+  excludedIndexes: ["id", "payload", "tags"],
+  valueDescriptor: TASK,
+}
+
 export class TaskDoneQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task>;
 
   public constructor() {
     this.datastoreQuery = {
+      modelDescriptor: TASK_MODEL,
       filters: new Array<DatastoreFilter>(),
       orderings: [
       ]
@@ -572,6 +580,7 @@ export class TaskDonePriorityQueryBuilder {
 
   public constructor() {
     this.datastoreQuery = {
+      modelDescriptor: TASK_MODEL,
       filters: new Array<DatastoreFilter>(),
       orderings: [
         {
@@ -627,6 +636,7 @@ export class TaskCollbasQueryBuilder {
 
   public constructor() {
     this.datastoreQuery = {
+      modelDescriptor: TASK_MODEL,
       filters: new Array<DatastoreFilter>(),
       orderings: [
         {
@@ -670,6 +680,7 @@ export class CreatedTimeQueryBuilder {
 
   public constructor() {
     this.datastoreQuery = {
+      modelDescriptor: TASK_MODEL,
       filters: new Array<DatastoreFilter>(),
       orderings: [
         {
@@ -698,13 +709,6 @@ export class CreatedTimeQueryBuilder {
   public build(): DatastoreQuery<Task> {
     return this.datastoreQuery;
   }
-}
-
-export let TASK_MODEL: DatastoreModelDescriptor<Task> = {
-  name: "Task",
-  key: "id",
-  excludedIndexes: ["id", "payload", "tags"],
-  valueDescriptor: TASK,
 }
 `),
           `contentList`
