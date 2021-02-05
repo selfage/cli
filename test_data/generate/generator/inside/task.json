@@ -1,0 +1,47 @@
+[{
+  "enum": {
+    "name": "Priority",
+    "values": [{
+      "name": "HIGH",
+      "value": 1
+    }, {
+      "name": "DEFAULT",
+      "value": 2
+    }]
+  }
+}, {
+  "message": {
+    "name": "Payload",
+    "fields": [{
+      "name": "operation",
+      "type": "string"
+    }, {
+      "name": "userId",
+      "type": "string"
+    }]
+  }
+}, {
+  "message": {
+    "name": "Task",
+    "fields": [{
+      "name": "id",
+      "type": "string"
+    }, {
+      "name": "payload",
+      "type": "Payload"
+    }, {
+      "name": "tags",
+      "type": "string",
+      "isArray": true
+    }, {
+      "name": "done",
+      "type": "boolean"
+    }, {
+      "name": "priority",
+      "type": "Priority"
+    }, {
+      "name": "created",
+      "type": "number"
+    }]
+  }
+}]

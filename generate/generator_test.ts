@@ -87,5 +87,36 @@ TEST_RUNNER.run({
         ]);
       },
     },
+    {
+      name: "GenerateDatastoreModel",
+      execute: async () => {
+        // Prepare
+        generate("./test_data/generate/generator/inside/task");
+        let originalIndexes = fs.readFileSync(
+          "./test_data/generate/generator/index.yaml"
+        );
+
+        // Execute
+        generate(
+          "./test_data/generate/generator/task_model",
+          "./test_data/generate/generator/index.yaml"
+        );
+
+        // Verify
+        assertCompile("./test_data/generate/generator/task_model.ts");
+
+        // Cleanup
+        await Promise.all([
+          fs.promises.unlink("./test_data/generate/generator/inside/task.ts"),
+          fs.promises.unlink("./test_data/generate/generator/inside/task.js"),
+          fs.promises.unlink("./test_data/generate/generator/task_model.ts"),
+          fs.promises.unlink("./test_data/generate/generator/task_model.js"),
+          fs.promises.writeFile(
+            "./test_data/generate/generator/index.yaml",
+            originalIndexes
+          ),
+        ]);
+      },
+    },
   ],
 });

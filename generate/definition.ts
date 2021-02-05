@@ -49,7 +49,7 @@ export interface IndexProperty {
 export interface IndexDefinition {
   // Recommended to be CamelCase, which will be part of the name of a class.
   name: string;
-  properties: Array<IndexProperty>;
+  fields: Array<IndexProperty>;
 }
 
 export interface DatastoreDefinition {

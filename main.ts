@@ -62,7 +62,7 @@ async function main(): Promise<void> {
         "file."
     )
     .action((file, options) =>
-      generate(file, options.dryRun, options.indexFile)
+      generate(file, options.indexFile, options.dryRun)
     );
   await program.parseAsync();
 }

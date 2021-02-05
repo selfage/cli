@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@selfage/counter": "^1.0.7",
-    "@selfage/datastore_client": "^1.0.0",
+    "@selfage/datastore_client": "^1.0.1",
     "@selfage/message": "^1.0.3",
     "@selfage/observable_array": "^1.0.8",
     "@selfage/test_matcher": "^1.0.2",

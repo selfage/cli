@@ -22,12 +22,12 @@ export class DatastoreIndexBuilder {
 
   public addIndex(datastoreDefinition: DatastoreDefinition): void {
     for (let index of datastoreDefinition.indexes) {
-      if (index.properties.length < 2) {
+      if (index.fields.length < 2) {
         continue;
       }
 
       let compositeIndexProperties = new Array<CompositeIndexProperty>();
-      for (let property of index.properties) {
+      for (let property of index.fields) {
         if (property.descending !== undefined) {
           let direction: string;
           if (property.descending) {

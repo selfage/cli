@@ -19,12 +19,12 @@ export class TypeChecker {
   public constructor(currentModulePath: string) {
     let pathObj = path.parse(currentModulePath);
     this.currentDir = pathObj.dir || "./";
-    this.currentModuleBase = pathObj.base;
+    this.currentModuleBase = "./" + pathObj.base;
   }
 
   public getMessage(typeName: string, importPath?: string): MessageDefinition {
     if (!importPath) {
-      importPath = "./" + this.currentModuleBase;
+      importPath = this.currentModuleBase;
     }
     let filePath = resolve.sync(importPath, {
       basedir: this.currentDir,

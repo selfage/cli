@@ -1,3 +1,4 @@
+import path = require("path");
 import { DatastoreIndexBuilder } from "./datastore_index_builder";
 import { DatastoreDefinition, MessageFieldDefinition } from "./definition";
 import { Importer } from "./importer";
@@ -53,7 +54,7 @@ export class ${index.name}QueryBuilder {
       modelDescriptor: ${messageDescriptorName}_MODEL,
       filters: new Array<DatastoreFilter>(),
       orderings: [`);
-      for (let property of index.properties) {
+      for (let property of index.fields) {
         if (property.descending !== undefined) {
           indexContentList.push(`
         {
@@ -74,7 +75,7 @@ export class ${index.name}QueryBuilder {
     this.datastoreQuery.limit = num;
     return this;
   }`);
-      for (let property of index.properties) {
+      for (let property of index.fields) {
         if (!fieldToDefinitions.has(property.fieldName)) {
           throw new Error(
             `Indexed field ${property.fieldName} is not defined from ` +
@@ -83,9 +84,13 @@ export class ${index.name}QueryBuilder {
         }
 
         let fieldDefinition = fieldToDefinitions.get(property.fieldName);
+        let fieldImport = transitImport(
+          datastoreDefinition.import,
+          fieldDefinition.import
+        );
         let { isEnum, isMessage } = typeChecker.categorizeType(
           fieldDefinition.type,
-          fieldDefinition.import
+          fieldImport
         );
         if (isMessage) {
           throw new Error(
@@ -93,7 +98,7 @@ export class ${index.name}QueryBuilder {
           );
         }
         if (isEnum) {
-          importer.importFromPath(fieldDefinition.import, fieldDefinition.type);
+          importer.importFromPath(fieldImport, fieldDefinition.type);
         }
         excludedIndexes.delete(property.fieldName);
 
@@ -149,4 +154,27 @@ export let ${messageDescriptorName}_MODEL: DatastoreModelDescriptor<${messageNam
 }
 `);
   contentList.push(...indexContentList);
+}
+
+// The path to import the second module which is imported inside the first
+// imported module. Only support both paths to be relative paths.
+function transitImport(
+  firstImport: string | undefined,
+  secondImport: string | undefined
+): string | undefined {
+  let importPath: string | undefined;
+  if (firstImport) {
+    if (secondImport) {
+      importPath = "./" + path.join(path.dirname(firstImport), secondImport);
+    } else {
+      importPath = firstImport;
+    }
+  } else {
+    if (secondImport) {
+      importPath = secondImport;
+    } else {
+      importPath = undefined;
+    }
+  }
+  return importPath;
 }

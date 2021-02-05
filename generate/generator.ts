@@ -11,8 +11,8 @@ import { TypeChecker } from "./type_checker";
 
 export function generate(
   inputFile: string,
-  dryRun?: boolean,
-  inputIndexFile?: string
+  inputIndexFile?: string,
+  dryRun?: boolean
 ): void {
   let modulePath = stripFileExtension(inputFile);
   let definitions = JSON.parse(

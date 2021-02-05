@@ -33,7 +33,7 @@ TEST_RUNNER.run({
           indexes: [
             {
               name: "TaskDoneDesc",
-              properties: [
+              fields: [
                 {
                   fieldName: "done",
                   descending: true,
@@ -42,7 +42,7 @@ TEST_RUNNER.run({
             },
             {
               name: "Collabs",
-              properties: [
+              fields: [
                 {
                   fieldName: "collaborators",
                 },
@@ -56,7 +56,7 @@ TEST_RUNNER.run({
           indexes: [
             {
               name: "Tasks",
-              properties: [
+              fields: [
                 {
                   fieldName: "taskIds",
                 },
@@ -85,7 +85,7 @@ TEST_RUNNER.run({
           indexes: [
             {
               name: "TaskDone",
-              properties: [
+              fields: [
                 {
                   fieldName: "done",
                 },
@@ -97,7 +97,7 @@ TEST_RUNNER.run({
             },
             {
               name: "TaskDoneDesc",
-              properties: [
+              fields: [
                 {
                   fieldName: "done",
                   descending: true,
@@ -106,7 +106,7 @@ TEST_RUNNER.run({
             },
             {
               name: "Collabs",
-              properties: [
+              fields: [
                 {
                   fieldName: "collaborators",
                 },
@@ -114,7 +114,7 @@ TEST_RUNNER.run({
             },
             {
               name: "OrderedCollabs",
-              properties: [
+              fields: [
                 {
                   fieldName: "collaborators",
                   descending: false,
@@ -133,7 +133,7 @@ TEST_RUNNER.run({
           indexes: [
             {
               name: "Tasks",
-              properties: [
+              fields: [
                 {
                   fieldName: "taskIds",
                 },
@@ -141,7 +141,7 @@ TEST_RUNNER.run({
             },
             {
               name: "TaskCompletion",
-              properties: [
+              fields: [
                 {
                   fieldName: "precentComplete",
                 },
@@ -193,7 +193,7 @@ TEST_RUNNER.run({
           indexes: [
             {
               name: "TaskDone",
-              properties: [
+              fields: [
                 {
                   fieldName: "done",
                 },
@@ -205,7 +205,7 @@ TEST_RUNNER.run({
             },
             {
               name: "OrderedCollabs",
-              properties: [
+              fields: [
                 {
                   fieldName: "collaborators",
                   descending: false,
@@ -224,7 +224,7 @@ TEST_RUNNER.run({
           indexes: [
             {
               name: "TaskCompletion",
-              properties: [
+              fields: [
                 {
                   fieldName: "precentComplete",
                 },

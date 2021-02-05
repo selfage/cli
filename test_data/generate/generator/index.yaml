@@ -1,0 +1,11 @@
+indexes:
+  - kind: Task
+    properties:
+      - name: done
+      - name: created
+        direction: desc
+  - kind: User
+    properties:
+      - name: isPaid
+      - name: created
+        direction: desc

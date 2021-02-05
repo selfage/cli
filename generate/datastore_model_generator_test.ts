@@ -96,7 +96,7 @@ TEST_RUNNER.run({
               indexes: [
                 {
                   name: "TaskDone",
-                  properties: [
+                  fields: [
                     {
                       fieldName: "done",
                     },
@@ -175,7 +175,7 @@ TEST_RUNNER.run({
               indexes: [
                 {
                   name: "TaskPayload",
-                  properties: [
+                  fields: [
                     {
                       fieldName: "payload",
                     },
@@ -406,7 +406,7 @@ TEST_RUNNER.run({
                   {
                     name: "priority",
                     type: "Priority",
-                    import: "./inside/task_priority",
+                    import: "./task_priority",
                   },
                   {
                     name: "subPriority",
@@ -435,7 +435,7 @@ TEST_RUNNER.run({
               counter.increment("SubPriority for getMessage");
               assertThat(
                 importPath,
-                eq(undefined),
+                eq("./inside/task_def"),
                 `SubPriority path for isMessage`
               );
               return undefined;
@@ -451,7 +451,7 @@ TEST_RUNNER.run({
           indexes: [
             {
               name: "TaskDone",
-              properties: [
+              fields: [
                 {
                   fieldName: "done",
                 },
@@ -459,7 +459,7 @@ TEST_RUNNER.run({
             },
             {
               name: "TaskDonePriority",
-              properties: [
+              fields: [
                 {
                   fieldName: "done",
                 },
@@ -475,7 +475,7 @@ TEST_RUNNER.run({
             },
             {
               name: "TaskCollbas",
-              properties: [
+              fields: [
                 {
                   fieldName: "collaborators",
                 },
@@ -487,7 +487,7 @@ TEST_RUNNER.run({
             },
             {
               name: "CreatedTime",
-              properties: [
+              fields: [
                 {
                   fieldName: "created",
                   descending: true,
@@ -718,7 +718,7 @@ export class CreatedTimeQueryBuilder {
           eq(
             `import { DatastoreQuery, DatastoreFilter, DatastoreOrdering, Operator, DatastoreModelDescriptor } from '@selfage/datastore_client/model_descriptor';
 import { Priority } from './inside/task_priority';
-import { Task, TASK } from './inside/task_def';
+import { SubPriority, Task, TASK } from './inside/task_def';
 `
           ),
           `importer`
