@@ -18,16 +18,14 @@ export interface MessageFieldDefinition {
   // Can be 'number', 'string', 'boolean' or the name of a message or enum.
   type: string;
   isArray?: true;
-  // Resolves import path as a relative path, the same way as Node. Do not
-  // include '.json'.
+  // Resolves import path the same way as Node. Do not include '.json'.
   import?: string;
   comment?: string;
 }
 
 export interface MessageExtendDefinition {
   name: string;
-  // Resolves import path as a relative path, the same way as Node. Do not
-  // include '.json'.
+  // Resolves import path the same way as Node. Do not include '.json'.
   import?: string;
 }
 
@@ -35,7 +33,6 @@ export interface MessageDefinition {
   // Must be of CamelCase, which will be the name of a class or interface.
   name: string;
   fields: Array<MessageFieldDefinition>;
-  extends?: Array<MessageExtendDefinition>;
   isObservable?: true;
   comment?: string;
 }
@@ -55,8 +52,7 @@ export interface IndexDefinition {
 export interface DatastoreDefinition {
   // The name of `MessageDefinition`.
   messageName: string;
-  // Resolves import path as a relative path, the same way as Node. Do not
-  // include '.json'.
+  // Resolves import path the same way as Node. Do not include '.json'.
   import?: string;
   key: string;
   indexes?: Array<IndexDefinition>;

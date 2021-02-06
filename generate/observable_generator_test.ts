@@ -319,7 +319,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
       },
     },
     {
-      name: "NestedAndExtended",
+      name: "NestedObjects",
       execute: () => {
         // Prepare
         let importer = new Importer();
@@ -365,7 +365,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
         // Execute
         generateObservableDescriptor(
           {
-            name: "NestedAndExtended",
+            name: "NestedObj",
             fields: [
               {
                 name: "basicData",
@@ -391,15 +391,6 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
                 isArray: true,
               },
             ],
-            extends: [
-              {
-                name: "Base",
-              },
-              {
-                name: "Base2",
-                import: "./base_file",
-              },
-            ],
             isObservable: true,
           },
           typeCheckerMock,
@@ -412,7 +403,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
         assertThat(
           contentList.join(""),
           eq(`
-export class NestedAndExtended extendsBase, Base2 {
+export class NestedObj {
   public onBasicDataChange: (newValue: BasicData, oldValue: BasicData) => void;
   private basicData_?: BasicData;
   get basicData(): BasicData {
@@ -504,14 +495,12 @@ export class NestedAndExtended extendsBase, Base2 {
   }
 }
 
-export let NESTED_AND_EXTENDED: MessageDescriptor<NestedAndExtended> = {
-  name: 'NestedAndExtended',
+export let NESTED_OBJ: MessageDescriptor<NestedObj> = {
+  name: 'NestedObj',
   factoryFn: () => {
-    return new NestedAndExtended();
+    return new NestedObj();
   },
   fields: [
-    ...BASE.fields,
-    ...BASE2.fields,
     {
       name: 'basicData',
       messageDescriptor: BASIC_DATA,
@@ -547,7 +536,6 @@ export let NESTED_AND_EXTENDED: MessageDescriptor<NestedAndExtended> = {
           importer.toStringList().join(""),
           eq(`import { ObservableArray } from '@selfage/observable_array';
 import { MessageDescriptor } from '@selfage/message/descriptor';
-import { Base2, BASE2 } from './base_file';
 import { BasicData2, BASIC_DATA2 } from './some_file';
 `),
           `importer`

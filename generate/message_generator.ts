@@ -12,18 +12,7 @@ export function generateMessageDescriptor(
 ): void {
   let messageName = messageDefinition.name;
   contentList.push(`${generateComment(messageDefinition.comment)}
-export interface ${messageName}`);
-  if (messageDefinition.extends) {
-    contentList.push(" extends ");
-    contentList.push(
-      messageDefinition.extends
-        .map((ext) => {
-          return ext.name;
-        })
-        .join(", ")
-    );
-  }
-  contentList.push(" {");
+export interface ${messageName} {`);
   for (let field of messageDefinition.fields) {
     let fieldTypeName: string;
     if (field.isArray) {
@@ -47,14 +36,6 @@ export let ${descriptorName}: MessageDescriptor<${messageName}> = {
     return new Object();
   },
   fields: [`);
-  if (messageDefinition.extends) {
-    for (let ext of messageDefinition.extends) {
-      let extDescriptorName = toUpperSnaked(ext.name);
-      importer.importFromPath(ext.import, ext.name, extDescriptorName);
-      contentList.push(`
-    ...${extDescriptorName}.fields,`);
-    }
-  }
   for (let field of messageDefinition.fields) {
     contentList.push(`
     {

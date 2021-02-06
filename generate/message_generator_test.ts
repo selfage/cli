@@ -199,7 +199,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
       },
     },
     {
-      name: "NestedAndExtendedObjects",
+      name: "NestedObjects",
       execute: () => {
         // Prepare
         let importer = new Importer();
@@ -245,7 +245,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
         // Execute
         generateMessageDescriptor(
           {
-            name: "NestedAndExtended",
+            name: "NestedObj",
             fields: [
               {
                 name: "basicData",
@@ -271,15 +271,6 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
                 isArray: true,
               },
             ],
-            extends: [
-              {
-                name: "Base",
-              },
-              {
-                name: "Base2",
-                import: "./base_file",
-              },
-            ],
           },
           typeCheckerMock,
           importer,
@@ -291,7 +282,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
         assertThat(
           contentList.join(""),
           eq(`
-export interface NestedAndExtended extends Base, Base2 {
+export interface NestedObj {
   basicData?: BasicData,
   basicData2?: BasicData2,
   testEnum?: TestEnum,
@@ -299,14 +290,12 @@ export interface NestedAndExtended extends Base, Base2 {
   enumArray?: Array<TestEnum>,
 }
 
-export let NESTED_AND_EXTENDED: MessageDescriptor<NestedAndExtended> = {
-  name: 'NestedAndExtended',
+export let NESTED_OBJ: MessageDescriptor<NestedObj> = {
+  name: 'NestedObj',
   factoryFn: () => {
     return new Object();
   },
   fields: [
-    ...BASE.fields,
-    ...BASE2.fields,
     {
       name: 'basicData',
       messageDescriptor: BASIC_DATA,
@@ -341,7 +330,6 @@ export let NESTED_AND_EXTENDED: MessageDescriptor<NestedAndExtended> = {
         assertThat(
           importer.toStringList().join(""),
           eq(`import { MessageDescriptor } from '@selfage/message/descriptor';
-import { Base2, BASE2 } from './base_file';
 import { BasicData2, BASIC_DATA2 } from './some_file';
 `),
           `importer`
