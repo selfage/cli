@@ -42,6 +42,35 @@
     }, {
       "name": "created",
       "type": "number"
-    }]
+    }],
+    "datastore": {
+      "output": "./inside/task_model",
+      "key": "id",
+      "indexes": [{
+        "name": "TaskDone",
+        "fields": [{
+          "fieldName": "done"
+        }, {
+          "fieldName": "created",
+          "descending": true
+        }]
+      }, {
+        "name": "TaskDonePriority",
+        "fields": [{
+          "fieldName": "done"
+        }, {
+          "fieldName": "priority",
+          "descending": true
+        }, {
+          "fieldName": "created",
+          "descending": true
+        }]
+      }, {
+        "name": "Tags",
+        "fields": [{
+          "fieldName": "tags"
+        }]
+      }]
+    }
   }
 }]

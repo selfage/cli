@@ -1,6 +1,6 @@
 import fs = require("fs");
 import YAML = require("yaml");
-import { DatastoreDefinition } from "./definition";
+import { IndexDefinition } from "./definition";
 
 // Mimic the structure of datastore composite index yaml.
 interface CompositeIndexProperty {
@@ -20,8 +20,11 @@ interface CompositeIndexList {
 export class DatastoreIndexBuilder {
   private jsonToIndexes = new Map<string, CompositeIndex>();
 
-  public addIndex(datastoreDefinition: DatastoreDefinition): void {
-    for (let index of datastoreDefinition.indexes) {
+  public addIndex(
+    messageName: string,
+    indexDefinitions: Array<IndexDefinition>
+  ): void {
+    for (let index of indexDefinitions) {
       if (index.fields.length < 2) {
         continue;
       }
@@ -47,7 +50,7 @@ export class DatastoreIndexBuilder {
       }
       compositeIndexProperties.sort(DatastoreIndexBuilder.compareIndexProperty);
       let compsiteIndex = {
-        kind: datastoreDefinition.messageName,
+        kind: messageName,
         properties: compositeIndexProperties,
       };
       this.jsonToIndexes.set(JSON.stringify(compsiteIndex), compsiteIndex);

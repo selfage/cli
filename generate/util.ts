@@ -24,3 +24,13 @@ export function toUpperSnaked(name: string): string {
   }
   return upperCaseSnakedName;
 }
+
+// Given a possible resolved relative path, return the relative path compliant
+// with Nodejs module resolution, i.e., must start with `./` or `../`.
+export function getNodeRelativePath(relativePath: string): string {
+  if (relativePath.startsWith("../") || relativePath.startsWith("./")) {
+    return relativePath;
+  } else {
+    return "./" + relativePath;
+  }
+}

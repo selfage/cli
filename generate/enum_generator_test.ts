@@ -1,5 +1,5 @@
 import { generateEnumDescriptor } from "./enum_generator";
-import { Importer } from "./importer";
+import { OutputContent } from "./output_content";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { TEST_RUNNER } from "@selfage/test_runner";
 
@@ -10,11 +10,11 @@ TEST_RUNNER.run({
       name: "GenerateMultipleValues",
       execute: () => {
         // Prepare
-        let importer = new Importer();
-        let contentList = new Array<string>();
+        let contentMap = new Map<string, OutputContent>();
 
         // Execute
         generateEnumDescriptor(
+          "some_file",
           {
             name: "Color",
             values: [
@@ -28,14 +28,14 @@ TEST_RUNNER.run({
               },
             ],
           },
-          importer,
-          contentList
+          contentMap
         );
 
         // Verify
         assertThat(
-          contentList.join(""),
-          eq(`
+          contentMap.get("some_file").toString(),
+          eq(`import { EnumDescriptor } from '@selfage/message/descriptor';
+
 export enum Color {
   RED = 12,
   BLUE = 1,
@@ -55,12 +55,7 @@ export let COLOR: EnumDescriptor<Color> = {
   ]
 }
 `),
-          "contentList"
-        );
-        assertThat(
-          importer.toStringList().join(""),
-          eq(`import { EnumDescriptor } from '@selfage/message/descriptor';\n`),
-          "importer"
+          "outputContent"
         );
       },
     },
@@ -68,24 +63,24 @@ export let COLOR: EnumDescriptor<Color> = {
       name: "GenerateWithComment",
       execute: () => {
         // Prepare
-        let importer = new Importer();
-        let contentList = new Array<string>();
+        let contentMap = new Map<string, OutputContent>();
 
         // Execute
         generateEnumDescriptor(
+          "some_file",
           {
             name: "Color",
             values: [{ name: "RED", value: 1, comment: "Red!" }],
             comment: "Pick!",
           },
-          importer,
-          contentList
+          contentMap
         );
 
         // Verify
         assertThat(
-          contentList.join(""),
-          eq(`
+          contentMap.get("some_file").toString(),
+          eq(`import { EnumDescriptor } from '@selfage/message/descriptor';
+
 /* Pick! */
 export enum Color {
 /* Red! */
@@ -102,12 +97,7 @@ export let COLOR: EnumDescriptor<Color> = {
   ]
 }
 `),
-          `contentList`
-        );
-        assertThat(
-          importer.toStringList().join(""),
-          eq(`import { EnumDescriptor } from '@selfage/message/descriptor';\n`),
-          `importer`
+          `outputContent`
         );
       },
     },

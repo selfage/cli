@@ -23,21 +23,7 @@ export interface MessageFieldDefinition {
   comment?: string;
 }
 
-export interface MessageExtendDefinition {
-  name: string;
-  // Resolves import path the same way as Node. Do not include '.json'.
-  import?: string;
-}
-
-export interface MessageDefinition {
-  // Must be of CamelCase, which will be the name of a class or interface.
-  name: string;
-  fields: Array<MessageFieldDefinition>;
-  isObservable?: true;
-  comment?: string;
-}
-
-export interface IndexProperty {
+export interface IndexField {
   // The name of `MessageFieldDefinition`.
   fieldName: string;
   descending?: boolean;
@@ -46,21 +32,31 @@ export interface IndexProperty {
 export interface IndexDefinition {
   // Recommended to be CamelCase, which will be part of the name of a class.
   name: string;
-  fields: Array<IndexProperty>;
+  fields: Array<IndexField>;
 }
 
 export interface DatastoreDefinition {
-  // The name of `MessageDefinition`.
-  messageName: string;
-  // Resolves import path the same way as Node. Do not include '.json'.
-  import?: string;
+  // The path to output the generated Datastore definition, relative to the
+  // current definition JSON file. It should be separated from its message
+  // definition. Do not include '.ts'.
+  output: string;
   key: string;
   indexes?: Array<IndexDefinition>;
   comment?: string;
 }
 
+export interface MessageDefinition {
+  // Must be of CamelCase, which will be the name of a class or interface.
+  name: string;
+  fields: Array<MessageFieldDefinition>;
+  isObservable?: true;
+  comment?: string;
+  // Requires package `@selfage/datastore_client`.
+  datastore?: DatastoreDefinition;
+}
+
+// Requires package `@selfage/message`.
 export interface Definition {
   enum?: EnumDefinition;
   message?: MessageDefinition;
-  datastore?: DatastoreDefinition;
 }

@@ -4,24 +4,25 @@ import { DatastoreIndexBuilder } from "./datastore_index_builder";
 import { generateDatastoreModel } from "./datastore_model_generator";
 import { Definition } from "./definition";
 import { generateEnumDescriptor } from "./enum_generator";
-import { Importer } from "./importer";
 import { generateMessageDescriptor } from "./message_generator";
 import { generateObservableDescriptor } from "./observable_generator";
+import { OutputContent } from "./output_content";
 import { TypeChecker } from "./type_checker";
+import { getNodeRelativePath } from "./util";
 
 export function generate(
   inputFile: string,
   inputIndexFile?: string,
   dryRun?: boolean
 ): void {
-  let modulePath = stripFileExtension(inputFile);
+  let modulePath = getNodeRelativePath(stripFileExtension(inputFile));
   let definitions = JSON.parse(
     fs.readFileSync(modulePath + ".json").toString()
   ) as Array<Definition>;
 
   let hasDatastoreDefinition = false;
   for (let definition of definitions) {
-    if (definition.datastore) {
+    if (definition.message && definition.message.datastore) {
       hasDatastoreDefinition = true;
       break;
     }
@@ -34,37 +35,35 @@ export function generate(
 
   let indexBuilder = new DatastoreIndexBuilder();
   let typeChecker = new TypeChecker(modulePath);
-  let importer = new Importer();
-  let contentList = new Array<string>();
+  let contentMap = new Map<string, OutputContent>();
   for (let definition of definitions) {
     if (definition.enum) {
-      generateEnumDescriptor(definition.enum, importer, contentList);
+      generateEnumDescriptor(modulePath, definition.enum, contentMap);
     } else if (definition.message) {
       if (!definition.message.isObservable) {
         generateMessageDescriptor(
+          modulePath,
           definition.message,
           typeChecker,
-          importer,
-          contentList
+          contentMap
         );
       } else {
         generateObservableDescriptor(
+          modulePath,
           definition.message,
           typeChecker,
-          importer,
-          contentList
+          contentMap
         );
       }
-    } else if (definition.datastore) {
-      generateDatastoreModel(
-        definition.datastore,
-        typeChecker,
-        importer,
-        indexBuilder,
-        contentList
-      );
-    } else {
-      throw new Error("Unsupported new definition.");
+      if (definition.message.datastore) {
+        generateDatastoreModel(
+          modulePath,
+          definition.message,
+          typeChecker,
+          indexBuilder,
+          contentMap
+        );
+      }
     }
   }
 
@@ -73,6 +72,7 @@ export function generate(
     let indexContent = indexBuilder.mergeIndexes(indexFile);
     writeFileSync(indexFile, indexContent, dryRun);
   }
-  let content = [...importer.toStringList(), ...contentList].join("");
-  writeFileSync(modulePath + ".ts", content, dryRun);
+  for (let [outputModulePath, outputContent] of contentMap) {
+    writeFileSync(outputModulePath + ".ts", outputContent.toString(), dryRun);
+  }
 }

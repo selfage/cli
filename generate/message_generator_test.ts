@@ -1,6 +1,6 @@
 import { MessageDefinition } from "./definition";
-import { Importer } from "./importer";
 import { generateMessageDescriptor } from "./message_generator";
+import { OutputContent } from "./output_content";
 import { TypeChecker } from "./type_checker";
 import { Counter } from "@selfage/counter";
 import { assertThat, eq } from "@selfage/test_matcher";
@@ -13,8 +13,7 @@ TEST_RUNNER.run({
       name: "SelfContainedData",
       execute: () => {
         // Prepare
-        let importer = new Importer();
-        let contentList = new Array<string>();
+        let contentMap = new Map<string, OutputContent>();
         let counter = new Counter<string>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {
@@ -29,6 +28,7 @@ TEST_RUNNER.run({
 
         // Execute
         generateMessageDescriptor(
+          "some_file",
           {
             name: "BasicData",
             fields: [
@@ -62,15 +62,15 @@ TEST_RUNNER.run({
             ],
           },
           typeCheckerMock,
-          importer,
-          contentList
+          contentMap
         );
 
         // Verify
         assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
         assertThat(
-          contentList.join(""),
-          eq(`
+          contentMap.get("some_file").toString(),
+          eq(`import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
+
 export interface BasicData {
   numberField?: number,
   stringField?: string,
@@ -122,14 +122,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
   ]
 };
 `),
-          `contentList`
-        );
-        assertThat(
-          importer.toStringList().join(""),
-          eq(
-            `import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';\n`
-          ),
-          `importer`
+          `outputContent`
         );
       },
     },
@@ -137,8 +130,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
       name: "GenerateWithComment",
       execute: () => {
         // Prepare
-        let importer = new Importer();
-        let contentList = new Array<string>();
+        let contentMap = new Map<string, OutputContent>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {
             super("");
@@ -147,6 +139,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
 
         // Execute
         generateMessageDescriptor(
+          "some_file",
           {
             name: "BasicData",
             fields: [
@@ -159,14 +152,14 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
             comment: "Comment2\nComment3",
           },
           typeCheckerMock,
-          importer,
-          contentList
+          contentMap
         );
 
         // Verify
         assertThat(
-          contentList.join(""),
-          eq(`
+          contentMap.get("some_file").toString(),
+          eq(`import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
+
 /* Comment2
 Comment3 */
 export interface BasicData {
@@ -187,14 +180,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
   ]
 };
 `),
-          `contentList`
-        );
-        assertThat(
-          importer.toStringList().join(""),
-          eq(
-            `import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';\n`
-          ),
-          `importer`
+          `outputContent`
         );
       },
     },
@@ -202,8 +188,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
       name: "NestedObjects",
       execute: () => {
         // Prepare
-        let importer = new Importer();
-        let contentList = new Array<string>();
+        let contentMap = new Map<string, OutputContent>();
         let counter = new Counter<string>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {
@@ -222,7 +207,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
                 return { name: "any", fields: [] };
               case 2:
                 assertThat(typeName, eq("BasicData2"), `2nd typeName`);
-                assertThat(importPath, eq("./some_file"), `2nd importPath`);
+                assertThat(importPath, eq("./another_file"), `2nd importPath`);
                 return { name: "any", fields: [] };
               case 3:
                 assertThat(typeName, eq("TestEnum"), `3rd typeName`);
@@ -244,6 +229,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
 
         // Execute
         generateMessageDescriptor(
+          "some_file",
           {
             name: "NestedObj",
             fields: [
@@ -254,7 +240,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
               {
                 name: "basicData2",
                 type: "BasicData2",
-                import: "./some_file",
+                import: "./another_file",
               },
               {
                 name: "testEnum",
@@ -273,15 +259,16 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
             ],
           },
           typeCheckerMock,
-          importer,
-          contentList
+          contentMap
         );
 
         // Verify
         assertThat(counter.get("getMessage"), eq(5), "getMessage called");
         assertThat(
-          contentList.join(""),
-          eq(`
+          contentMap.get("some_file").toString(),
+          eq(`import { MessageDescriptor } from '@selfage/message/descriptor';
+import { BasicData2, BASIC_DATA2 } from './another_file';
+
 export interface NestedObj {
   basicData?: BasicData,
   basicData2?: BasicData2,
@@ -325,14 +312,7 @@ export let NESTED_OBJ: MessageDescriptor<NestedObj> = {
   ]
 };
 `),
-          `contentList`
-        );
-        assertThat(
-          importer.toStringList().join(""),
-          eq(`import { MessageDescriptor } from '@selfage/message/descriptor';
-import { BasicData2, BASIC_DATA2 } from './some_file';
-`),
-          `importer`
+          `outputContent`
         );
       },
     },

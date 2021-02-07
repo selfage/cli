@@ -27,43 +27,35 @@ TEST_RUNNER.run({
         let indexBuilder = new DatastoreIndexBuilder();
 
         // Verify
-        indexBuilder.addIndex({
-          messageName: "Task",
-          key: "id",
-          indexes: [
-            {
-              name: "TaskDoneDesc",
-              fields: [
-                {
-                  fieldName: "done",
-                  descending: true,
-                },
-              ],
-            },
-            {
-              name: "Collabs",
-              fields: [
-                {
-                  fieldName: "collaborators",
-                },
-              ],
-            },
-          ],
-        });
-        indexBuilder.addIndex({
-          messageName: "TaskList",
-          key: "id",
-          indexes: [
-            {
-              name: "Tasks",
-              fields: [
-                {
-                  fieldName: "taskIds",
-                },
-              ],
-            },
-          ],
-        });
+        indexBuilder.addIndex("Task", [
+          {
+            name: "TaskDoneDesc",
+            fields: [
+              {
+                fieldName: "done",
+                descending: true,
+              },
+            ],
+          },
+          {
+            name: "Collabs",
+            fields: [
+              {
+                fieldName: "collaborators",
+              },
+            ],
+          },
+        ]);
+        indexBuilder.addIndex("TaskList", [
+          {
+            name: "Tasks",
+            fields: [
+              {
+                fieldName: "taskIds",
+              },
+            ],
+          },
+        ]);
         let content = indexBuilder.mergeIndexes(
           "./test_data/generate/datastore_index_builder/non_exist.yaml"
         );
@@ -79,79 +71,71 @@ TEST_RUNNER.run({
         let indexBuilder = new DatastoreIndexBuilder();
 
         // Execute
-        indexBuilder.addIndex({
-          messageName: "Task",
-          key: "id",
-          indexes: [
-            {
-              name: "TaskDone",
-              fields: [
-                {
-                  fieldName: "done",
-                },
-                {
-                  fieldName: "priority",
-                  descending: false,
-                },
-              ],
-            },
-            {
-              name: "TaskDoneDesc",
-              fields: [
-                {
-                  fieldName: "done",
-                  descending: true,
-                },
-              ],
-            },
-            {
-              name: "Collabs",
-              fields: [
-                {
-                  fieldName: "collaborators",
-                },
-              ],
-            },
-            {
-              name: "OrderedCollabs",
-              fields: [
-                {
-                  fieldName: "collaborators",
-                  descending: false,
-                },
-                {
-                  fieldName: "created",
-                  descending: true,
-                },
-              ],
-            },
-          ],
-        });
-        indexBuilder.addIndex({
-          messageName: "TaskList",
-          key: "id",
-          indexes: [
-            {
-              name: "Tasks",
-              fields: [
-                {
-                  fieldName: "taskIds",
-                },
-              ],
-            },
-            {
-              name: "TaskCompletion",
-              fields: [
-                {
-                  fieldName: "precentComplete",
-                },
-                {
-                  fieldName: "type",
-                },
-              ],
-            },
-          ],
-        });
+        indexBuilder.addIndex("Task", [
+          {
+            name: "TaskDone",
+            fields: [
+              {
+                fieldName: "done",
+              },
+              {
+                fieldName: "priority",
+                descending: false,
+              },
+            ],
+          },
+          {
+            name: "TaskDoneDesc",
+            fields: [
+              {
+                fieldName: "done",
+                descending: true,
+              },
+            ],
+          },
+          {
+            name: "Collabs",
+            fields: [
+              {
+                fieldName: "collaborators",
+              },
+            ],
+          },
+          {
+            name: "OrderedCollabs",
+            fields: [
+              {
+                fieldName: "collaborators",
+                descending: false,
+              },
+              {
+                fieldName: "created",
+                descending: true,
+              },
+            ],
+          },
+        ]);
+        indexBuilder.addIndex("TaskList", [
+          {
+            name: "Tasks",
+            fields: [
+              {
+                fieldName: "taskIds",
+              },
+            ],
+          },
+          {
+            name: "TaskCompletion",
+            fields: [
+              {
+                fieldName: "precentComplete",
+              },
+              {
+                fieldName: "type",
+              },
+            ],
+          },
+        ]);
         let content = indexBuilder.mergeIndexes(
           "./test_data/generate/datastore_index_builder/non_exist.yaml"
         );
@@ -187,54 +171,46 @@ TEST_RUNNER.run({
         let indexBuilder = new DatastoreIndexBuilder();
 
         // Execute
-        indexBuilder.addIndex({
-          messageName: "Task",
-          key: "id",
-          indexes: [
-            {
-              name: "TaskDone",
-              fields: [
-                {
-                  fieldName: "done",
-                },
-                {
-                  fieldName: "priority",
-                  descending: false,
-                },
-              ],
-            },
-            {
-              name: "OrderedCollabs",
-              fields: [
-                {
-                  fieldName: "collaborators",
-                  descending: false,
-                },
-                {
-                  fieldName: "created",
-                  descending: true,
-                },
-              ],
-            },
-          ],
-        });
-        indexBuilder.addIndex({
-          messageName: "TaskList",
-          key: "id",
-          indexes: [
-            {
-              name: "TaskCompletion",
-              fields: [
-                {
-                  fieldName: "precentComplete",
-                },
-                {
-                  fieldName: "type",
-                },
-              ],
-            },
-          ],
-        });
+        indexBuilder.addIndex("Task", [
+          {
+            name: "TaskDone",
+            fields: [
+              {
+                fieldName: "done",
+              },
+              {
+                fieldName: "priority",
+                descending: false,
+              },
+            ],
+          },
+          {
+            name: "OrderedCollabs",
+            fields: [
+              {
+                fieldName: "collaborators",
+                descending: false,
+              },
+              {
+                fieldName: "created",
+                descending: true,
+              },
+            ],
+          },
+        ]);
+        indexBuilder.addIndex("TaskList", [
+          {
+            name: "TaskCompletion",
+            fields: [
+              {
+                fieldName: "precentComplete",
+              },
+              {
+                fieldName: "type",
+              },
+            ],
+          },
+        ]);
         let content = indexBuilder.mergeIndexes(
           "./test_data/generate/datastore_index_builder/index.yaml"
         );

@@ -1,60 +1,15 @@
 import { DatastoreIndexBuilder } from "./datastore_index_builder";
 import { generateDatastoreModel } from "./datastore_model_generator";
-import { DatastoreDefinition, MessageDefinition } from "./definition";
-import { Importer } from "./importer";
+import { IndexDefinition, MessageDefinition } from "./definition";
+import { OutputContent } from "./output_content";
 import { TypeChecker } from "./type_checker";
 import { Counter } from "@selfage/counter";
-import { assertThat, assertThrow, eq, eqError } from "@selfage/test_matcher";
+import { assertThat, assertThrow, eq, eqError, containStr } from "@selfage/test_matcher";
 import { TEST_RUNNER } from "@selfage/test_runner";
 
 TEST_RUNNER.run({
   name: "DatastoreModelGeneratorTest",
   cases: [
-    {
-      name: "MessageNotFound",
-      execute: () => {
-        // Prepare
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
-          }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
-            counter.increment("getMessage");
-            assertThat(typeName, eq(`Task`), `typeName`);
-            assertThat(importPath, eq(undefined), `importPath`);
-            return undefined;
-          }
-        })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {})();
-
-        // Execute
-        let error = assertThrow(() =>
-          generateDatastoreModel(
-            {
-              messageName: "Task",
-              key: "id",
-            },
-            typeCheckerMock,
-            new Importer(),
-            indexBuilderMock,
-            new Array<string>()
-          )
-        );
-
-        // Verify
-        assertThat(
-          error,
-          eqError(new Error(`Message definition of Task is not found`)),
-          `error`
-        );
-        assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
-      },
-    },
     {
       name: "IndexedFieldNotFound",
       execute: () => {
@@ -70,44 +25,41 @@ TEST_RUNNER.run({
             importPath?: string
           ): MessageDefinition {
             counter.increment("getMessage");
-            assertThat(typeName, eq(`Task`), `typeName`);
-            assertThat(importPath, eq(undefined), `importPath`);
-            return {
-              name: "Task",
-              fields: [
-                {
-                  name: "id",
-                  type: "number",
-                },
-              ],
-            };
+            return undefined;
           }
         })();
         let indexBuilderMock = new (class extends DatastoreIndexBuilder {
-          public addIndex(datastoreDefinition: DatastoreDefinition): void {}
+          public addIndex(
+            messageName: string,
+            indexDefinitions: Array<IndexDefinition>
+          ): void {}
         })();
 
         // Execute
         let error = assertThrow(() =>
           generateDatastoreModel(
+            "./some_file",
             {
-              messageName: "Task",
-              key: "id",
-              indexes: [
-                {
-                  name: "TaskDone",
-                  fields: [
-                    {
-                      fieldName: "done",
-                    },
-                  ],
-                },
-              ],
+              name: "Task",
+              fields: [],
+              datastore: {
+                output: "./output_file",
+                key: "id",
+                indexes: [
+                  {
+                    name: "TaskDone",
+                    fields: [
+                      {
+                        fieldName: "done",
+                      },
+                    ],
+                  },
+                ],
+              },
             },
             typeCheckerMock,
-            new Importer(),
             indexBuilderMock,
-            new Array<string>()
+            new Map<string, OutputContent>()
           )
         );
 
@@ -117,7 +69,7 @@ TEST_RUNNER.run({
           eqError(new Error("Indexed field done is not defined")),
           `error`
         );
-        assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
+        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
       },
     },
     {
@@ -134,59 +86,56 @@ TEST_RUNNER.run({
             typeName: string,
             importPath?: string
           ): MessageDefinition {
-            if (typeName === "Task") {
-              counter.increment("Task for getMessage");
-              assertThat(importPath, eq(undefined), `importPath`);
-              return {
-                name: "Task",
-                fields: [
-                  {
-                    name: "id",
-                    type: "number",
-                  },
-                  {
-                    name: "payload",
-                    type: "Payload",
-                  },
-                ],
-              };
-            } else if (typeName === "Payload") {
-              counter.increment("Payload for getMessage");
-              assertThat(importPath, eq(undefined), `importPath for isMessage`);
-              return {
-                name: "any",
-                fields: [],
-              };
-            } else {
-              throw new Error("Unexpected.");
-            }
+            counter.increment("getMessage");
+            assertThat(typeName, eq("Payload"), `typeName for getMessage`);
+            assertThat(importPath, eq(undefined), `importPath for getMessage`);
+            return {
+              name: "any",
+              fields: [],
+            };
           }
         })();
         let indexBuilderMock = new (class extends DatastoreIndexBuilder {
-          public addIndex(datastoreDefinition: DatastoreDefinition): void {}
+          public addIndex(
+            messageName: string,
+            indexDefinitions: Array<IndexDefinition>
+          ): void {}
         })();
 
         // Execute
         let error = assertThrow(() =>
           generateDatastoreModel(
+            "./some_file",
             {
-              messageName: "Task",
-              key: "id",
-              indexes: [
+              name: "Task",
+              fields: [
                 {
-                  name: "TaskPayload",
-                  fields: [
-                    {
-                      fieldName: "payload",
-                    },
-                  ],
+                  name: "id",
+                  type: "number",
+                },
+                {
+                  name: "payload",
+                  type: "Payload",
                 },
               ],
+              datastore: {
+                output: "./output_file",
+                key: "id",
+                indexes: [
+                  {
+                    name: "TaskPayload",
+                    fields: [
+                      {
+                        fieldName: "payload",
+                      },
+                    ],
+                  },
+                ],
+              },
             },
             typeCheckerMock,
-            new Importer(),
             indexBuilderMock,
-            new Array<string>()
+            new Map<string, OutputContent>()
           )
         );
 
@@ -196,16 +145,7 @@ TEST_RUNNER.run({
           eqError(new Error("Payload cannot be used as a filter")),
           `error`
         );
-        assertThat(
-          counter.get("Task for getMessage"),
-          eq(1),
-          `Task for getMessage called`
-        );
-        assertThat(
-          counter.get("Payload for getMessage"),
-          eq(1),
-          `Payload for getMessage called`
-        );
+        assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
       },
     },
     {
@@ -223,17 +163,7 @@ TEST_RUNNER.run({
             importPath?: string
           ): MessageDefinition {
             counter.increment("getMessage");
-            assertThat(typeName, eq(`Task`), `typeName`);
-            assertThat(importPath, eq(undefined), `importPath`);
-            return {
-              name: "Task",
-              fields: [
-                {
-                  name: "payload",
-                  type: "Payload",
-                },
-              ],
-            };
+            return undefined;
           }
         })();
         let indexBuilderMock = new (class extends DatastoreIndexBuilder {})();
@@ -241,20 +171,24 @@ TEST_RUNNER.run({
         // Execute
         let error = assertThrow(() =>
           generateDatastoreModel(
+            "./some_file",
             {
-              messageName: "Task",
-              key: "id",
+              name: "Task",
+              fields: [],
+              datastore: {
+                output: "./output_file",
+                key: "id",
+              },
             },
             typeCheckerMock,
-            new Importer(),
             indexBuilderMock,
-            new Array<string>()
+            new Map<string, OutputContent>()
           )
         );
 
         // Verify
         assertThat(error, eqError(new Error("key id is not found")), `error`);
-        assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
+        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
       },
     },
     {
@@ -272,17 +206,7 @@ TEST_RUNNER.run({
             importPath?: string
           ): MessageDefinition {
             counter.increment("getMessage");
-            assertThat(typeName, eq(`Task`), `typeName`);
-            assertThat(importPath, eq(undefined), `importPath`);
-            return {
-              name: "Task",
-              fields: [
-                {
-                  name: "id",
-                  type: "boolean",
-                },
-              ],
-            };
+            return undefined;
           }
         })();
         let indexBuilderMock = new (class extends DatastoreIndexBuilder {})();
@@ -290,14 +214,23 @@ TEST_RUNNER.run({
         // Execute
         let error = assertThrow(() =>
           generateDatastoreModel(
+            "./some_file",
             {
-              messageName: "Task",
-              key: "id",
+              name: "Task",
+              fields: [
+                {
+                  name: "id",
+                  type: "boolean",
+                },
+              ],
+              datastore: {
+                output: "./output_file",
+                key: "id",
+              },
             },
             typeCheckerMock,
-            new Importer(),
             indexBuilderMock,
-            new Array<string>()
+            new Map<string, OutputContent>()
           )
         );
 
@@ -307,7 +240,7 @@ TEST_RUNNER.run({
           eqError(new Error("key can only be a string")),
           `error`
         );
-        assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
+        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
       },
     },
     {
@@ -325,9 +258,16 @@ TEST_RUNNER.run({
             importPath?: string
           ): MessageDefinition {
             counter.increment("getMessage");
-            assertThat(typeName, eq(`Task`), `typeName`);
-            assertThat(importPath, eq(undefined), `importPath`);
-            return {
+            return undefined;
+          }
+        })();
+        let indexBuilderMock = new (class extends DatastoreIndexBuilder {})();
+
+        // Execute
+        let error = assertThrow(() =>
+          generateDatastoreModel(
+            "./some_file",
+            {
               name: "Task",
               fields: [
                 {
@@ -336,22 +276,14 @@ TEST_RUNNER.run({
                   isArray: true,
                 },
               ],
-            };
-          }
-        })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {})();
-
-        // Execute
-        let error = assertThrow(() =>
-          generateDatastoreModel(
-            {
-              messageName: "Task",
-              key: "id",
+              datastore: {
+                output: "./output_file",
+                key: "id",
+              },
             },
             typeCheckerMock,
-            new Importer(),
             indexBuilderMock,
-            new Array<string>()
+            new Map<string, OutputContent>()
           )
         );
 
@@ -361,16 +293,15 @@ TEST_RUNNER.run({
           eqError(new Error("key cannot be an array")),
           `error`
         );
-        assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
+        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
       },
     },
     {
-      name: "ModelWithArrayAndImports",
+      name: "ArrayAndSimpleImportsAndComments",
       execute: () => {
         // Prepare
+        let contentMap = new Map<string, OutputContent>();
         let counter = new Counter<string>();
-        let importer = new Importer();
-        let contentList = new Array<string>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {
             super("");
@@ -380,54 +311,11 @@ TEST_RUNNER.run({
             typeName: string,
             importPath?: string
           ): MessageDefinition {
-            if (typeName === "Task") {
-              counter.increment("Task for getMessage");
-              assertThat(importPath, eq("./inside/task_def"), `importPath`);
-              return {
-                name: "Task",
-                fields: [
-                  {
-                    name: "id",
-                    type: "string",
-                  },
-                  {
-                    name: "payload",
-                    type: "Payload",
-                  },
-                  {
-                    name: "tags",
-                    type: "string",
-                    isArray: true,
-                  },
-                  {
-                    name: "done",
-                    type: "boolean",
-                  },
-                  {
-                    name: "priority",
-                    type: "Priority",
-                    import: "./task_priority",
-                  },
-                  {
-                    name: "subPriority",
-                    type: "SubPriority",
-                  },
-                  {
-                    name: "collaborators",
-                    type: "string",
-                    isArray: true,
-                  },
-                  {
-                    name: "created",
-                    type: "number",
-                  },
-                ],
-              };
-            } else if (typeName === "Priority") {
+            if (typeName === "Priority") {
               counter.increment("Priority for getMessage");
               assertThat(
                 importPath,
-                eq("./inside/task_priority"),
+                eq("./task_priority"),
                 `Priority path for getMessage`
               );
               return undefined;
@@ -435,8 +323,8 @@ TEST_RUNNER.run({
               counter.increment("SubPriority for getMessage");
               assertThat(
                 importPath,
-                eq("./inside/task_def"),
-                `SubPriority path for isMessage`
+                eq(undefined),
+                `SubPriority path for getMessage`
               );
               return undefined;
             } else {
@@ -444,84 +332,137 @@ TEST_RUNNER.run({
             }
           }
         })();
-        let taskModelDefinition: DatastoreDefinition = {
-          messageName: "Task",
-          import: "./inside/task_def",
-          key: "id",
-          indexes: [
-            {
-              name: "TaskDone",
-              fields: [
-                {
-                  fieldName: "done",
-                },
-              ],
-            },
-            {
-              name: "TaskDonePriority",
-              fields: [
-                {
-                  fieldName: "done",
-                },
-                {
-                  fieldName: "priority",
-                  descending: true,
-                },
-                {
-                  fieldName: "subPriority",
-                  descending: true,
-                },
-              ],
-            },
-            {
-              name: "TaskCollbas",
-              fields: [
-                {
-                  fieldName: "collaborators",
-                },
-                {
-                  fieldName: "created",
-                  descending: false,
-                },
-              ],
-            },
-            {
-              name: "CreatedTime",
-              fields: [
-                {
-                  fieldName: "created",
-                  descending: true,
-                },
-              ],
-            },
-          ],
-        };
         let indexBuilderMock = new (class extends DatastoreIndexBuilder {
-          public addIndex(datastoreDefinition: DatastoreDefinition) {
+          public addIndex(
+            messageName: string,
+            indexDefinitions: Array<IndexDefinition>
+          ): void {
             counter.increment("addIndex");
+            assertThat(indexDefinitions.length, eq(4), `index length`);
             assertThat(
-              datastoreDefinition,
-              eq(taskModelDefinition),
-              `datastoreDefinition`
+              indexDefinitions[0].name,
+              eq(`TaskDone`),
+              `0th name of indexes`
+            );
+            assertThat(
+              indexDefinitions[1].name,
+              eq(`TaskDonePriority`),
+              `1th name of indexes`
+            );
+            assertThat(
+              indexDefinitions[2].name,
+              eq(`TaskCollbas`),
+              `2th name of indexes`
+            );
+            assertThat(
+              indexDefinitions[3].name,
+              eq(`CreatedTime`),
+              `3th name of indexes`
             );
           }
         })();
 
         // Execute
         generateDatastoreModel(
-          taskModelDefinition,
+          "./task_def",
+          {
+            name: "Task",
+            fields: [
+              {
+                name: "id",
+                type: "string",
+              },
+              {
+                name: "payload",
+                type: "Payload",
+              },
+              {
+                name: "tags",
+                type: "string",
+                isArray: true,
+              },
+              {
+                name: "done",
+                type: "boolean",
+              },
+              {
+                name: "priority",
+                type: "Priority",
+                import: "./task_priority",
+              },
+              {
+                name: "subPriority",
+                type: "SubPriority",
+              },
+              {
+                name: "collaborators",
+                type: "string",
+                isArray: true,
+              },
+              {
+                name: "created",
+                type: "number",
+              },
+            ],
+            datastore: {
+              output: "./task_model",
+              key: "id",
+              indexes: [
+                {
+                  name: "TaskDone",
+                  fields: [
+                    {
+                      fieldName: "done",
+                    },
+                  ],
+                },
+                {
+                  name: "TaskDonePriority",
+                  fields: [
+                    {
+                      fieldName: "done",
+                    },
+                    {
+                      fieldName: "priority",
+                      descending: true,
+                    },
+                    {
+                      fieldName: "subPriority",
+                      descending: true,
+                    },
+                  ],
+                },
+                {
+                  name: "TaskCollbas",
+                  fields: [
+                    {
+                      fieldName: "collaborators",
+                    },
+                    {
+                      fieldName: "created",
+                      descending: false,
+                    },
+                  ],
+                },
+                {
+                  name: "CreatedTime",
+                  fields: [
+                    {
+                      fieldName: "created",
+                      descending: true,
+                    },
+                  ],
+                },
+              ],
+              comment: "Comment1",
+            },
+          },
           typeCheckerMock,
-          importer,
           indexBuilderMock,
-          contentList
+          contentMap
         );
 
         // Verify
-        assertThat(
-          counter.get("Task for getMessage"),
-          eq(1),
-          `Task for getMessage called`
-        );
         assertThat(
           counter.get("Priority for getMessage"),
           eq(1),
@@ -534,8 +475,12 @@ TEST_RUNNER.run({
         );
         assertThat(counter.get("addIndex"), eq(1), `addIndex called`);
         assertThat(
-          contentList.join(""),
-          eq(`
+          contentMap.get("./task_model").toString(),
+          eq(`import { DatastoreQuery, DatastoreFilter, DatastoreOrdering, Operator, DatastoreModelDescriptor } from '@selfage/datastore_client/model_descriptor';
+import { Priority } from './task_priority';
+import { SubPriority, Task, TASK } from './task_def';
+
+/* Comment1 */
 export let TASK_MODEL: DatastoreModelDescriptor<Task> = {
   name: "Task",
   key: "id",
@@ -711,17 +656,147 @@ export class CreatedTimeQueryBuilder {
   }
 }
 `),
-          `contentList`
+          `outputContent`
         );
+      },
+    },
+    {
+      name: "DivingImports",
+      execute: () => {
+        // Prepare
+        let contentMap = new Map<string, OutputContent>();
+        let counter = new Counter<string>();
+        let typeCheckerMock = new (class extends TypeChecker {
+          constructor() {
+            super("");
+          }
+
+          public getMessage(
+            typeName: string,
+            importPath?: string
+          ): MessageDefinition {
+            counter.increment('getMessage');
+            assertThat(typeName, eq('Priority'), 'typeName for getMessage');
+            assertThat(importPath, eq('./another_side/task_priority'), 'importPath for getMessage');
+            return undefined;
+          }
+        })();
+        let indexBuilderMock = new (class extends DatastoreIndexBuilder {
+          public addIndex(
+            messageName: string,
+            indexDefinitions: Array<IndexDefinition>
+          ): void {}
+        })();
+
+        // Execute
+        generateDatastoreModel(
+          "./inside/task_def",
+          {
+            name: "Task",
+            fields: [
+              {
+                name: "id",
+                type: "string",
+              },
+              {
+                name: "priority",
+                type: "Priority",
+                import: "./another_side/task_priority",
+              },
+            ],
+            datastore: {
+              output: "./other_side/task_model",
+              key: "id",
+              indexes: [{
+                name: "Priority",
+                fields: [{
+                  fieldName: "priority"
+                }]
+              }]
+            },
+          },
+          typeCheckerMock,
+          indexBuilderMock,
+          contentMap
+        );
+
+        // Verify
+        assertThat(counter.get('getMessage'), eq(1), `getMessage called`);
         assertThat(
-          importer.toStringList().join(""),
-          eq(
-            `import { DatastoreQuery, DatastoreFilter, DatastoreOrdering, Operator, DatastoreModelDescriptor } from '@selfage/datastore_client/model_descriptor';
-import { Priority } from './inside/task_priority';
-import { SubPriority, Task, TASK } from './inside/task_def';
-`
-          ),
-          `importer`
+          contentMap.get("./inside/other_side/task_model").toString(),
+          containStr(`import { Priority } from '../another_side/task_priority';
+import { Task, TASK } from '../task_def';`),
+          `outputContent`
+        );
+      },
+    },
+    {
+      name: "JumpingImports",
+      execute: () => {
+        // Prepare
+        let contentMap = new Map<string, OutputContent>();
+        let counter = new Counter<string>();
+        let typeCheckerMock = new (class extends TypeChecker {
+          constructor() {
+            super("");
+          }
+
+          public getMessage(
+            typeName: string,
+            importPath?: string
+          ): MessageDefinition {
+            counter.increment('getMessage');
+            assertThat(typeName, eq('Priority'), 'typeName for getMessage');
+            assertThat(importPath, eq('../another_side/task_priority'), 'importPath for getMessage');
+            return undefined;
+          }
+        })();
+        let indexBuilderMock = new (class extends DatastoreIndexBuilder {
+          public addIndex(
+            messageName: string,
+            indexDefinitions: Array<IndexDefinition>
+          ): void {}
+        })();
+
+        // Execute
+        generateDatastoreModel(
+          "./inside/task_def",
+          {
+            name: "Task",
+            fields: [
+              {
+                name: "id",
+                type: "string",
+              },
+              {
+                name: "priority",
+                type: "Priority",
+                import: "../another_side/task_priority",
+              },
+            ],
+            datastore: {
+              output: "../other_side/task_model",
+              key: "id",
+              indexes: [{
+                name: "Priority",
+                fields: [{
+                  fieldName: "priority"
+                }]
+              }]
+            },
+          },
+          typeCheckerMock,
+          indexBuilderMock,
+          contentMap
+        );
+
+        // Verify
+        assertThat(counter.get('getMessage'), eq(1), `getMessage called`);
+        assertThat(
+          contentMap.get("./other_side/task_model").toString(),
+          containStr(`import { Priority } from '../another_side/task_priority';
+import { Task, TASK } from '../inside/task_def';`),
+          `outputContent`
         );
       },
     },

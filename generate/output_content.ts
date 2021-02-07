@@ -1,6 +1,24 @@
-export class Importer {
+// Holds generated TypeScript code content.
+export class OutputContent {
   private pathToNamedImports = new Map<string, Set<string>>();
   private namedImportToPaths = new Map<string, string>();
+  private contentList = new Array<string>();
+
+  public static get(
+    contentMap: Map<string, OutputContent>,
+    outputModuelPath: string
+  ): OutputContent {
+    let outputContent = contentMap.get(outputModuelPath);
+    if (!outputContent) {
+      outputContent = new OutputContent();
+      contentMap.set(outputModuelPath, outputContent);
+    }
+    return outputContent;
+  }
+
+  public push(...newContent: Array<string>): void {
+    this.contentList.push(...newContent);
+  }
 
   public importFromDatastoreModelDescriptor(
     ...namedImports: Array<string>
@@ -37,13 +55,14 @@ export class Importer {
     }
   }
 
-  public toStringList(): Array<string> {
-    let content = new Array<string>();
+  public toString(): string {
+    let resultContent = new Array<string>();
     for (let entry of this.pathToNamedImports.entries()) {
       let importPath = entry[0];
       let namedImports = Array.from(entry[1]).join(", ");
-      content.push(`import { ${namedImports} } from '${importPath}';\n`);
+      resultContent.push(`import { ${namedImports} } from '${importPath}';\n`);
     }
-    return content;
+    resultContent.push(...this.contentList);
+    return resultContent.join("");
   }
 }

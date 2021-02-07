@@ -1,32 +1,29 @@
 import path = require("path");
 import { DatastoreIndexBuilder } from "./datastore_index_builder";
-import { DatastoreDefinition, MessageFieldDefinition } from "./definition";
-import { Importer } from "./importer";
+import { MessageDefinition, MessageFieldDefinition } from "./definition";
+import { OutputContent } from "./output_content";
 import { PRIMITIVE_TYPE_STRING, TypeChecker } from "./type_checker";
-import { generateComment, toCapitalized, toUpperSnaked } from "./util";
+import {
+  generateComment,
+  getNodeRelativePath,
+  toCapitalized,
+  toUpperSnaked,
+} from "./util";
 
-// `contentList`, `indexBuilder` and `importer` are expected to be modified.
 export function generateDatastoreModel(
-  datastoreDefinition: DatastoreDefinition,
+  modulePath: string,
+  messageDefinition: MessageDefinition,
   typeChecker: TypeChecker,
-  importer: Importer,
   indexBuilder: DatastoreIndexBuilder,
-  contentList: Array<string>
+  contentMap: Map<string, OutputContent>
 ): void {
-  let messageName = datastoreDefinition.messageName;
-  let messageDefinition = typeChecker.getMessage(
-    messageName,
-    datastoreDefinition.import
+  let outputPath = getNodeRelativePath(
+    path.join(path.dirname(modulePath), messageDefinition.datastore.output)
   );
-  if (!messageDefinition) {
-    let importPath = datastoreDefinition.import;
-    if (!importPath) {
-      importPath = "the same file";
-    }
-    throw new Error(
-      `Message definition of ${messageName} is not found at ${importPath}.`
-    );
-  }
+  let outputContent = OutputContent.get(contentMap, outputPath);
+  let importMessagePath = reverseImport(modulePath, outputPath);
+  let messageName = messageDefinition.name;
+  let messageDescriptorName = toUpperSnaked(messageName);
 
   let fieldToDefinitions = new Map<string, MessageFieldDefinition>();
   let excludedIndexes = new Set<string>();
@@ -34,12 +31,12 @@ export function generateDatastoreModel(
     fieldToDefinitions.set(field.name, field);
     excludedIndexes.add(field.name);
   }
-  let messageDescriptorName = toUpperSnaked(messageName);
+
   let indexContentList = new Array<string>();
-  if (datastoreDefinition.indexes) {
-    indexBuilder.addIndex(datastoreDefinition);
-    for (let index of datastoreDefinition.indexes) {
-      importer.importFromDatastoreModelDescriptor(
+  if (messageDefinition.datastore.indexes) {
+    indexBuilder.addIndex(messageName, messageDefinition.datastore.indexes);
+    for (let index of messageDefinition.datastore.indexes) {
+      outputContent.importFromDatastoreModelDescriptor(
         "DatastoreQuery",
         "DatastoreFilter",
         "DatastoreOrdering",
@@ -84,13 +81,9 @@ export class ${index.name}QueryBuilder {
         }
 
         let fieldDefinition = fieldToDefinitions.get(property.fieldName);
-        let fieldImport = transitImport(
-          datastoreDefinition.import,
-          fieldDefinition.import
-        );
         let { isEnum, isMessage } = typeChecker.categorizeType(
           fieldDefinition.type,
-          fieldImport
+          fieldDefinition.import
         );
         if (isMessage) {
           throw new Error(
@@ -98,7 +91,10 @@ export class ${index.name}QueryBuilder {
           );
         }
         if (isEnum) {
-          importer.importFromPath(fieldImport, fieldDefinition.type);
+          outputContent.importFromPath(
+            transitImport(importMessagePath, fieldDefinition.import),
+            fieldDefinition.type
+          );
         }
         excludedIndexes.delete(property.fieldName);
 
@@ -123,10 +119,10 @@ export class ${index.name}QueryBuilder {
     }
   }
 
-  let keyDefinition = fieldToDefinitions.get(datastoreDefinition.key);
+  let keyDefinition = fieldToDefinitions.get(messageDefinition.datastore.key);
   if (!keyDefinition) {
     throw new Error(
-      `Datastore key ${datastoreDefinition.key} is not found from ` +
+      `Datastore key ${messageDefinition.datastore.key} is not found from ` +
         `${messageName}.`
     );
   }
@@ -139,42 +135,48 @@ export class ${index.name}QueryBuilder {
   if (keyDefinition.isArray) {
     throw new Error(`Datastore key cannot be an array.`);
   }
-  importer.importFromPath(
-    datastoreDefinition.import,
+  outputContent.importFromPath(
+    importMessagePath,
     messageName,
     messageDescriptorName
   );
-  importer.importFromDatastoreModelDescriptor("DatastoreModelDescriptor");
-  contentList.push(`${generateComment(datastoreDefinition.comment)}
+  outputContent.importFromDatastoreModelDescriptor("DatastoreModelDescriptor");
+  outputContent.push(`${generateComment(messageDefinition.datastore.comment)}
 export let ${messageDescriptorName}_MODEL: DatastoreModelDescriptor<${messageName}> = {
   name: "${messageName}",
-  key: "${datastoreDefinition.key}",
+  key: "${messageDefinition.datastore.key}",
   excludedIndexes: ["${Array.from(excludedIndexes).join(`", "`)}"],
   valueDescriptor: ${messageDescriptorName},
 }
 `);
-  contentList.push(...indexContentList);
+  outputContent.push(...indexContentList);
 }
 
-// The path to import the second module which is imported inside the first
-// imported module. Only support both paths to be relative paths.
+// Both paths are relative path, where `basePath` is relative to CWD and
+// outputPath is relative to `basePath`. Return the relative path to import
+// `basePath` from `outputPath`.
+function reverseImport(basePath: string, outputPath: string): string {
+  let absoluteOutputPath = path.resolve(outputPath);
+  return getNodeRelativePath(
+    path.relative(path.dirname(absoluteOutputPath), basePath)
+  );
+}
+
+// Both imports are relative path, where `firstImport` is relative to some base
+// module and `secondImport` is relative to `firstImport`. Return the relative
+// path to import `secondImport` from the base module. When `secondImport` is
+// `undefined`, it means to import `firstImport`.
 function transitImport(
-  firstImport: string | undefined,
+  firstImport: string,
   secondImport: string | undefined
 ): string | undefined {
-  let importPath: string | undefined;
-  if (firstImport) {
-    if (secondImport) {
-      importPath = "./" + path.join(path.dirname(firstImport), secondImport);
-    } else {
-      importPath = firstImport;
-    }
+  let importPath: string;
+  if (secondImport) {
+    importPath = getNodeRelativePath(
+      path.join(path.dirname(firstImport), secondImport)
+    );
   } else {
-    if (secondImport) {
-      importPath = secondImport;
-    } else {
-      importPath = undefined;
-    }
+    importPath = firstImport;
   }
   return importPath;
 }

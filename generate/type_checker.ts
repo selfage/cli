@@ -18,11 +18,14 @@ export class TypeChecker {
 
   public constructor(currentModulePath: string) {
     let pathObj = path.parse(currentModulePath);
-    this.currentDir = pathObj.dir || "./";
+    this.currentDir = pathObj.dir;
     this.currentModuleBase = "./" + pathObj.base;
   }
 
-  public getMessage(typeName: string, importPath?: string): MessageDefinition {
+  public getMessage(
+    typeName: string,
+    importPath?: string
+  ): MessageDefinition | undefined {
     if (!importPath) {
       importPath = this.currentModuleBase;
     }

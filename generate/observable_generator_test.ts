@@ -1,6 +1,6 @@
 import { MessageDefinition } from "./definition";
-import { Importer } from "./importer";
 import { generateObservableDescriptor } from "./observable_generator";
+import { OutputContent } from "./output_content";
 import { TypeChecker } from "./type_checker";
 import { Counter } from "@selfage/counter";
 import { assertThat, eq } from "@selfage/test_matcher";
@@ -13,8 +13,7 @@ TEST_RUNNER.run({
       name: "SelfContainedData",
       execute: () => {
         // Prepare
-        let importer = new Importer();
-        let contentList = new Array<string>();
+        let contentMap = new Map<string, OutputContent>();
         let counter = new Counter<string>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {
@@ -29,6 +28,7 @@ TEST_RUNNER.run({
 
         // Execute
         generateObservableDescriptor(
+          "some_file",
           {
             name: "BasicData",
             fields: [
@@ -63,15 +63,16 @@ TEST_RUNNER.run({
             isObservable: true,
           },
           typeCheckerMock,
-          importer,
-          contentList
+          contentMap
         );
 
         // Verify
         assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
         assertThat(
-          contentList.join(""),
-          eq(`
+          contentMap.get("some_file").toString(),
+          eq(`import { ObservableArray } from '@selfage/observable_array';
+import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
+
 export class BasicData {
   public onNumberFieldChange: (newValue: number, oldValue: number) => void;
   private numberField_?: number;
@@ -223,14 +224,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
   ]
 };
 `),
-          `contentList`
-        );
-        assertThat(
-          importer.toStringList().join(""),
-          eq(`import { ObservableArray } from '@selfage/observable_array';
-import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
-`),
-          `importer`
+          `outputContent`
         );
       },
     },
@@ -238,8 +232,7 @@ import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
       name: "GenerateWithComment",
       execute: () => {
         // Prepare
-        let importer = new Importer();
-        let contentList = new Array<string>();
+        let contentMap = new Map<string, OutputContent>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {
             super("");
@@ -248,6 +241,7 @@ import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
 
         // Execute
         generateObservableDescriptor(
+          "some_file",
           {
             name: "WithComment",
             fields: [
@@ -260,14 +254,14 @@ import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
             comment: "Comment2",
           },
           typeCheckerMock,
-          importer,
-          contentList
+          contentMap
         );
 
         // Verify
         assertThat(
-          contentList.join(""),
-          eq(`
+          contentMap.get("some_file").toString(),
+          eq(`import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
+
 /* Comment2 */
 export class WithComment {
 /* Comment1 */
@@ -307,14 +301,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
   ]
 };
 `),
-          `contentList`
-        );
-        assertThat(
-          importer.toStringList().join(""),
-          eq(
-            `import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';\n`
-          ),
-          `importer`
+          `outputContent`
         );
       },
     },
@@ -322,8 +309,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
       name: "NestedObjects",
       execute: () => {
         // Prepare
-        let importer = new Importer();
-        let contentList = new Array<string>();
+        let contentMap = new Map<string, OutputContent>();
         let counter = new Counter<string>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {
@@ -342,7 +328,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
                 return { name: "any", fields: [] };
               case 2:
                 assertThat(typeName, eq("BasicData2"), `2nd typeName`);
-                assertThat(importPath, eq("./some_file"), `2nd importPath`);
+                assertThat(importPath, eq("./another_file"), `2nd importPath`);
                 return { name: "any", fields: [] };
               case 3:
                 assertThat(typeName, eq("TestEnum"), `3rd typeName`);
@@ -364,6 +350,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
 
         // Execute
         generateObservableDescriptor(
+          "some_file",
           {
             name: "NestedObj",
             fields: [
@@ -374,7 +361,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
               {
                 name: "basicData2",
                 type: "BasicData2",
-                import: "./some_file",
+                import: "./another_file",
               },
               {
                 name: "testEnum",
@@ -394,15 +381,17 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
             isObservable: true,
           },
           typeCheckerMock,
-          importer,
-          contentList
+          contentMap
         );
 
         // Verify
         assertThat(counter.get("getMessage"), eq(5), "getMessage called");
         assertThat(
-          contentList.join(""),
-          eq(`
+          contentMap.get("some_file").toString(),
+          eq(`import { ObservableArray } from '@selfage/observable_array';
+import { MessageDescriptor } from '@selfage/message/descriptor';
+import { BasicData2, BASIC_DATA2 } from './another_file';
+
 export class NestedObj {
   public onBasicDataChange: (newValue: BasicData, oldValue: BasicData) => void;
   private basicData_?: BasicData;
@@ -530,15 +519,7 @@ export let NESTED_OBJ: MessageDescriptor<NestedObj> = {
   ]
 };
 `),
-          `contentList`
-        );
-        assertThat(
-          importer.toStringList().join(""),
-          eq(`import { ObservableArray } from '@selfage/observable_array';
-import { MessageDescriptor } from '@selfage/message/descriptor';
-import { BasicData2, BASIC_DATA2 } from './some_file';
-`),
-          `importer`
+          `outputContent`
         );
       },
     },

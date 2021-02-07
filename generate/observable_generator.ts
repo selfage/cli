@@ -1,27 +1,27 @@
 import { MessageDefinition } from "./definition";
-import { Importer } from "./importer";
+import { OutputContent } from "./output_content";
 import { TypeChecker } from "./type_checker";
 import { generateComment, toCapitalized, toUpperSnaked } from "./util";
 
-// `contentList` and `importer` are expected to be modified.
 export function generateObservableDescriptor(
+  modulePath: string,
   messageDefinition: MessageDefinition,
   typeChecker: TypeChecker,
-  importer: Importer,
-  contentList: Array<string>
+  contentMap: Map<string, OutputContent>
 ): void {
+  let outputContent = OutputContent.get(contentMap, modulePath);
   let messageName = messageDefinition.name;
-  contentList.push(`${generateComment(messageDefinition.comment)}
+  outputContent.push(`${generateComment(messageDefinition.comment)}
 export class ${messageName} {`);
   for (let field of messageDefinition.fields) {
     let fieldTypeName: string;
     if (field.isArray) {
-      importer.importFromObservableArray("ObservableArray");
+      outputContent.importFromObservableArray("ObservableArray");
       fieldTypeName = `ObservableArray<${field.type}>`;
     } else {
       fieldTypeName = field.type;
     }
-    contentList.push(`${generateComment(field.comment)}
+    outputContent.push(`${generateComment(field.comment)}
   public on${toCapitalized(
     field.name
   )}Change: (newValue: ${fieldTypeName}, oldValue: ${fieldTypeName}) => void;
@@ -41,22 +41,22 @@ export class ${messageName} {`);
   }
 `);
   }
-  contentList.push(`
+  outputContent.push(`
   public toJSON(): Object {
     return {`);
   for (let field of messageDefinition.fields) {
-    contentList.push(`
+    outputContent.push(`
       ${field.name}: this.${field.name},`);
   }
-  contentList.push(`
+  outputContent.push(`
     };
   }
 }
 `);
 
-  importer.importFromMessageDescriptor("MessageDescriptor");
+  outputContent.importFromMessageDescriptor("MessageDescriptor");
   let descriptorName = toUpperSnaked(messageName);
-  contentList.push(`
+  outputContent.push(`
 export let ${descriptorName}: MessageDescriptor<${messageName}> = {
   name: '${messageName}',
   factoryFn: () => {
@@ -64,7 +64,7 @@ export let ${descriptorName}: MessageDescriptor<${messageName}> = {
   },
   fields: [`);
   for (let field of messageDefinition.fields) {
-    contentList.push(`
+    outputContent.push(`
     {
       name: '${field.name}',`);
     let { isPrimitive, isEnum, isMessage } = typeChecker.categorizeType(
@@ -72,30 +72,38 @@ export let ${descriptorName}: MessageDescriptor<${messageName}> = {
       field.import
     );
     if (isPrimitive) {
-      importer.importFromMessageDescriptor("PrimitiveType");
-      contentList.push(`
+      outputContent.importFromMessageDescriptor("PrimitiveType");
+      outputContent.push(`
       primitiveType: PrimitiveType.${field.type.toUpperCase()},`);
     } else if (isEnum) {
       let enumDescriptorName = toUpperSnaked(field.type);
-      importer.importFromPath(field.import, field.type, enumDescriptorName);
-      contentList.push(`
+      outputContent.importFromPath(
+        field.import,
+        field.type,
+        enumDescriptorName
+      );
+      outputContent.push(`
       enumDescriptor: ${enumDescriptorName},`);
     } else if (isMessage) {
       let messageDescriptorName = toUpperSnaked(field.type);
-      importer.importFromPath(field.import, field.type, messageDescriptorName);
-      contentList.push(`
+      outputContent.importFromPath(
+        field.import,
+        field.type,
+        messageDescriptorName
+      );
+      outputContent.push(`
       messageDescriptor: ${messageDescriptorName},`);
     }
     if (field.isArray) {
-      contentList.push(`
+      outputContent.push(`
       observableArrayFactoryFn: () => {
         return new ObservableArray<any>();
       },`);
     }
-    contentList.push(`
+    outputContent.push(`
     },`);
   }
-  contentList.push(`
+  outputContent.push(`
   ]
 };
 `);
