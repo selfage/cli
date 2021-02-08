@@ -67,7 +67,7 @@ Options:
 
 ## Generate descriptors
 
-See `@selfage/message` package for detailed explanation of what's being generated and how to use the generated descriptors.
+See `@selfage/message` and `@selfage/datastore_client` packages for detailed explanation of what's being generated and how to use the generated descriptors.
 
 ```
 $ selfage generate -h
@@ -76,6 +76,8 @@ Usage: selfage generate|gen [options] <file>
 Generate various descriptors from the specified source file. The source file type is fixed as '.json' and the destination file type is fixed as '.ts'.
 
 Options:
-  --dry-run   Print the generated content instead of writing it to the destination file.
-  -h, --help  display help for command
+  -i, --index-file <indexFile>  The index yaml file for Google Cloud Datastore composite index. The file type is fixed as
+                                '.yaml'. Requried only if your source file includes a datastore definition.
+  --dry-run                     Print the generated content instead of writing it to the destination file.
+  -h, --help                    display help for command
 ```
