@@ -1,6 +1,6 @@
 {
   "name": "@selfage/cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI toolkit for all @selfage packages as well as frontend and backend development.",
   "repository": {
     "type": "git",
