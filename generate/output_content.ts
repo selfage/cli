@@ -33,6 +33,10 @@ export class OutputContent {
     this.importFromPath("@selfage/message/descriptor", ...namedImports);
   }
 
+  public importFromServiceDescriptor(...namedImports: Array<string>): void {
+    this.importFromPath("@selfage/service_descriptor", ...namedImports);
+  }
+
   public importFromObservableArray(...namedImports: Array<string>): void {
     this.importFromPath("@selfage/observable_array", ...namedImports);
   }

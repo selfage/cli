@@ -7,6 +7,7 @@ import { generateEnumDescriptor } from "./enum_generator";
 import { generateMessageDescriptor } from "./message_generator";
 import { generateObservableDescriptor } from "./observable_generator";
 import { OutputContent } from "./output_content";
+import { generateServiceDescriptr } from "./service_generator";
 import { TypeChecker } from "./type_checker";
 import { getNodeRelativePath } from "./util";
 
@@ -64,6 +65,8 @@ export function generate(
           contentMap
         );
       }
+    } else if (definition.service) {
+      generateServiceDescriptr(modulePath, definition.service, contentMap);
     }
   }
 

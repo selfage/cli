@@ -55,8 +55,21 @@ export interface MessageDefinition {
   datastore?: DatastoreDefinition;
 }
 
+export interface ServiceDefinition {
+  name: string;
+  path: string;
+  request: string;
+  importRequet?: string;
+  response: string;
+  importResponse?: string;
+  session?: string;
+  importSession?: string;
+}
+
 // Requires package `@selfage/message`.
 export interface Definition {
+  // One of the below.
   enum?: EnumDefinition;
   message?: MessageDefinition;
+  service?: ServiceDefinition;
 }
