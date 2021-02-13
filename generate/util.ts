@@ -13,16 +13,17 @@ export function toCapitalized(name: string): string {
 }
 
 export function toUpperSnaked(name: string): string {
-  let upperCaseSnakedName = name.charAt(0);
+  let upperCaseSnakedName = new Array<string>();
+  upperCaseSnakedName.push(name.charAt(0));
   for (let i = 1; i < name.length; i++) {
     let char = name.charAt(i);
     if (UPPER_CASES_REGEXP.test(char)) {
-      upperCaseSnakedName += "_" + char;
+      upperCaseSnakedName.push("_", char);
     } else {
-      upperCaseSnakedName += char.toUpperCase();
+      upperCaseSnakedName.push(char.toUpperCase());
     }
   }
-  return upperCaseSnakedName;
+  return upperCaseSnakedName.join("");
 }
 
 // Given a possible resolved relative path, return the relative path compliant
