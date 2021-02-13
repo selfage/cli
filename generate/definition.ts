@@ -24,7 +24,7 @@ export interface MessageFieldDefinition {
 }
 
 export interface IndexField {
-  // The name of `MessageFieldDefinition`.
+  // The name of a `MessageFieldDefinition`.
   fieldName: string;
   descending?: boolean;
 }
@@ -56,13 +56,22 @@ export interface MessageDefinition {
 }
 
 export interface ServiceDefinition {
+  // Must be of CamelCase, which will be the name for the descriptor.
   name: string;
+  // The pathname of a url. Must start with "/".
   path: string;
+  // The name of a `MessageFieldDefinition` used for request.
   request: string;
+  // Resolves import path the same way as Node. Do not include '.json'.
   importRequet?: string;
+  // The name of a `MessageFieldDefinition` used for response.
   response: string;
+  // Resolves import path the same way as Node. Do not include '.json'.
   importResponse?: string;
+  // The name of a `MessageFieldDefinition` used for session. Specify only when 
+  // the service requires authorization.
   session?: string;
+  // Resolves import path the same way as Node. Do not include '.json'.
   importSession?: string;
 }
 
