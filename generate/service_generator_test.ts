@@ -53,7 +53,7 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
             name: "GetHistory",
             path: "/get_history",
             request: "GetHistoryequest",
-            importRequet: "./some_request",
+            importRequest: "./some_request",
             response: "GetHistoryResponse",
             importResponse: "./some_response",
             session: "Session",
