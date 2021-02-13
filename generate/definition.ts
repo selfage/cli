@@ -75,10 +75,12 @@ export interface ServiceDefinition {
   importSession?: string;
 }
 
-// Requires package `@selfage/message`.
 export interface Definition {
   // One of the below.
+  // Requires package `@selfage/message`.
   enum?: EnumDefinition;
+  // Requires package `@selfage/message`.
   message?: MessageDefinition;
+  // Requires package `@selfage/servicce_descriptor`.
   service?: ServiceDefinition;
 }
