@@ -21,7 +21,7 @@ export let ${serviceDescriptorName}: AuthedServiceDescriptor<${serviceDefinition
 
   let requestDescriptorName = toUpperSnaked(serviceDefinition.request);
   outputContent.importFromPath(
-    serviceDefinition.importRequet,
+    serviceDefinition.importRequest,
     serviceDefinition.request,
     requestDescriptorName
   );

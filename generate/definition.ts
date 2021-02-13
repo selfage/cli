@@ -63,7 +63,7 @@ export interface ServiceDefinition {
   // The name of a `MessageFieldDefinition` used for request.
   request: string;
   // Resolves import path the same way as Node. Do not include '.json'.
-  importRequet?: string;
+  importRequest?: string;
   // The name of a `MessageFieldDefinition` used for response.
   response: string;
   // Resolves import path the same way as Node. Do not include '.json'.
