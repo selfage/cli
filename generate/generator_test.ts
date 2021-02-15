@@ -121,5 +121,30 @@ TEST_RUNNER.run({
         ]);
       },
     },
+    {
+      name: "GenerateServiceDescriptor",
+      execute: async () => {
+        // Prepare
+        generate("./test_data/generate/generator/inside/history");
+
+        // Execute
+        generate("./test_data/generate/generator/service");
+
+        // Verify
+        assertCompile("./test_data/generate/generator/service.ts");
+
+        // Cleanup
+        await Promise.all([
+          fs.promises.unlink("./test_data/generate/generator/service.ts"),
+          fs.promises.unlink("./test_data/generate/generator/service.js"),
+          fs.promises.unlink(
+            "./test_data/generate/generator/inside/history.ts"
+          ),
+          fs.promises.unlink(
+            "./test_data/generate/generator/inside/history.js"
+          ),
+        ]);
+      },
+    },
   ],
 });

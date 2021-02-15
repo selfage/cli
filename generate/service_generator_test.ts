@@ -1,5 +1,8 @@
+import { MessageDefinition } from "./definition";
 import { OutputContent } from "./output_content";
 import { generateServiceDescriptr } from "./service_generator";
+import { TypeChecker } from "./type_checker";
+import { Counter } from "@selfage/counter";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { TEST_RUNNER } from "@selfage/test_runner";
 
@@ -10,7 +13,26 @@ TEST_RUNNER.run({
       name: "GenerateUnauthedService",
       execute: () => {
         // Prepare
+        let counter = new Counter<string>();
         let contentMap = new Map<string, OutputContent>();
+        let typeCheckerMock = new (class extends TypeChecker {
+          public constructor() {
+            super("");
+          }
+
+          public getMessage(
+            typeName: string,
+            importPath?: string
+          ): MessageDefinition | undefined {
+            counter.increment("getMessage");
+            assertThat(typeName, eq("GetCommentsRequest"), `typeName`);
+            assertThat(importPath, eq(undefined), `importPath`);
+            return {
+              name: "GetCommentsRequest",
+              fields: [],
+            };
+          }
+        })();
 
         // Execute
         generateServiceDescriptr(
@@ -21,6 +43,7 @@ TEST_RUNNER.run({
             request: "GetCommentsRequest",
             response: "GetCommentsResponse",
           },
+          typeCheckerMock,
           contentMap
         );
 
@@ -44,7 +67,31 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
       name: "GenerateAuthedServiceWithImports",
       execute: () => {
         // Prepare
+        let counter = new Counter<string>();
         let contentMap = new Map<string, OutputContent>();
+        let typeCheckerMock = new (class extends TypeChecker {
+          public constructor() {
+            super("");
+          }
+
+          public getMessage(
+            typeName: string,
+            importPath?: string
+          ): MessageDefinition | undefined {
+            counter.increment("getMessage");
+            assertThat(typeName, eq("GetHistoryequest"), `typeName`);
+            assertThat(importPath, eq("./some_request"), `importPath`);
+            return {
+              name: "GetCommentsRequest",
+              fields: [
+                {
+                  name: "signedSession",
+                  type: "string",
+                },
+              ],
+            };
+          }
+        })();
 
         // Execute
         generateServiceDescriptr(
@@ -56,9 +103,8 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
             importRequest: "./some_request",
             response: "GetHistoryResponse",
             importResponse: "./some_response",
-            session: "Session",
-            importSession: "./some_session_def",
           },
+          typeCheckerMock,
           contentMap
         );
 
@@ -68,14 +114,12 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
           eq(`import { AuthedServiceDescriptor } from '@selfage/service_descriptor';
 import { GetHistoryequest, GET_HISTORYEQUEST } from './some_request';
 import { GetHistoryResponse, GET_HISTORY_RESPONSE } from './some_response';
-import { Session, SESSION } from './some_session_def';
 
-export let GET_HISTORY: AuthedServiceDescriptor<GetHistoryequest, GetHistoryResponse, Session> = {
+export let GET_HISTORY: AuthedServiceDescriptor<GetHistoryequest, GetHistoryResponse> = {
   name: "GetHistory",
   path: "/get_history",
   requestDescriptor: GET_HISTORYEQUEST,
   responseDescriptor: GET_HISTORY_RESPONSE,
-  session: SESSION,
 };
 `),
           "outputContent"

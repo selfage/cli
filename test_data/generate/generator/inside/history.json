@@ -1,0 +1,21 @@
+[{
+  "message": {
+    "name": "GetHistoryRequest",
+    "fields": [{
+      "name": "signedSession",
+      "type": "string"
+    }, {
+      "name": "cursor",
+      "type": "string"
+    }]
+  }
+}, {
+  "message": {
+    "name": "GetHistoryResponse",
+    "fields": [{
+      "name": "text",
+      "type": "string",
+      "isArray": true
+    }]
+  }
+}]

@@ -1,23 +1,33 @@
 import { ServiceDefinition } from "./definition";
 import { OutputContent } from "./output_content";
+import { TypeChecker } from "./type_checker";
 import { toUpperSnaked } from "./util";
 
 export function generateServiceDescriptr(
   modulePath: string,
   serviceDefinition: ServiceDefinition,
+  typeChecker: TypeChecker,
   contentMap: Map<string, OutputContent>
 ): void {
   let outputContent = OutputContent.get(contentMap, modulePath);
-  let serviceDescriptorName = toUpperSnaked(serviceDefinition.name);
-  if (!serviceDefinition.session) {
-    outputContent.importFromServiceDescriptor("UnauthedServiceDescriptor");
-    outputContent.push(`
-export let ${serviceDescriptorName}: UnauthedServiceDescriptor<${serviceDefinition.request}, ${serviceDefinition.response}> = {`);
+
+  let requestDefinition = typeChecker.getMessage(
+    serviceDefinition.request,
+    serviceDefinition.importRequest
+  );
+  let descriptorName: string;
+  if (
+    requestDefinition.fields.find((field) => field.name === "signedSession")
+  ) {
+    descriptorName = "AuthedServiceDescriptor";
   } else {
-    outputContent.importFromServiceDescriptor("AuthedServiceDescriptor");
-    outputContent.push(`
-export let ${serviceDescriptorName}: AuthedServiceDescriptor<${serviceDefinition.request}, ${serviceDefinition.response}, ${serviceDefinition.session}> = {`);
+    descriptorName = "UnauthedServiceDescriptor";
   }
+  outputContent.importFromServiceDescriptor(descriptorName);
+
+  let serviceDescriptorName = toUpperSnaked(serviceDefinition.name);
+  outputContent.push(`
+export let ${serviceDescriptorName}: ${descriptorName}<${serviceDefinition.request}, ${serviceDefinition.response}> = {`);
 
   let requestDescriptorName = toUpperSnaked(serviceDefinition.request);
   outputContent.importFromPath(
@@ -35,19 +45,7 @@ export let ${serviceDescriptorName}: AuthedServiceDescriptor<${serviceDefinition
   name: "${serviceDefinition.name}",
   path: "${serviceDefinition.path}",
   requestDescriptor: ${requestDescriptorName},
-  responseDescriptor: ${responseDescriptorName},`);
-
-  if (serviceDefinition.session) {
-    let sessionDescriptorName = toUpperSnaked(serviceDefinition.session);
-    outputContent.importFromPath(
-      serviceDefinition.importSession,
-      serviceDefinition.session,
-      sessionDescriptorName
-    );
-    outputContent.push(`
-  session: ${sessionDescriptorName},`);
-  }
-  outputContent.push(`
+  responseDescriptor: ${responseDescriptorName},
 };
 `);
 }

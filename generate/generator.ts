@@ -66,7 +66,12 @@ export function generate(
         );
       }
     } else if (definition.service) {
-      generateServiceDescriptr(modulePath, definition.service, contentMap);
+      generateServiceDescriptr(
+        modulePath,
+        definition.service,
+        typeChecker,
+        contentMap
+      );
     }
   }
 

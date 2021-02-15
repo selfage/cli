@@ -1,0 +1,34 @@
+[{
+  "message": {
+    "name": "GetCommentsRequest",
+    "fields": [{
+      "name": "videoId",
+      "type": "string"
+    }]
+  }
+}, {
+  "message": {
+    "name": "GetCommentsResponse",
+    "fields": [{
+      "name": "text",
+      "type": "string",
+      "isArray": true
+    }]
+  }
+}, {
+  "service": {
+    "name": "GetComments",
+    "path": "/get_comments",
+    "request": "GetCommentsRequest",
+    "response": "GetCommentsResponse"
+  }
+}, {
+  "service": {
+    "name": "GetHistory",
+    "path": "/get_history",
+    "request": "GetHistoryRequest",
+    "importRequest": "./inside/history",
+    "response": "GetHistoryResponse",
+    "importResponse": "./inside/history"
+  }
+}]
