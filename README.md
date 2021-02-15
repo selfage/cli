@@ -28,6 +28,8 @@ Options:
 
 ## Clean
 
+Currently, only files under directory `node_modules/` and `test_data/` will be ignored.
+
 ```
 $ selfage clean -h
 Usage: selfage clean [options]
