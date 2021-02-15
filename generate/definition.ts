@@ -68,11 +68,6 @@ export interface ServiceDefinition {
   response: string;
   // Resolves import path the same way as Node. Do not include '.json'.
   importResponse?: string;
-  // The name of a `MessageFieldDefinition` used for session. Specify only when 
-  // the service requires authorization.
-  session?: string;
-  // Resolves import path the same way as Node. Do not include '.json'.
-  importSession?: string;
 }
 
 export interface Definition {
