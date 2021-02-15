@@ -67,7 +67,7 @@ Options:
 
 ## Generate descriptors
 
-See `@selfage/message` and `@selfage/datastore_client` packages for detailed explanation of what's being generated and how to use the generated descriptors.
+See `@selfage/message`, `@selfage/datastore_client` and `@selfage/service_descriptor` packages for detailed explanation of various generated descritpors.
 
 ```
 $ selfage generate -h
