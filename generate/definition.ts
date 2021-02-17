@@ -76,6 +76,6 @@ export interface Definition {
   enum?: EnumDefinition;
   // Requires package `@selfage/message`.
   message?: MessageDefinition;
-  // Requires package `@selfage/servicce_descriptor`.
+  // Requires package `@selfage/service_descriptor`.
   service?: ServiceDefinition;
 }
