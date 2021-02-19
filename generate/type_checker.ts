@@ -1,7 +1,6 @@
 import fs = require("fs");
 import path = require("path");
 import resolve = require("resolve");
-import ono from "@jsdevtools/ono";
 import { Definition, MessageDefinition } from "./definition";
 
 export let PRIMITIVE_TYPE_STRING = "string";
@@ -43,7 +42,9 @@ export class TypeChecker {
       try {
         definitions = JSON.parse(jsonStr) as Array<Definition>;
       } catch (e) {
-        throw ono(e, `Failed to parse JSON read from "${filePath}".`);
+        e.message =
+          `Failed to parse JSON read from "${filePath}".\n` + e.message;
+        throw e;
       }
       for (let definition of definitions) {
         if (definition.message) {
