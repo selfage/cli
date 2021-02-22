@@ -6,7 +6,7 @@
 
 ## Overview
 
-Written in TypeScript and compiled to ES6. Provides an opinionated CLI toolkit for developing frontend and backend in TypeScript. See sections below for each sub-command.
+Written in TypeScript and compiled to ES6 with inline source map & source. See [@selfage/tsconfig](https://www.npmjs.com/package/@selfage/tsconfig) for full compiler options. Provides an opinionated CLI toolkit for developing frontend and backend in TypeScript. See sections below for each sub-command.
 
 ## Build
 
