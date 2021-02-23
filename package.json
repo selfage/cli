@@ -22,6 +22,7 @@
   "bin": {
     "selfage": "./main.js"
   },
+  "files": ["**/*.js", "!test_data/**", "!**/*_test.*", "!test_suite.*"],
   "devDependencies": {
     "@selfage/counter": "^1.0.8",
     "@selfage/datastore_client": "^1.0.3",

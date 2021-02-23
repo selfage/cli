@@ -1,7 +1,0 @@
-test_data/
-*.ts
-*.d.ts
-*_test.*
-test_suite.js
-*.tsbuildinfo
-tsconfig.json
