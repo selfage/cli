@@ -17,6 +17,9 @@ export async function run(
   }
   let childProcess = spawn("node", [jsFile, ...cliArgs], { stdio: "inherit" });
   return new Promise<void>((resolve) => {
-    childProcess.on("exit", () => resolve());
+    childProcess.on("exit", (code) => {
+      process.exitCode = code;
+      resolve();
+    });
   });
 }

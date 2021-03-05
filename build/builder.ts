@@ -4,10 +4,15 @@ import resolve = require("resolve");
 import { stripFileExtension } from "../io_helper";
 import { spawn } from "child_process";
 
-export async function build(
+export async function build(file: string, tsconfigFile: string): Promise<void> {
+  let code = await buildWithExitCode(file, tsconfigFile);
+  process.exitCode = code;
+}
+
+export async function buildWithExitCode(
   file: string,
   tsconfigFile: string
-): Promise<boolean> {
+): Promise<number> {
   let compilerOptions = await readCompilerOptions(tsconfigFile);
   let incremental = false;
   let args = new Array<string>();
@@ -25,13 +30,9 @@ export async function build(
   let childProcess = spawn("npx", ["tsc", ...args, `${modulePath}.ts`], {
     stdio: "inherit",
   });
-  return new Promise<boolean>((resolve, reject) => {
+  return new Promise<number>((resolve, reject) => {
     childProcess.on("exit", (code) => {
-      if (code === 0) {
-        resolve(true);
-      } else {
-        resolve(false);
-      }
+      resolve(code);
     });
   });
 }

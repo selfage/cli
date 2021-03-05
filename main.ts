@@ -19,9 +19,7 @@ async function main(): Promise<void> {
         `compilerOptions in tsconfig.json. ` +
         EXPLAIN_FILE_TYPE
     )
-    .action(async (file) => {
-      await build(file, TSCONFIG_FILE);
-    });
+    .action((file) => build(file, TSCONFIG_FILE));
   program
     .command("clean")
     .description("Delete all files generated from building and bundling.")
