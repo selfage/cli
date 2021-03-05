@@ -7,6 +7,7 @@ import { generate } from "./generate/generator";
 import { Command } from "commander";
 import "source-map-support/register";
 
+let TSCONFIG_FILE = "./tsconfig.json";
 let EXPLAIN_FILE_TYPE = `The file type can be neglected and is always fixed as '.ts'.`;
 
 async function main(): Promise<void> {
@@ -18,8 +19,8 @@ async function main(): Promise<void> {
         `compilerOptions in tsconfig.json. ` +
         EXPLAIN_FILE_TYPE
     )
-    .action((file) => {
-      build(file);
+    .action(async (file) => {
+      await build(file, TSCONFIG_FILE);
     });
   program
     .command("clean")
@@ -32,7 +33,7 @@ async function main(): Promise<void> {
         EXPLAIN_FILE_TYPE +
         ` Pass through arguments to the executable file after --.`
     )
-    .action((file, options, extraArgs) => run(file, extraArgs));
+    .action((file, options, extraArgs) => run(file, TSCONFIG_FILE, extraArgs));
   program
     .command("format <file>")
     .alias("fmt")

@@ -2,10 +2,13 @@ import fs = require("fs");
 import path = require("path");
 import resolve = require("resolve");
 import { stripFileExtension } from "../io_helper";
-import { spawnSync } from "child_process";
+import { spawn } from "child_process";
 
-export function build(file: string): boolean {
-  let compilerOptions = readCompilerOptions("./tsconfig.json");
+export async function build(
+  file: string,
+  tsconfigFile: string
+): Promise<boolean> {
+  let compilerOptions = await readCompilerOptions(tsconfigFile);
   let incremental = false;
   let args = new Array<string>();
   for (let propertyName of Object.keys(compilerOptions)) {
@@ -19,14 +22,24 @@ export function build(file: string): boolean {
   if (incremental) {
     args.push("--tsBuildInfoFile", `${modulePath}.tsbuildinfo`);
   }
-  let res = spawnSync("npx", ["tsc", ...args, `${modulePath}.ts`], {
+  let childProcess = spawn("npx", ["tsc", ...args, `${modulePath}.ts`], {
     stdio: "inherit",
   });
-  return res.status === 0;
+  return new Promise<boolean>((resolve, reject) => {
+    childProcess.on("exit", (code) => {
+      if (code === 0) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    });
+  });
 }
 
-export function readCompilerOptions(tsconfigFile: string): any {
-  let tsconfig = JSON.parse(fs.readFileSync(tsconfigFile).toString());
+export async function readCompilerOptions(tsconfigFile: string): Promise<any> {
+  let tsconfig = JSON.parse(
+    (await fs.promises.readFile(tsconfigFile)).toString()
+  );
   let compilerOptions = tsconfig.compilerOptions;
   if (tsconfig.extends) {
     let baseDir = path.dirname(tsconfigFile);
@@ -34,7 +47,7 @@ export function readCompilerOptions(tsconfigFile: string): any {
       basedir: baseDir,
       extensions: [".json"],
     });
-    let baseCompilerOptions = readCompilerOptions(baseTsconfigFile);
+    let baseCompilerOptions = await readCompilerOptions(baseTsconfigFile);
     compilerOptions = { ...baseCompilerOptions, ...compilerOptions };
   }
   return compilerOptions;

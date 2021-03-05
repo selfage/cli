@@ -1,9 +1,13 @@
 import { stripFileExtension } from "../io_helper";
 import { build } from "./builder";
-import { spawnSync } from "child_process";
+import { spawn } from "child_process";
 
-export function run(file: string, args?: Array<string>): void {
-  build(file);
+export async function run(
+  file: string,
+  tsconfigFile: string,
+  args?: Array<string>
+): Promise<void> {
+  await build(file, tsconfigFile);
   let jsFile = stripFileExtension(file) + ".js";
   let cliArgs: Array<string>;
   if (!args) {
@@ -11,5 +15,8 @@ export function run(file: string, args?: Array<string>): void {
   } else {
     cliArgs = args;
   }
-  spawnSync("node", [jsFile, ...cliArgs], { stdio: "inherit" });
+  let childProcess = spawn("node", [jsFile, ...cliArgs], { stdio: "inherit" });
+  return new Promise<void>((resolve) => {
+    childProcess.on("exit", () => resolve());
+  });
 }
