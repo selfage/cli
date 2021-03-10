@@ -1,5 +1,5 @@
 import fs = require("fs");
-import { buildWithExitCode, readCompilerOptions } from "./builder";
+import { buildAndReturnExitCode, readCompilerOptions } from "./builder";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { TEST_RUNNER } from "@selfage/test_runner";
 
@@ -23,10 +23,10 @@ TEST_RUNNER.run({
       },
     },
     {
-      name: "BuildWithExitCode",
+      name: "BuildAndReturnExitCode",
       execute: async () => {
         // Execute
-        let exitCode = await buildWithExitCode(
+        let exitCode = await buildAndReturnExitCode(
           "./test_data/build/builder/example.ts",
           "./test_data/build/builder/tsconfig.json"
         );

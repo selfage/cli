@@ -5,15 +5,24 @@ import { stripFileExtension } from "../io_helper";
 import { spawn } from "child_process";
 
 export async function build(file: string, tsconfigFile: string): Promise<void> {
-  let code = await buildWithExitCode(file, tsconfigFile);
+  let code = await buildAndReturnExitCode(file, tsconfigFile);
   process.exitCode = code;
 }
 
-export async function buildWithExitCode(
+export async function buildAndReturnExitCode(
   file: string,
   tsconfigFile: string
 ): Promise<number> {
-  let compilerOptions = await readCompilerOptions(tsconfigFile);
+  return buildWithCompilerOptionsAndReturnExitCode(
+    file,
+    await readCompilerOptions(tsconfigFile)
+  );
+}
+
+export async function buildWithCompilerOptionsAndReturnExitCode(
+  file: string,
+  compilerOptions: any
+): Promise<number> {
   let incremental = false;
   let args = new Array<string>();
   for (let propertyName of Object.keys(compilerOptions)) {

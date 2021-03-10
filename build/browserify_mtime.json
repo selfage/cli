@@ -1,0 +1,21 @@
+[{
+  "message": {
+    "name": "Mtime",
+    "fields": [{
+      "name": "fileName",
+      "type": "string"
+    }, {
+      "name": "mtimeMs",
+      "type": "number"
+    }]
+  }
+}, {
+  "message": {
+    "name": "MtimeList",
+    "fields": [{
+      "name": "mtimes",
+      "type": "Mtime",
+      "isArray": true
+    }]
+  }
+}]
