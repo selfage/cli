@@ -1,10 +1,9 @@
 {
+  "extends": "./inside/tsconfig",
   "compilerOptions": {
-    "target": "es6",
     "module": "commonjs",
     "moduleResolution": "Node",
-    "alwaysStrict": true,
     "noImplicitAny": true,
-    "noImplicitThis": true
+    "noImplicitThis": false
   }
 }

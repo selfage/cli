@@ -4,10 +4,8 @@ import getStream = require("get-stream");
 import UglifyJS = require("uglify-js");
 import { stripFileExtension } from "../io_helper";
 import { MTIME_LIST, Mtime, MtimeList } from "./browserify_mtime";
-import {
-  buildWithCompilerOptionsAndReturnExitCode,
-  readCompilerOptions,
-} from "./builder";
+import { buildAndReturnExitCode } from "./builder";
+import { TSCONFIG_READER } from "./tsconfig_reader";
 import { parseMessage } from "@selfage/message/parser";
 
 let BROWSERIFY_MTIME_EXT = ".browserifymtime";
@@ -20,17 +18,14 @@ export async function browserify(
   runInNode: boolean,
   environment?: string
 ): Promise<void> {
-  let compilerOptions = await readCompilerOptions(tsconfigFile);
-  let exitCode = await buildWithCompilerOptionsAndReturnExitCode(
-    sourceFile,
-    compilerOptions
-  );
+  let exitCode = await buildAndReturnExitCode(sourceFile, tsconfigFile);
   if (exitCode !== 0) {
     process.exitCode = exitCode;
     return;
   }
 
   let sourceModulePath = stripFileExtension(sourceFile);
+  let compilerOptions = await TSCONFIG_READER.readCompilerOptions(tsconfigFile);
   let mtimesFile = sourceModulePath + BROWSERIFY_MTIME_EXT;
   if (compilerOptions.incremental && !(await needsBrowserify(mtimesFile))) {
     return;
