@@ -1,5 +1,5 @@
 import fs = require("fs");
-import { browserify } from "./browserifier";
+import { Target, browserify } from "./browserifier";
 import { assertThat, containStr, eq } from "@selfage/test_matcher";
 import { TEST_RUNNER } from "@selfage/test_runner";
 import { spawnSync } from "child_process";
@@ -20,7 +20,7 @@ TEST_RUNNER.run({
           "./test_data/build/browserify/two_file2_browserified.js",
           "./test_data/build/browserify/tsconfig_incr.json",
           false,
-          true
+          Target.NODE_JS
         );
 
         // Verify
@@ -41,7 +41,7 @@ TEST_RUNNER.run({
           "./test_data/build/browserify/two_file2_browserified.js",
           "./test_data/build/browserify/tsconfig_incr.json",
           false,
-          true
+          Target.NODE_JS
         );
 
         // Verify
@@ -77,7 +77,7 @@ TEST_RUNNER.run({
           "./test_data/build/browserify/stack_trace_browserified.js",
           "./test_data/build/browserify/tsconfig.json",
           true,
-          true
+          Target.NODE_JS
         );
 
         // Verify
@@ -94,67 +94,6 @@ TEST_RUNNER.run({
           fs.promises.unlink("./test_data/build/browserify/stack_trace.js"),
           fs.promises.unlink(
             "./test_data/build/browserify/stack_trace_browserified.js"
-          ),
-        ]);
-      },
-    },
-    {
-      name: "OnlyExecuteCodeUnderUndefinedEnvironment",
-      execute: async () => {
-        // Execute
-        await browserify(
-          "./test_data/build/browserify/try_environment.ts",
-          "./test_data/build/browserify/try_environment_browserified.js",
-          "./test_data/build/browserify/tsconfig.json",
-          false,
-          true
-        );
-
-        // Verify
-        assertThat(
-          executeSync(
-            "./test_data/build/browserify/try_environment_browserified.js"
-          ),
-          containStr("Something else"),
-          "output"
-        );
-
-        // Cleanup
-        await Promise.all([
-          fs.promises.unlink("./test_data/build/browserify/try_environment.js"),
-          fs.promises.unlink(
-            "./test_data/build/browserify/try_environment_browserified.js"
-          ),
-        ]);
-      },
-    },
-    {
-      name: "OnlyExecuteCodeUnderProdEnvironment",
-      execute: async () => {
-        // Execute
-        await browserify(
-          "./test_data/build/browserify/try_environment.ts",
-          "./test_data/build/browserify/try_environment_browserified.js",
-          "./test_data/build/browserify/tsconfig.json",
-          false,
-          true,
-          "PROD"
-        );
-
-        // Verify
-        assertThat(
-          executeSync(
-            "./test_data/build/browserify/try_environment_browserified.js"
-          ),
-          containStr("Prod!"),
-          "output"
-        );
-
-        // Cleanup
-        await Promise.all([
-          fs.promises.unlink("./test_data/build/browserify/try_environment.js"),
-          fs.promises.unlink(
-            "./test_data/build/browserify/try_environment_browserified.js"
           ),
         ]);
       },

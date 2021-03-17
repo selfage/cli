@@ -10,13 +10,18 @@ import { parseMessage } from "@selfage/message/parser";
 
 let BROWSERIFY_MTIME_EXT = ".browserifymtime";
 
+export enum Target {
+  NODE_JS = 1,
+  BROWSER_JS = 2,
+  BROWSER_HTML = 3,
+}
+
 export async function browserify(
   sourceFile: string,
   outputFile: string,
   tsconfigFile: string,
   isDebug: boolean,
-  runInNode: boolean,
-  environment?: string
+  target: Target
 ): Promise<void> {
   let exitCode = await buildAndReturnExitCode(sourceFile, tsconfigFile);
   if (exitCode !== 0) {
@@ -34,7 +39,7 @@ export async function browserify(
   let compiledSourceFile = sourceModulePath + ".js";
   let browserifyHandler = browserifyConstructor(compiledSourceFile, {
     debug: isDebug,
-    node: runInNode,
+    node: target === Target.NODE_JS,
   });
   let involvedFiles: string[] = [];
   browserifyHandler.on("file", (file) => {
@@ -42,13 +47,7 @@ export async function browserify(
   });
   let bundledCode = await getStream(browserifyHandler.bundle());
 
-  let minifyOptions: UglifyJS.MinifyOptions = {
-    compress: {
-      global_defs: {
-        ENVIRONMENT: environment,
-      },
-    },
-  };
+  let minifyOptions: UglifyJS.MinifyOptions = {};
   if (isDebug) {
     minifyOptions.sourceMap = {
       content: "inline",
@@ -61,9 +60,22 @@ export async function browserify(
     throw minifiedRes.error;
   }
 
+  let outputCode: string;
+  let outputFileExt: string;
+  if (target !== Target.BROWSER_HTML) {
+    outputCode = minifiedRes.code;
+    outputFileExt = ".js";
+  } else {
+    outputCode =
+      `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>` +
+      `<script type="text/javascript">${minifiedRes.code}</script></body>` +
+      `</html>`;
+    outputFileExt = ".html";
+  }
+
   let outputModulePath = stripFileExtension(outputFile);
   await Promise.all([
-    fs.promises.writeFile(outputModulePath + ".js", minifiedRes.code),
+    fs.promises.writeFile(outputModulePath + outputFileExt, outputCode),
     writeMtimesFileIfIncremental(
       mtimesFile,
       involvedFiles,
