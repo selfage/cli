@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-import { build } from "./build/builder";
+import { Target, browserify } from "./build/browserifier";
 import { clean } from "./build/cleaner";
+import { compile } from "./build/compiler";
 import { run } from "./build/runner";
 import { format } from "./formatter";
 import { generate } from "./generate/generator";
@@ -13,13 +14,14 @@ let EXPLAIN_FILE_TYPE = `The file type can be neglected and is always fixed as '
 async function main(): Promise<void> {
   let program = new Command();
   program
-    .command("build <file>")
+    .command("compile <file>")
+    .alias("cpl")
     .description(
-      `Build/Compile a single TypeScript source file while respecting ` +
+      `Compile a single TypeScript source file while respecting ` +
         `compilerOptions in tsconfig.json. ` +
         EXPLAIN_FILE_TYPE
     )
-    .action((file) => build(file, TSCONFIG_FILE));
+    .action((file) => compile(file, TSCONFIG_FILE));
   program
     .command("clean")
     .description("Delete all files generated from building and bundling.")
@@ -32,6 +34,60 @@ async function main(): Promise<void> {
         ` Pass through arguments to the executable file after --.`
     )
     .action((file, options, extraArgs) => run(file, TSCONFIG_FILE, extraArgs));
+  program
+    .command("browserifyForNodeJs <sourceFile> <outputFile>")
+    .alias("brn")
+    .description(
+      `Compile a single TypeScript source file and browserify & uglify all ` +
+        `its imported files into a bundle that can be run in Node ` +
+        `environment. Output file type is fixed as .js.`
+    )
+    .option("--debug", "Include inline source map and inline source.")
+    .action((sourceFile, outputFile, options) =>
+      browserify(
+        sourceFile,
+        outputFile,
+        TSCONFIG_FILE,
+        Target.NODE_JS,
+        options.debug
+      )
+    );
+  program
+    .command("browserifyForBrowser <sourceFile> <outputFile>")
+    .alias("brb")
+    .description(
+      `Compile a single TypeScript source file and browserify & uglify all ` +
+        `its imported files into a bundle that can be run in browsers. ` +
+        `Output file type is fixed as .js.`
+    )
+    .option("--debug", "Include inline source map and inline source.")
+    .action((sourceFile, outputFile, options) =>
+      browserify(
+        sourceFile,
+        outputFile,
+        TSCONFIG_FILE,
+        Target.BROWSER_JS,
+        options.debug
+      )
+    );
+  program
+    .command("browserifyToHtml <sourceFile> <outputFile>")
+    .alias("brh")
+    .description(
+      `Compile a single TypeScript source file, browserify & uglify all its ` +
+        `imported files into a bundle and embed it into an empty HTML inside ` +
+        `a <script> tag of the body. Output file type is fixed as .html.`
+    )
+    .option("--debug", "Include inline source map and inline source.")
+    .action((sourceFile, outputFile, options) =>
+      browserify(
+        sourceFile,
+        outputFile,
+        TSCONFIG_FILE,
+        Target.BROWSER_HTML,
+        options.debug
+      )
+    );
   program
     .command("format <file>")
     .alias("fmt")

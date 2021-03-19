@@ -1,5 +1,5 @@
 import fs = require("fs");
-import { buildAndReturnExitCode } from "./builder";
+import { compileAndReturnExitCode } from "./compiler";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { TEST_RUNNER } from "@selfage/test_runner";
 
@@ -10,7 +10,7 @@ TEST_RUNNER.run({
       name: "BuildAndReturnExitCode",
       execute: async () => {
         // Execute
-        let exitCode = await buildAndReturnExitCode(
+        let exitCode = await compileAndReturnExitCode(
           "./test_data/build/builder/example.ts",
           "./test_data/build/builder/tsconfig.json"
         );

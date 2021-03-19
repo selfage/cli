@@ -2,12 +2,15 @@ import { stripFileExtension } from "../io_helper";
 import { TSCONFIG_READER } from "./tsconfig_reader";
 import { spawn } from "child_process";
 
-export async function build(file: string, tsconfigFile: string): Promise<void> {
-  let code = await buildAndReturnExitCode(file, tsconfigFile);
+export async function compile(
+  file: string,
+  tsconfigFile: string
+): Promise<void> {
+  let code = await compileAndReturnExitCode(file, tsconfigFile);
   process.exitCode = code;
 }
 
-export async function buildAndReturnExitCode(
+export async function compileAndReturnExitCode(
   file: string,
   tsconfigFile: string
 ): Promise<number> {

@@ -8,7 +8,7 @@
 
 Written in TypeScript and compiled to ES6 with inline source map & source. See [@selfage/tsconfig](https://www.npmjs.com/package/@selfage/tsconfig) for full compiler options. Provides an opinionated CLI toolkit for developing frontend and backend in TypeScript. See sections below for each sub-command.
 
-## Build
+## Compile
 
 Please make sure it's run from the directory where your tsconfig.json is defined.
 
@@ -17,10 +17,10 @@ If you specified `incremental: true` in your tsconfig.json, `tsBuildInfoFile` wi
 Respect merging base tsconfig via `extends`.
 
 ```
-$ selfage build -h
-Usage: selfage build [options] <file>
+$ selfage compile -h
+Usage: selfage compile|cpl [options] <file>
 
-Build/Compile a single TypeScript source file while respecting compilerOptions in tsconfig.json. The file type can be neglected and is always fixed as '.ts'.
+Compile a single TypeScript source file while respecting compilerOptions in tsconfig.json. The file type can be neglected and is always fixed as '.ts'.
 
 Options:
   -h, --help  display help for command
@@ -37,6 +37,43 @@ Usage: selfage clean [options]
 Delete all files generated from building and bundling.
 
 Options:
+  -h, --help  display help for command
+```
+
+## Browserify
+
+There are three variants to browserify, to be run in Node or browser environment as JS or HTML, based on `browserify` and `uglify-js`.
+
+```
+$ selfage brn -h
+Usage: selfage browserifyForNodeJs|brn [options] <sourceFile> <outputFile>
+
+Compile a single TypeScript source file and browserify & uglify all its imported files into a bundle that can be run in Node environment. Output file type is fixed as .js.
+
+Options:
+  --debug     Include inline source map and inline source.
+  -h, --help  display help for command
+```
+
+```
+$ selfage brb -h
+Usage: selfage browserifyForBrowser|brb [options] <sourceFile> <outputFile>
+
+Compile a single TypeScript source file and browserify & uglify all its imported files into a bundle that can be run in browsers. Output file type is fixed as .js.
+
+Options:
+  --debug     Include inline source map and inline source.
+  -h, --help  display help for command
+```
+
+```
+$ selfage brh -h
+Usage: selfage browserifyToHtml|brh [options] <sourceFile> <outputFile>
+
+Compile a single TypeScript source file, browserify & uglify all its imported files into a bundle and embed it into an empty HTML inside a <script> tag of the body. Output file type is fixed as .html.
+
+Options:
+  --debug     Include inline source map and inline source.
   -h, --help  display help for command
 ```
 

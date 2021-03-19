@@ -19,8 +19,8 @@ TEST_RUNNER.run({
           "./test_data/build/browserify/two_file2.ts",
           "./test_data/build/browserify/two_file2_browserified.js",
           "./test_data/build/browserify/tsconfig_incr.json",
-          false,
-          Target.NODE_JS
+          Target.NODE_JS,
+          false
         );
 
         // Verify
@@ -40,8 +40,8 @@ TEST_RUNNER.run({
           "./test_data/build/browserify/two_file2.ts",
           "./test_data/build/browserify/two_file2_browserified.js",
           "./test_data/build/browserify/tsconfig_incr.json",
-          false,
-          Target.NODE_JS
+          Target.NODE_JS,
+          false
         );
 
         // Verify
@@ -76,8 +76,8 @@ TEST_RUNNER.run({
           "./test_data/build/browserify/stack_trace.ts",
           "./test_data/build/browserify/stack_trace_browserified.js",
           "./test_data/build/browserify/tsconfig.json",
-          true,
-          Target.NODE_JS
+          Target.NODE_JS,
+          true
         );
 
         // Verify

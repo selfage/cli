@@ -4,7 +4,7 @@ import getStream = require("get-stream");
 import UglifyJS = require("uglify-js");
 import { stripFileExtension } from "../io_helper";
 import { MTIME_LIST, Mtime, MtimeList } from "./browserify_mtime";
-import { buildAndReturnExitCode } from "./builder";
+import { compileAndReturnExitCode } from "./compiler";
 import { TSCONFIG_READER } from "./tsconfig_reader";
 import { parseMessage } from "@selfage/message/parser";
 
@@ -20,10 +20,10 @@ export async function browserify(
   sourceFile: string,
   outputFile: string,
   tsconfigFile: string,
-  isDebug: boolean,
-  target: Target
+  target: Target,
+  isDebug?: boolean
 ): Promise<void> {
-  let exitCode = await buildAndReturnExitCode(sourceFile, tsconfigFile);
+  let exitCode = await compileAndReturnExitCode(sourceFile, tsconfigFile);
   if (exitCode !== 0) {
     process.exitCode = exitCode;
     return;

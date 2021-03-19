@@ -1,5 +1,5 @@
 import { stripFileExtension } from "../io_helper";
-import { build } from "./builder";
+import { compile } from "./compiler";
 import { spawn } from "child_process";
 
 export async function run(
@@ -7,7 +7,7 @@ export async function run(
   tsconfigFile: string,
   args?: Array<string>
 ): Promise<void> {
-  await build(file, tsconfigFile);
+  await compile(file, tsconfigFile);
   let jsFile = stripFileExtension(file) + ".js";
   let cliArgs: Array<string>;
   if (!args) {
