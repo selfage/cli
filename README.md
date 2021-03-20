@@ -77,6 +77,8 @@ Options:
   -h, --help  display help for command
 ```
 
+Note that `--debug` doesn't guarantee stack traces will be mapped to TypeScript source code, depending on your running environment. You might need extra tools such as `source-map-support`.
+
 ## Run
 
 ```

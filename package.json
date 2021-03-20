@@ -1,6 +1,6 @@
 {
   "name": "@selfage/cli",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "CLI toolkit for all @selfage packages as well as frontend and backend development.",
   "repository": {
     "type": "git",
@@ -11,6 +11,10 @@
     "Compile",
     "Format",
     "Descriptor",
+    "Browserify",
+    "Uglify",
+    "Bundle",
+    "Metaprogramming",
     "TypeScript"
   ],
   "author": "Yuxuan Xie <teststaybaka@gmail.com> (http://www.yuxuanxie.com)",
