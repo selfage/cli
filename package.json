@@ -1,6 +1,6 @@
 {
   "name": "@selfage/cli",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "CLI toolkit for all @selfage packages as well as frontend and backend development.",
   "repository": {
     "type": "git",
@@ -35,7 +35,6 @@
   "devDependencies": {
     "@selfage/counter": "^1.0.8",
     "@selfage/datastore_client": "^1.0.3",
-    "@selfage/message": "^1.0.4",
     "@selfage/nested_error": "^1.0.6",
     "@selfage/observable_array": "^1.0.9",
     "@selfage/service_descriptor": "^1.0.4",
@@ -49,6 +48,7 @@
     "@types/uglify-js": "^3.12.0"
   },
   "dependencies": {
+    "@selfage/message": "^1.0.5",
     "browserify": "^17.0.0",
     "commander": "^6.2.1",
     "get-stream": "^6.0.0",
