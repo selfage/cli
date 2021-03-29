@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Target, browserify } from "./build/browserifier";
+import { browserify } from "./build/browserifier";
 import { clean } from "./build/cleaner";
 import { compile } from "./build/compiler";
 import { run } from "./build/runner";
@@ -35,12 +35,19 @@ async function main(): Promise<void> {
     )
     .action((file, options, extraArgs) => run(file, TSCONFIG_FILE, extraArgs));
   program
-    .command("browserifyForNodeJs <sourceFile> <outputFile>")
+    .command("browserifyForNode <sourceFile> <outputFile>")
     .alias("brn")
     .description(
       `Compile a single TypeScript source file and browserify & uglify all ` +
         `its imported files into a bundle that can be run in Node ` +
         `environment. Output file type is fixed as .js.`
+    )
+    .option(
+      "-e, --environment-file <environmentFile>",
+      `An extra TypeScript file to be browserified & uglified together with ` +
+        `the soure file. Typically such file contains global variables for a ` +
+        `particular environment such as PROD or DEV, and it's not imported ` +
+        `by the source file but assumed to be present at runtime.`
     )
     .option("--debug", "Include inline source map and inline source.")
     .action((sourceFile, outputFile, options) =>
@@ -48,7 +55,8 @@ async function main(): Promise<void> {
         sourceFile,
         outputFile,
         TSCONFIG_FILE,
-        Target.NODE_JS,
+        true,
+        options.environmentFile,
         options.debug
       )
     );
@@ -60,23 +68,12 @@ async function main(): Promise<void> {
         `its imported files into a bundle that can be run in browsers. ` +
         `Output file type is fixed as .js.`
     )
-    .option("--debug", "Include inline source map and inline source.")
-    .action((sourceFile, outputFile, options) =>
-      browserify(
-        sourceFile,
-        outputFile,
-        TSCONFIG_FILE,
-        Target.BROWSER_JS,
-        options.debug
-      )
-    );
-  program
-    .command("browserifyToHtml <sourceFile> <outputFile>")
-    .alias("brh")
-    .description(
-      `Compile a single TypeScript source file, browserify & uglify all its ` +
-        `imported files into a bundle and embed it into an empty HTML inside ` +
-        `a <script> tag of the body. Output file type is fixed as .html.`
+    .option(
+      "-e, --environment-file <environmentFile>",
+      `An extra TypeScript file to be browserified & uglified together with ` +
+        `the soure file. Typically such file contains global variables for a ` +
+        `particular environment such as PROD or DEV, and it's not imported ` +
+        `by the source file but assumed to be present at runtime.`
     )
     .option("--debug", "Include inline source map and inline source.")
     .action((sourceFile, outputFile, options) =>
@@ -84,7 +81,8 @@ async function main(): Promise<void> {
         sourceFile,
         outputFile,
         TSCONFIG_FILE,
-        Target.BROWSER_HTML,
+        false,
+        options.environmentFile,
         options.debug
       )
     );

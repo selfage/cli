@@ -10,23 +10,28 @@ import { parseMessage } from "@selfage/message/parser";
 
 let BROWSERIFY_MTIME_EXT = ".browserifymtime";
 
-export enum Target {
-  NODE_JS = 1,
-  BROWSER_JS = 2,
-  BROWSER_HTML = 3,
-}
-
 export async function browserify(
   sourceFile: string,
   outputFile: string,
   tsconfigFile: string,
-  target: Target,
+  inNode: boolean,
+  environmentFile?: string,
   isDebug?: boolean
 ): Promise<void> {
   let exitCode = await compileAndReturnExitCode(sourceFile, tsconfigFile);
   if (exitCode !== 0) {
     process.exitCode = exitCode;
     return;
+  }
+  if (environmentFile) {
+    let exitCode = await compileAndReturnExitCode(
+      environmentFile,
+      tsconfigFile
+    );
+    if (exitCode !== 0) {
+      process.exitCode = exitCode;
+      return;
+    }
   }
 
   let sourceModulePath = stripFileExtension(sourceFile);
@@ -36,10 +41,13 @@ export async function browserify(
     return;
   }
 
-  let compiledSourceFile = sourceModulePath + ".js";
-  let browserifyHandler = browserifyConstructor(compiledSourceFile, {
+  let filesToBeBrowserified = [sourceModulePath + ".js"];
+  if (environmentFile) {
+    filesToBeBrowserified.push(stripFileExtension(environmentFile) + ".js");
+  }
+  let browserifyHandler = browserifyConstructor(filesToBeBrowserified, {
     debug: isDebug,
-    node: target === Target.NODE_JS,
+    node: inNode,
   });
   let involvedFiles: string[] = [];
   browserifyHandler.on("file", (file) => {
@@ -60,22 +68,9 @@ export async function browserify(
     throw minifiedRes.error;
   }
 
-  let outputCode: string;
-  let outputFileExt: string;
-  if (target !== Target.BROWSER_HTML) {
-    outputCode = minifiedRes.code;
-    outputFileExt = ".js";
-  } else {
-    outputCode =
-      `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>` +
-      `<script type="text/javascript">${minifiedRes.code}</script></body>` +
-      `</html>`;
-    outputFileExt = ".html";
-  }
-
   let outputModulePath = stripFileExtension(outputFile);
   await Promise.all([
-    fs.promises.writeFile(outputModulePath + outputFileExt, outputCode),
+    fs.promises.writeFile(outputModulePath + ".js", minifiedRes.code),
     writeMtimesFileIfIncremental(
       mtimesFile,
       involvedFiles,
