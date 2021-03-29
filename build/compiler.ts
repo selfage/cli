@@ -1,5 +1,7 @@
+import fs = require("fs");
+import path = require("path");
+import resolve = require("resolve");
 import { stripFileExtension } from "../io_helper";
-import { TSCONFIG_READER } from "./tsconfig_reader";
 import { spawn } from "child_process";
 
 export async function compile(
@@ -14,7 +16,7 @@ export async function compileAndReturnExitCode(
   file: string,
   tsconfigFile: string
 ): Promise<number> {
-  let compilerOptions = await TSCONFIG_READER.readCompilerOptions(tsconfigFile);
+  let compilerOptions = await readCompilerOptions(tsconfigFile);
   let incremental = false;
   let args = new Array<string>();
   for (let propertyName of Object.keys(compilerOptions)) {
@@ -36,4 +38,21 @@ export async function compileAndReturnExitCode(
       resolve(code);
     });
   });
+}
+
+export async function readCompilerOptions(tsconfigFile: string): Promise<any> {
+  let tsconfig = JSON.parse(
+    (await fs.promises.readFile(tsconfigFile)).toString()
+  );
+  let compilerOptions = tsconfig.compilerOptions;
+  if (tsconfig.extends) {
+    let baseDir = path.dirname(tsconfigFile);
+    let baseTsconfigFile = resolve.sync(tsconfig.extends, {
+      basedir: baseDir,
+      extensions: [".json"],
+    });
+    let baseCompilerOptions = await readCompilerOptions(baseTsconfigFile);
+    compilerOptions = { ...baseCompilerOptions, ...compilerOptions };
+  }
+  return compilerOptions;
 }

@@ -1,7 +1,6 @@
 import "./build/browserifier_test";
-import "./build/builder_test";
 import "./build/cleaner_test";
-import "./build/tsconfig_reader_test";
+import "./build/compiler_test";
 import "./formatter_test";
 import "./generate/datastore_index_builder_test";
 import "./generate/datastore_model_generator_test";

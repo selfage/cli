@@ -42,17 +42,19 @@ Options:
 
 ## Browserify
 
-There are three variants to browserify, to be run in Node or browser environment as JS or HTML, based on `browserify` and `uglify-js`.
+There are two variants to browserify, to be run in Node or browser environment, by wiring `browserify` and `uglify-js`.
 
 ```
 $ selfage brn -h
-Usage: selfage browserifyForNodeJs|brn [options] <sourceFile> <outputFile>
+Usage: selfage browserifyForNode|brn [options] <sourceFile> <outputFile>
 
 Compile a single TypeScript source file and browserify & uglify all its imported files into a bundle that can be run in Node environment. Output file type is fixed as .js.
 
 Options:
-  --debug     Include inline source map and inline source.
-  -h, --help  display help for command
+  -e, --environment-file <environmentFile>  An extra TypeScript file to be browserified & uglified together with the soure file. Typically such file contains global variables for a particular
+                                            environment such as PROD or DEV, and it's not imported by the source file but assumed to be present at runtime.
+  --debug                                   Include inline source map and inline source.
+  -h, --help                                display help for command
 ```
 
 ```
@@ -62,22 +64,13 @@ Usage: selfage browserifyForBrowser|brb [options] <sourceFile> <outputFile>
 Compile a single TypeScript source file and browserify & uglify all its imported files into a bundle that can be run in browsers. Output file type is fixed as .js.
 
 Options:
-  --debug     Include inline source map and inline source.
-  -h, --help  display help for command
+  -e, --environment-file <environmentFile>  An extra TypeScript file to be browserified & uglified together with the source file. Typically such file contains global variables for a particular
+                                            environment such as PROD or DEV, and it's not imported by the source file but assumed to be present at runtime.
+  --debug                                   Include inline source map and inline source.
+  -h, --help                                display help for command
 ```
 
-```
-$ selfage brh -h
-Usage: selfage browserifyToHtml|brh [options] <sourceFile> <outputFile>
-
-Compile a single TypeScript source file, browserify & uglify all its imported files into a bundle and embed it into an empty HTML inside a <script> tag of the body. Output file type is fixed as .html.
-
-Options:
-  --debug     Include inline source map and inline source.
-  -h, --help  display help for command
-```
-
-Note that `--debug` doesn't guarantee stack traces will be mapped to TypeScript source code, depending on your running environment. You might need extra tools such as `source-map-support`.
+Note that `--debug` doesn't guarantee stack traces will be mapped to TypeScript source code. You could consider using `source-map-support` package. For Node environment, you can import `source-map-support/register` in your main file. For browser environment, referring to its [browser support](https://github.com/evanw/node-source-map-support#browser-support). Importing `source-map-support/register` for browser environment will bloat your final JS file size by 20+ KiB, because browserifying and uglifying will produce a ton of source map codes just for `source-map-support/register`.
 
 ## Run
 

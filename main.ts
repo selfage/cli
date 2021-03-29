@@ -45,8 +45,8 @@ async function main(): Promise<void> {
     .option(
       "-e, --environment-file <environmentFile>",
       `An extra TypeScript file to be browserified & uglified together with ` +
-        `the soure file. Typically such file contains global variables for a ` +
-        `particular environment such as PROD or DEV, and it's not imported ` +
+        `the source file. Typically such file contains global variables for ` +
+        `a particular environment such as PROD or DEV, and it's not imported ` +
         `by the source file but assumed to be present at runtime.`
     )
     .option("--debug", "Include inline source map and inline source.")
@@ -71,8 +71,8 @@ async function main(): Promise<void> {
     .option(
       "-e, --environment-file <environmentFile>",
       `An extra TypeScript file to be browserified & uglified together with ` +
-        `the soure file. Typically such file contains global variables for a ` +
-        `particular environment such as PROD or DEV, and it's not imported ` +
+        `the source file. Typically such file contains global variables for ` +
+        `a particular environment such as PROD or DEV, and it's not imported ` +
         `by the source file but assumed to be present at runtime.`
     )
     .option("--debug", "Include inline source map and inline source.")
