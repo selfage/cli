@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import packageConfig from "./package.json";
 import { browserify } from "./build/browserifier";
 import { clean } from "./build/cleaner";
 import { compile } from "./build/compiler";
@@ -13,6 +14,7 @@ let EXPLAIN_FILE_TYPE = `The file type can be neglected and is always fixed as '
 
 async function main(): Promise<void> {
   let program = new Command();
+  program.version(packageConfig.version);
   program
     .command("compile <file>")
     .alias("cpl")
