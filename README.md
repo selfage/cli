@@ -70,7 +70,7 @@ Options:
   -h, --help                                display help for command
 ```
 
-Note that `--debug` doesn't guarantee stack traces will be mapped to TypeScript source code. You could consider using `source-map-support` package. For Node environment, you can import `source-map-support/register` in your main file. For browser environment, referring to its [browser support](https://github.com/evanw/node-source-map-support#browser-support). Importing `source-map-support/register` for browser environment will bloat your final JS file size by 20+ KiB, because browserifying and uglifying will produce a ton of source map codes just for `source-map-support/register`.
+Note that `--debug` doesn't guarantee stack traces will be mapped to TypeScript source code. You could consider using `source-map-support` package. For Node environment, you can `import 'source-map-support/register';` in your main file. For browser environment, referring to its [browser support](https://github.com/evanw/node-source-map-support#browser-support). Importing `source-map-support/register` for browser environment will bloat your final JS file size by 20+ KiB, because browserifying and uglifying will produce a ton of source map codes just for `source-map-support/register`.
 
 ## Run
 
@@ -115,3 +115,8 @@ Options:
   --dry-run                     Print the generated content instead of writing it to the destination file.
   -h, --help                    display help for command
 ```
+
+## API access
+
+This package is not designed to expose APIs but you are welcome to refer to the .d.ts files to see what you want to use. E.g., you could `import { compile } from '@selfage/cli/build/compiler';` and call `compile('some_source', 'tsconfig.json')` to compile a single file. The entry file for this package is main.js/main.d.ts.
+
