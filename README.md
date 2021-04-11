@@ -82,9 +82,9 @@ Options:
   -h, --help                                display help for command
 ```
 
-Note that `--debug` doesn't guarantee stack traces will be mapped to TypeScript source code. You could consider using `source-map-support` package. For Node environment, you can `import 'source-map-support/register';` in your main file. For browser environment, referring to its [browser support](https://github.com/evanw/node-source-map-support#browser-support). Importing `source-map-support/register` for browser environment will bloat your final JS file size by 20+ KiB, because browserifying and uglifying will produce a ton of source map codes just for `source-map-support/register`.
-
 See [this answer](https://stackoverflow.com/questions/38906359/create-a-global-variable-in-typescript/67040805#67040805) for how to properly create and use environment file with the help of `globalThis`.
+
+Note that `--debug` doesn't guarantee stack traces will be mapped to TypeScript source code. You could consider using `source-map-support` package. For Node environment, you can `import 'source-map-support/register';` in your main file. For browser environment, referring to its [browser support](https://github.com/evanw/node-source-map-support#browser-support). Importing `source-map-support/register` for browser environment will bloat your final JS file size by 20+ KiB, because browserifying and uglifying will produce a ton of source map codes just for `source-map-support/register`.
 
 ## Build web pages
 
@@ -104,6 +104,8 @@ Options:
 ```
 
 See [this answer](https://stackoverflow.com/questions/38906359/create-a-global-variable-in-typescript/67040805#67040805) for how to properly create and use environment file with the help of `globalThis`.
+
+`--debug` still only includes inline source map and inline source, but `web_page_mapping_config.json` asks for `browser-source-map-support.js` file, which then lets stack traces be mapped to TypeScript source code.
 
 ## Format
 
