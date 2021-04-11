@@ -25,15 +25,15 @@ export async function buildWebPages(
   let promisesToBuild = new Array<Promise<void>>();
   for (let pathToTs of config.pathsToTs) {
     promisesToBuild.push(
-      browserify(
-        path.join(rootDir, pathToTs.ts),
-        path.join(rootDir, pathToTs.js),
+      browserifyAndGzip(
+        rootDir,
+        pathToTs.ts,
+        pathToTs.js,
         tsconfigFile,
-        false,
         environmentFile,
         isDebug
       ),
-      writeHtmlFile(
+      writeHtmlFileAndGZip(
         pathToTs.path,
         rootDir,
         pathToTs.js,
@@ -42,45 +42,52 @@ export async function buildWebPages(
     );
   }
   promisesToBuild.push(
-    browserify(
-      path.join(rootDir, config.notFoundTs.ts),
-      path.join(rootDir, config.notFoundTs.js),
+    browserifyAndGzip(
+      rootDir,
+      config.notFoundTs.ts,
+      config.notFoundTs.js,
       tsconfigFile,
-      false,
       environmentFile,
       isDebug
     ),
-    writeHtmlFile(
+    writeHtmlFileAndGZip(
       config.notFoundTs.path,
       rootDir,
       config.notFoundTs.js,
       config.sourceMapSupport.path
     )
   );
+  promisesToBuild.push(gzipFile(rootDir, config.sourceMapSupport.js, ".js"));
   await Promise.all(promisesToBuild);
-
-  let promisesToGzip = new Array<Promise<void>>();
-  for (let pathToTs of config.pathsToTs) {
-    promisesToGzip.push(
-      gzipFile(rootDir, pathToTs.js, ".js"),
-      gzipFile(rootDir, pathToTs.js, ".html")
-    );
-  }
-  promisesToGzip.push(
-    gzipFile(rootDir, config.notFoundTs.js, ".js"),
-    gzipFile(rootDir, config.notFoundTs.js, ".html")
-  );
-  promisesToGzip.push(gzipFile(rootDir, config.sourceMapSupport.js, ".js"));
-  await Promise.all(promisesToGzip);
 }
 
-async function writeHtmlFile(
+async function browserifyAndGzip(
+  rootDir: string,
+  tsFile: string,
+  jsFile: string,
+  tsconfigFile: string,
+  environmentFile?: string,
+  isDebug?: boolean
+): Promise<void> {
+  await browserify(
+    path.join(rootDir, tsFile),
+    path.join(rootDir, jsFile),
+    tsconfigFile,
+    false,
+    environmentFile,
+    isDebug
+  );
+  return gzipFile(rootDir, jsFile, ".js");
+}
+
+async function writeHtmlFileAndGZip(
   tsUrlPath: string,
   rootDir: string,
   jsFile: string,
   sourceMapSupportPath: string
 ): Promise<void> {
-  return fs.promises.writeFile(path.join(rootDir, jsFile) + ".html",
+  await fs.promises.writeFile(
+    path.join(rootDir, jsFile) + ".html",
     `<!DOCTYPE html>
 <html>
   <head><meta charset="UTF-8"></head>
@@ -91,6 +98,7 @@ async function writeHtmlFile(
   </body>
 </html>`
   );
+  return gzipFile(rootDir, jsFile, ".html");
 }
 
 async function gzipFile(

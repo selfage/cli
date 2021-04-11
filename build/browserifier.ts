@@ -29,10 +29,12 @@ export async function browserify(
     }
   }
 
-  let filesToBeBrowserified = [stripFileExtension(sourceFile) + ".js"];
+  let filesToBeBrowserified = new Array<string>();
+  // environmentFile, if exists, needs to be run first.
   if (environmentFile) {
     filesToBeBrowserified.push(stripFileExtension(environmentFile) + ".js");
   }
+  filesToBeBrowserified.push(stripFileExtension(sourceFile) + ".js");
   let browserifyHandler = browserifyConstructor(filesToBeBrowserified, {
     debug: isDebug,
     node: inNode,
