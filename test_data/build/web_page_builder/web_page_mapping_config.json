@@ -1,0 +1,16 @@
+{
+  "pathsToTs": [{
+    "path": "/some_page",
+    "ts": "./simple_page",
+    "js": "./simple_page_bin"
+  }],
+  "notFoundTs": {
+    "path": "/some_not_found",
+    "ts": "./simple_not_found",
+    "js": "./simple_not_found_bin"
+  },
+  "sourceMapSupport": {
+    "path": "/some_source_map_support",
+    "js": "./browser-source-map-support"
+  }
+}

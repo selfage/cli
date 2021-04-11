@@ -2,31 +2,32 @@ import fs = require("fs");
 import { browserify } from "./browserifier";
 import { assertThat, containStr } from "@selfage/test_matcher";
 import { TEST_RUNNER } from "@selfage/test_runner";
-import { spawnSync } from "child_process";
+import { SpawnSyncReturns, spawnSync } from "child_process";
 
 // TODO: Add browser test once puppeteer_runner is ready.
 
-function executeSync(jsFile: string): string {
-  return spawnSync("node", [jsFile]).output.join("\n");
+function executeSync(jsFile: string): SpawnSyncReturns<string> {
+  return spawnSync("node", [jsFile]);
 }
 
 TEST_RUNNER.run({
   name: "BrowserifierTest",
   cases: [
     {
-      name: "SimpleBrowserify",
+      name: "Browserify",
       execute: async () => {
         // Execute
         await browserify(
           "./test_data/build/browserify/two_file2.ts",
-          "./test_data/build/browserify/two_file2_browserified.js",
+          "./test_data/build/browserify/two_file2_browserified.ts",
           "./test_data/build/browserify/tsconfig.json",
           true
         );
 
         // Verify
         assertThat(
-          executeSync("./test_data/build/browserify/two_file2_browserified.js"),
+          executeSync("./test_data/build/browserify/two_file2_browserified.js")
+            .stdout,
           containStr("31"),
           "output"
         );
@@ -58,7 +59,7 @@ TEST_RUNNER.run({
         assertThat(
           executeSync(
             "./test_data/build/browserify/stack_trace_browserified.js"
-          ),
+          ).stderr,
           containStr("test_data/build/browserify/stack_trace.ts"),
           "output"
         );
@@ -88,7 +89,7 @@ TEST_RUNNER.run({
         assertThat(
           executeSync(
             "./test_data/build/browserify/try_environment_browserified.js"
-          ),
+          ).stdout,
           containStr("Something else"),
           "output"
         );
@@ -97,6 +98,7 @@ TEST_RUNNER.run({
         await Promise.all([
           fs.promises.unlink("./test_data/build/browserify/try_environment.js"),
           fs.promises.unlink("./test_data/build/browserify/environment_dev.js"),
+          fs.promises.unlink("./test_data/build/browserify/environment.js"),
           fs.promises.unlink(
             "./test_data/build/browserify/try_environment_browserified.js"
           ),
@@ -119,7 +121,7 @@ TEST_RUNNER.run({
         assertThat(
           executeSync(
             "./test_data/build/browserify/try_environment_browserified.js"
-          ),
+          ).stdout,
           containStr("Prod!"),
           "output"
         );
@@ -130,6 +132,7 @@ TEST_RUNNER.run({
           fs.promises.unlink(
             "./test_data/build/browserify/environment_prod.js"
           ),
+          fs.promises.unlink("./test_data/build/browserify/environment.js"),
           fs.promises.unlink(
             "./test_data/build/browserify/try_environment_browserified.js"
           ),

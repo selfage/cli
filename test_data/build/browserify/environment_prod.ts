@@ -1,1 +1,3 @@
-let ENVIRONMENT = "PROD";
+import './environment';
+
+globalThis.ENVIRONMENT = 'PROD';

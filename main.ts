@@ -4,13 +4,17 @@ import { browserify } from "./build/browserifier";
 import { clean } from "./build/cleaner";
 import { compile } from "./build/compiler";
 import { run } from "./build/runner";
+import {
+  WEB_PAGE_MAPPING_CONFIG,
+  buildWebPages,
+} from "./build/web_page_builder";
 import { format } from "./formatter";
 import { generate } from "./generate/generator";
 import { Command } from "commander";
 import "source-map-support/register";
 
 let TSCONFIG_FILE = "./tsconfig.json";
-let EXPLAIN_FILE_TYPE = `The file type can be neglected and is always fixed as '.ts'.`;
+let FIX_FILE_EXT = `The file ext can be neglected and is always fixed as `;
 
 async function main(): Promise<void> {
   let program = new Command();
@@ -21,7 +25,8 @@ async function main(): Promise<void> {
     .description(
       `Compile a single TypeScript source file while respecting ` +
         `compilerOptions in tsconfig.json. ` +
-        EXPLAIN_FILE_TYPE
+        FIX_FILE_EXT +
+        `.ts.`
     )
     .action((file) => compile(file, TSCONFIG_FILE));
   program
@@ -32,7 +37,8 @@ async function main(): Promise<void> {
     .command("run <file>")
     .description(
       `Compile and run the specified file. ` +
-        EXPLAIN_FILE_TYPE +
+        FIX_FILE_EXT +
+        `.ts.` +
         ` Pass through arguments to the executable file after --.`
     )
     .action((file, options, extraArgs) => run(file, TSCONFIG_FILE, extraArgs));
@@ -40,9 +46,9 @@ async function main(): Promise<void> {
     .command("browserifyForNode <sourceFile> <outputFile>")
     .alias("brn")
     .description(
-      `Compile a single TypeScript source file and browserify & uglify all ` +
-        `its imported files into a bundle that can be run in Node ` +
-        `environment. Output file type is fixed as .js.`
+      `Compile a single source file and browserify & uglify all its imported ` +
+        `files into a bundle that can be run in browsers. Both file exts can ` +
+        `be neglected and are always fixed as .ts and .js respectively.`
     )
     .option(
       "-e, --environment-file <environmentFile>",
@@ -52,10 +58,10 @@ async function main(): Promise<void> {
         `by the source file but assumed to be present at runtime.`
     )
     .option("--debug", "Include inline source map and inline source.")
-    .action((sourceFile, outputFile, options) =>
+    .action((sourceFile, options) =>
       browserify(
         sourceFile,
-        outputFile,
+        options.outputFile,
         TSCONFIG_FILE,
         true,
         options.environmentFile,
@@ -63,12 +69,12 @@ async function main(): Promise<void> {
       )
     );
   program
-    .command("browserifyForBrowser <sourceFile> <outputFile>")
+    .command("browserifyForBrowser <sourceFile>")
     .alias("brb")
     .description(
-      `Compile a single TypeScript source file and browserify & uglify all ` +
-        `its imported files into a bundle that can be run in browsers. ` +
-        `Output file type is fixed as .js.`
+      `Compile a single source file and browserify & uglify all its imported ` +
+        `files into a bundle that can be run in browsers. Both file exts can ` +
+        `be neglected and are always fixed as .ts and .js respectively.`
     )
     .option(
       "-e, --environment-file <environmentFile>",
@@ -89,9 +95,32 @@ async function main(): Promise<void> {
       )
     );
   program
+    .command("buildWebPages <rootDir>")
+    .alias("bwp")
+    .description(
+      `Compile, browserify, and uglify TypeScript files into JavaScript and ` +
+        `HTML files, based on <rootDir>/${WEB_PAGE_MAPPING_CONFIG}.`
+    )
+    .option(
+      "-e, --environment-file <environmentFile>",
+      `An extra TypeScript file to be browserified & uglified together with ` +
+        `the source file. Typically such file contains global variables for ` +
+        `a particular environment such as PROD or DEV, and it's not imported ` +
+        `by the source file but assumed to be present at runtime.`
+    )
+    .option("--debug", "Include inline source map and inline source.")
+    .action((rootDir, options) =>
+      buildWebPages(
+        rootDir,
+        TSCONFIG_FILE,
+        options.environmentFile,
+        options.debug
+      )
+    );
+  program
     .command("format <file>")
     .alias("fmt")
-    .description(`Format the specified file. ` + EXPLAIN_FILE_TYPE)
+    .description(`Format the specified file. ` + FIX_FILE_EXT + ".ts.")
     .option(
       "--dry-run",
       "Print the formatted content instead of overwriting the file."
@@ -102,14 +131,15 @@ async function main(): Promise<void> {
     .alias("gen")
     .description(
       `Generate various descriptors from the specified source file. The ` +
-        `source file type is fixed as '.json' and the destination file type ` +
-        `is fixed as '.ts'.`
+        `source file ext is fixed as .json and the destination file ext is ` +
+        `fixed as .ts.`
     )
     .option(
       "-i, --index-file <indexFile>",
-      `The index yaml file for Google Cloud Datastore composite index. The ` +
-        `file type is fixed as '.yaml'. Requried only if your source file ` +
-        `includes a datastore definition.`
+      `The index yaml file for Google Cloud Datastore composite index. ` +
+        FIX_FILE_EXT +
+        `.yaml. Requried only if your definition file includes a datastore ` +
+        `definition.`
     )
     .option(
       "--dry-run",

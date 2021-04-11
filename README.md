@@ -40,6 +40,18 @@ Options:
   -h, --help  display help for command
 ```
 
+## Run
+
+```
+$ selfage run -h
+Usage: selfage run [options] <file>
+
+Compile and run the specified file. The file type can be neglected and is always fixed as '.ts'. Pass through arguments to the executable file after --.
+
+Options:
+  -h, --help  display help for command
+```
+
 ## Browserify
 
 There are two variants to browserify, to be run in Node or browser environment, by wiring `browserify` and `uglify-js`.
@@ -72,17 +84,26 @@ Options:
 
 Note that `--debug` doesn't guarantee stack traces will be mapped to TypeScript source code. You could consider using `source-map-support` package. For Node environment, you can `import 'source-map-support/register';` in your main file. For browser environment, referring to its [browser support](https://github.com/evanw/node-source-map-support#browser-support). Importing `source-map-support/register` for browser environment will bloat your final JS file size by 20+ KiB, because browserifying and uglifying will produce a ton of source map codes just for `source-map-support/register`.
 
-## Run
+See [this answer](https://stackoverflow.com/questions/38906359/create-a-global-variable-in-typescript/67040805#67040805) for how to properly create and use environment file with the help of `globalThis`.
+
+## Build web pages
+
+See `@selfage/web_page_handler` for detailed explanation of the generated files based on the config file, and how to serve those files on a web server.
 
 ```
-$ selfage run -h
-Usage: selfage run [options] <file>
+$ selfage bwp -h
+Usage: selfage buildWebPages|bwp [options] <rootDir>
 
-Compile and run the specified file. The file type can be neglected and is always fixed as '.ts'. Pass through arguments to the executable file after --.
+Compile, browserify, and uglify TypeScript files into JavaScript and HTML files, based on <rootDir>/web_page_mapping_config.json.
 
 Options:
-  -h, --help  display help for command
+  -e, --environment-file <environmentFile>  An extra TypeScript file to be browserified & uglified together with the source file. Typically such file contains global variables for a particular
+                                            environment such as PROD or DEV, and it's not imported by the source file but assumed to be present at runtime.
+  --debug                                   Include inline source map and inline source.
+  -h, --help                                display help for command
 ```
+
+See [this answer](https://stackoverflow.com/questions/38906359/create-a-global-variable-in-typescript/67040805#67040805) for how to properly create and use environment file with the help of `globalThis`.
 
 ## Format
 
