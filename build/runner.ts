@@ -9,12 +9,7 @@ export async function run(
 ): Promise<void> {
   await compile(file, tsconfigFile);
   let jsFile = stripFileExtension(file) + ".js";
-  let cliArgs: Array<string>;
-  if (!args) {
-    cliArgs = new Array<string>();
-  } else {
-    cliArgs = args;
-  }
+  let cliArgs = args ?? new Array<string>();
   let childProcess = spawn("node", [jsFile, ...cliArgs], { stdio: "inherit" });
   return new Promise<void>((resolve) => {
     childProcess.on("exit", (code) => {
