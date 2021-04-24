@@ -1,7 +1,7 @@
 {
   "name": "@selfage/cli",
-  "version": "1.1.0",
-  "description": "Basic CLI for to help develop apps in TypeScript.",
+  "version": "1.1.1",
+  "description": "Basic CLI to help develop apps in TypeScript.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/selfage/cli.git"
