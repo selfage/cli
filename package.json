@@ -11,9 +11,6 @@
     "Compile",
     "Format",
     "Descriptor",
-    "Browserify",
-    "Uglify",
-    "Bundle",
     "Metaprogramming",
     "TypeScript"
   ],
