@@ -4,7 +4,7 @@ import { spawn } from "child_process";
 
 export async function run(
   file: string,
-  tsconfigFile: string,
+  tsconfigFile?: string,
   args?: Array<string>
 ): Promise<void> {
   await compile(file, tsconfigFile);

@@ -8,8 +8,12 @@ import { generate } from "./generate/generator";
 import { Command } from "commander";
 import "source-map-support/register";
 
-let TSCONFIG_FILE = "./tsconfig.json";
 let FIXED_FILE_EXT = ` can be neglected and is always fixed as `;
+let TSCONFIG_FILE_OPTION = [
+  "-c, --tsconfig-file <file>",
+  `The file path to tsconfig.json. If not provided, it will try to look for ` +
+    `it at the current working directory.`,
+];
 
 async function main(): Promise<void> {
   let program = new Command();
@@ -23,12 +27,13 @@ async function main(): Promise<void> {
         FIXED_FILE_EXT +
         `.ts.`
     )
+    .option(TSCONFIG_FILE_OPTION[0], TSCONFIG_FILE_OPTION[1])
     .option(
       "-s, --supplementary-files <files...>",
       `Supplementary files to be compiled together with the source file.`
     )
     .action((file, options) =>
-      compile(file, TSCONFIG_FILE, ...options.supplementaryFiles)
+      compile(file, options.tsconfigFile, options.supplementaryFiles)
     );
   program
     .command("clean")
@@ -43,7 +48,10 @@ async function main(): Promise<void> {
         `.ts.` +
         ` Pass through arguments to the executable file after --.`
     )
-    .action((file, options, extraArgs) => run(file, TSCONFIG_FILE, extraArgs));
+    .option(TSCONFIG_FILE_OPTION[0], TSCONFIG_FILE_OPTION[1])
+    .action((file, options, extraArgs) =>
+      run(file, options.tsconfigFile, extraArgs)
+    );
   program
     .command("format <file>")
     .alias("fmt")

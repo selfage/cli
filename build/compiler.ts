@@ -6,8 +6,8 @@ import { spawn } from "child_process";
 
 export async function compile(
   entryFile: string,
-  tsconfigFile: string,
-  ...supplementaryFiles: Array<string>
+  tsconfigFile = "./tsconfig.json",
+  supplementaryFiles = new Array<string>()
 ): Promise<void> {
   let compilerOptions = await readCompilerOptions(tsconfigFile);
   let incremental = false;

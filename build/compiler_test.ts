@@ -72,7 +72,7 @@ TEST_RUNNER.run({
         await compile(
           "./test_data/build/compiler/example.ts",
           "./test_data/build/compiler/tsconfig_another.json",
-          "./test_data/build/compiler/sup_example.ts"
+          ["./test_data/build/compiler/sup_example.ts"]
         );
 
         // Verify

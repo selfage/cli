@@ -12,18 +12,21 @@ Written in TypeScript and compiled to ES6 with inline source map & source. See [
 
 Please make sure it's run from the directory where your tsconfig.json is defined.
 
-If you specified `incremental: true` in your tsconfig.json, `tsBuildInfoFile` will not be respected and will be overriden by `${filename}.tsbuildinfo`.
+If you specified `incremental: true` in your tsconfig.json, `tsBuildInfoFile` will not be respected and will be overriden by `<file>.tsbuildinfo`.
 
 Respect merging base tsconfig via `extends`.
 
 ```
 $ selfage compile -h
+
 Usage: selfage compile|cpl [options] <file>
 
-Compile a single TypeScript source file while respecting compilerOptions in tsconfig.json. The file type can be neglected and is always fixed as '.ts'.
+Compile a single TypeScript source file while respecting compilerOptions in tsconfig.json. Its file ext can be neglected and is always fixed as .ts.
 
 Options:
-  -h, --help  display help for command
+  -c, --tsconfig-file <file>            The file path to tsconfig.json. If not provided, it will try to look for it at the current working directory.
+  -s, --supplementary-files <files...>  Supplementary files to be compiled together with the source file.
+  -h, --help                            display help for command
 ```
 
 ## Clean
@@ -46,10 +49,11 @@ Options:
 $ selfage run -h
 Usage: selfage run [options] <file>
 
-Compile and run the specified file. The file type can be neglected and is always fixed as '.ts'. Pass through arguments to the executable file after --.
+Compile and run the specified file under Node environment. Its file ext can be neglected and is always fixed as .ts. Pass through arguments to the executable file after --.
 
 Options:
-  -h, --help  display help for command
+  -c, --tsconfig-file <file>  The file path to tsconfig.json. If not provided, it will try to look for it at the current working directory.
+  -h, --help                  display help for command
 ```
 
 ## Format
@@ -86,5 +90,12 @@ Options:
 
 ## API access
 
-This package is not designed to expose APIs but you are welcome to refer to the .d.ts files to see what you want to use. E.g., you could `import { compile } from '@selfage/cli/build/compiler';` and call `compile('some_source', 'tsconfig.json')` to compile a single file. The entry file for this package is main.js & main.d.ts.
+Please check out the corresponding .d.ts file for function signatures for each sub-command.
 
+`compile` -> `@selfage/cli/build/compiler`
+`clean` -> `@selfage/cli/build/cleaner`
+`run` -> `@selfage/cli/build/runner`
+`format` -> `@selfage/cli/formatter`
+`generate` -> `@selfage/cli/generate/generator`
+
+E.g., you could `import { compile } from '@selfage/cli/build/compiler';` and call `await compile('some_source', 'tsconfig.json')` to compile a single file.
