@@ -1,6 +1,6 @@
 import fs = require("fs");
-import { compileAndReturnExitCode, readCompilerOptions } from "./compiler";
-import { assertThat, eq } from "@selfage/test_matcher";
+import { compile, readCompilerOptions } from "./compiler";
+import { assertReject, assertThat, eq, eqError } from "@selfage/test_matcher";
 import { TEST_RUNNER } from "@selfage/test_runner";
 
 TEST_RUNNER.run({
@@ -23,16 +23,38 @@ TEST_RUNNER.run({
       },
     },
     {
-      name: "BuildAndReturnExitCode",
+      name: "BuildWithError",
       execute: async () => {
-        // Execute
-        let exitCode = await compileAndReturnExitCode(
+        // Execute & Verify
+        let error = await assertReject(
+          compile(
+            "./test_data/build/compiler/error_example.ts",
+            "./test_data/build/compiler/tsconfig_another.json"
+          )
+        );
+
+        // Verify
+        assertThat(error, eqError(new Error("with non-zero code")), "error");
+        assertThat(
+          fs.existsSync("./test_data/build/compiler/error_example.js"),
+          eq(true),
+          "js file exists"
+        );
+
+        // Cleanup
+        await fs.promises.unlink("./test_data/build/compiler/error_example.js");
+      },
+    },
+    {
+      name: "BuildWithoutError",
+      execute: async () => {
+        // Execute & Verify
+        await compile(
           "./test_data/build/compiler/example.ts",
           "./test_data/build/compiler/tsconfig_another.json"
         );
 
         // Verify
-        assertThat(exitCode, eq(0), "exit code");
         assertThat(
           fs.existsSync("./test_data/build/compiler/example.js"),
           eq(true),
@@ -40,7 +62,36 @@ TEST_RUNNER.run({
         );
 
         // Cleanup
-        fs.promises.unlink("./test_data/build/compiler/example.js");
+        await fs.promises.unlink("./test_data/build/compiler/example.js");
+      },
+    },
+    {
+      name: "BuildWithSupplementary",
+      execute: async () => {
+        // Execute & Verify
+        await compile(
+          "./test_data/build/compiler/example.ts",
+          "./test_data/build/compiler/tsconfig_another.json",
+          "./test_data/build/compiler/sup_example.ts"
+        );
+
+        // Verify
+        assertThat(
+          fs.existsSync("./test_data/build/compiler/example.js"),
+          eq(true),
+          "js file exists"
+        );
+        assertThat(
+          fs.existsSync("./test_data/build/compiler/sup_example.js"),
+          eq(true),
+          "supplementary js file exists"
+        );
+
+        // Cleanup
+        await Promise.all([
+          fs.promises.unlink("./test_data/build/compiler/example.js"),
+          fs.promises.unlink("./test_data/build/compiler/sup_example.js"),
+        ]);
       },
     },
   ],

@@ -5,17 +5,10 @@ import { stripFileExtension } from "../io_helper";
 import { spawn } from "child_process";
 
 export async function compile(
-  file: string,
-  tsconfigFile: string
+  entryFile: string,
+  tsconfigFile: string,
+  ...supplementaryFiles: Array<string>
 ): Promise<void> {
-  let code = await compileAndReturnExitCode(file, tsconfigFile);
-  process.exitCode = code;
-}
-
-export async function compileAndReturnExitCode(
-  file: string,
-  tsconfigFile: string
-): Promise<number> {
   let compilerOptions = await readCompilerOptions(tsconfigFile);
   let incremental = false;
   let args = new Array<string>();
@@ -25,19 +18,30 @@ export async function compileAndReturnExitCode(
       incremental = true;
     }
   }
-
-  let modulePath = stripFileExtension(file);
+  let entryModulePath = stripFileExtension(entryFile);
   if (incremental) {
-    args.push("--tsBuildInfoFile", `${modulePath}.tsbuildinfo`);
+    args.push("--tsBuildInfoFile", `${entryModulePath}.tsbuildinfo`);
   }
-  let childProcess = spawn("npx", ["tsc", ...args, `${modulePath}.ts`], {
-    stdio: "inherit",
-  });
-  return new Promise<number>((resolve, reject) => {
+  let entryFileSanizited = entryModulePath + ".ts";
+  let sanitizedFiles = supplementaryFiles.map(
+    (file) => stripFileExtension(file) + ".ts"
+  );
+
+  let childProcess = spawn(
+    "npx",
+    ["tsc", ...args, ...sanitizedFiles, entryFileSanizited],
+    {
+      stdio: "inherit",
+    }
+  );
+  let exitCode = await new Promise<number>((resolve, reject) => {
     childProcess.on("exit", (code) => {
       resolve(code);
     });
   });
+  if (exitCode !== 0) {
+    throw new Error(`tsc completed with non-zero code: ${exitCode}.`);
+  }
 }
 
 export async function readCompilerOptions(tsconfigFile: string): Promise<any> {

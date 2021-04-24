@@ -1,8 +1,5 @@
 {
   "extends": "@selfage/tsconfig",
-  "compilerOptions": {
-    "resolveJsonModule": true
-  },
   "exclude": [
     "test_data"
   ]
