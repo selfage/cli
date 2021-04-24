@@ -60,8 +60,9 @@ async function main(): Promise<void> {
     .alias("gen")
     .description(
       `Generate various descriptors from the specified source file. The ` +
-        `source file ext is fixed as .json and the destination file ext is ` +
-        `fixed as .ts.`
+        `source file ext` +
+        FIXED_FILE_EXT +
+        `.json. The generated file will be <file>.ts.`
     )
     .option(
       "-i, --index-file <indexFile>",
