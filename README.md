@@ -6,13 +6,11 @@
 
 ## Overview
 
-Written in TypeScript and compiled to ES6 with inline source map & source. See [@selfage/tsconfig](https://www.npmjs.com/package/@selfage/tsconfig) for full compiler options. Provides an opinionated and basic CLI for developing apps in TypeScript. See sections below for each sub-command.
+Written in TypeScript and compiled to ES6 with inline source map & source. See [@selfage/tsconfig](https://www.npmjs.com/package/@selfage/tsconfig) for full compiler options. Provides an opinionated and basic CLI for developing apps in TypeScript. See sections below for each sub-command and see [commander](https://www.npmjs.com/package/commander) if you are not sure about CLI syntax.
 
 ## Compile
 
-Please make sure it's run from the directory where your tsconfig.json is defined.
-
-If you specified `incremental: true` in your tsconfig.json, `tsBuildInfoFile` will not be respected and will be overriden by `<file>.tsbuildinfo`.
+If you specified `incremental: true` in your tsconfig.json, `tsBuildInfoFile` will not be respected and will be overriden as `<file>.tsbuildinfo`.
 
 Respect merging base tsconfig via `extends`.
 
@@ -92,10 +90,14 @@ Options:
 
 Please check out the corresponding .d.ts file for function signatures for each sub-command.
 
-`compile` -> `@selfage/cli/build/compiler`
-`clean` -> `@selfage/cli/build/cleaner`
-`run` -> `@selfage/cli/build/runner`
-`format` -> `@selfage/cli/formatter`
-`generate` -> `@selfage/cli/generate/generator`
+`compile` -> `import { compile } from "@selfage/cli/build/compiler";`
+
+`clean` -> `import { clean } from "@selfage/cli/build/cleaner";`
+
+`run` -> `import { run } from "@selfage/cli/build/runner";`
+
+`format` -> `import { format } from "@selfage/cli/formatter";`
+
+`generate` -> `import { generate } from "@selfage/cli/generate/generator"`
 
 E.g., you could `import { compile } from '@selfage/cli/build/compiler';` and call `await compile('some_source', 'tsconfig.json')` to compile a single file.
