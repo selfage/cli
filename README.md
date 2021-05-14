@@ -29,13 +29,10 @@ Options:
 
 ## Clean
 
-Currently, only files under directory `node_modules/` and `test_data/` will be ignored.
-
 ```
-$ selfage clean -h
 Usage: selfage clean [options]
 
-Delete all files generated from building and bundling.
+Clean all ignored files by .gitignore, except node_modules/.
 
 Options:
   -h, --help  display help for command

@@ -37,7 +37,7 @@ async function main(): Promise<void> {
     );
   program
     .command("clean")
-    .description("Delete all files generated from building and bundling.")
+    .description("Clean all ignored files by .gitignore, except node_modules/.")
     .action(() => clean());
   program
     .command("run <file>")
