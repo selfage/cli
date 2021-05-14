@@ -38,7 +38,7 @@
     "@selfage/observable_array": "^1.0.9",
     "@selfage/service_descriptor": "^1.0.4",
     "@selfage/test_matcher": "^1.0.3",
-    "@selfage/test_runner": "^1.0.4",
+    "@selfage/test_runner": "^1.1.4",
     "@selfage/tsconfig": "^1.0.6",
     "@types/node": "^14.14.22",
     "@types/prettier": "^2.1.6",
@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "commander": "^6.2.1",
+    "ignore": "^5.1.8",
     "prettier": "^2.2.1",
     "resolve": "^1.19.0",
     "source-map-support": "^0.5.19",

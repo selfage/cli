@@ -1,22 +1,25 @@
 import fs = require("fs");
 import path = require("path");
+import ignore from "ignore";
 
 export async function clean(): Promise<void> {
-  let files = await findFiles(".");
-  let promisesToUnlink = files.map(async (file) => {
-    await fs.promises.unlink(file);
-  });
-  await Promise.all(promisesToUnlink);
+  await cleanDir(".");
 }
 
-export async function findFiles(rootDir: string): Promise<Array<string>> {
-  let files = await findFilesRecursively(rootDir);
-  return files.filter(
-    (file) =>
-      file.endsWith(".d.ts") ||
-      file.endsWith(".js") ||
-      file.endsWith(".tsbuildinfo")
+export async function cleanDir(dir: string): Promise<void> {
+  let [files, gitignore] = await Promise.all([
+    findFilesRecursively(dir),
+    fs.promises.readFile(path.join(dir, ".gitignore")),
+  ]);
+  let ignorePatterns = ignore().add(
+    gitignore
+      .toString()
+      .split("\n")
+      .map((pattern) => pattern.trim())
   );
+  let unwantedFiles = files.filter((file) => ignorePatterns.ignores(file));
+  let promisesToUnlink = unwantedFiles.map((file) => fs.promises.unlink(file));
+  await Promise.all(promisesToUnlink);
 }
 
 async function findFilesRecursively(dir: string): Promise<Array<string>> {
@@ -27,12 +30,11 @@ async function findFilesRecursively(dir: string): Promise<Array<string>> {
       let fullPath = path.join(dir, item);
       let fileStats = await fs.promises.stat(fullPath);
       if (fileStats.isDirectory()) {
-        if (item === "node_modules" || item === "test_data") {
+        if (item === "node_modules") {
           return;
-        } else {
-          let filesFromSubDirectory = await findFilesRecursively(fullPath);
-          files.push(...filesFromSubDirectory);
         }
+        let filesFromSubDirectory = await findFilesRecursively(fullPath);
+        files.push(...filesFromSubDirectory);
       } else {
         files.push(fullPath);
       }
