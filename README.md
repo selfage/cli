@@ -30,6 +30,7 @@ Options:
 ## Clean
 
 ```
+$ selfage clean -h
 Usage: selfage clean [options]
 
 Clean all ignored files by .gitignore, except node_modules/.
