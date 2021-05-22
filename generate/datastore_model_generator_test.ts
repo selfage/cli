@@ -476,7 +476,7 @@ TEST_RUNNER.run({
         assertThat(counter.get("addIndex"), eq(1), `addIndex called`);
         assertThat(
           contentMap.get("./task_model").toString(),
-          eq(`import { DatastoreQuery, DatastoreFilter, DatastoreOrdering, Operator, DatastoreModelDescriptor } from '@selfage/datastore_client/model_descriptor';
+          eq(`import { DatastoreQuery, DatastoreFilter, Operator, DatastoreModelDescriptor } from '@selfage/datastore_client/model_descriptor';
 import { Priority } from './task_priority';
 import { SubPriority, Task, TASK } from './task_def';
 

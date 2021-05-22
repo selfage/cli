@@ -39,7 +39,6 @@ export function generateDatastoreModel(
       outputContent.importFromDatastoreModelDescriptor(
         "DatastoreQuery",
         "DatastoreFilter",
-        "DatastoreOrdering",
         "Operator"
       );
       indexContentList.push(`
