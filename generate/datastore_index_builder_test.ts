@@ -6,7 +6,7 @@ TEST_RUNNER.run({
   name: "DatastoreIndexBuilderTest",
   cases: [
     {
-      name: "Empty",
+      name: "NonExistingYaml",
       execute: () => {
         // Prepare
         let indexBuilder = new DatastoreIndexBuilder();
@@ -21,7 +21,37 @@ TEST_RUNNER.run({
       },
     },
     {
-      name: "NoIndex",
+      name: "EmptyExistingYaml",
+      execute: () => {
+        // Prepare
+        let indexBuilder = new DatastoreIndexBuilder();
+
+        // Execute
+        let content = indexBuilder.mergeIndexes(
+          "./test_data/generate/datastore_index_builder/empty.yaml"
+        );
+
+        // Verify
+        assertThat(content, eq(`indexes: []\n`), `content`);
+      },
+    },
+    {
+      name: "NoIndexesFieldExistingYaml",
+      execute: () => {
+        // Prepare
+        let indexBuilder = new DatastoreIndexBuilder();
+
+        // Execute
+        let content = indexBuilder.mergeIndexes(
+          "./test_data/generate/datastore_index_builder/no_indexes.yaml"
+        );
+
+        // Verify
+        assertThat(content, eq(`indexes: []\n`), `content`);
+      },
+    },
+    {
+      name: "NoIndexesToGenerate",
       execute: () => {
         // Prepare
         let indexBuilder = new DatastoreIndexBuilder();

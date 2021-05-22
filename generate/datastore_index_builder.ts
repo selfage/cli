@@ -62,9 +62,11 @@ export class DatastoreIndexBuilder {
       let indexList = YAML.parse(
         fs.readFileSync(indexFile).toString()
       ) as CompositeIndexList;
-      for (let index of indexList.indexes) {
-        index.properties.sort(DatastoreIndexBuilder.compareIndexProperty);
-        this.jsonToIndexes.set(JSON.stringify(index), index);
+      if (indexList && indexList.indexes) {
+        for (let index of indexList.indexes) {
+          index.properties.sort(DatastoreIndexBuilder.compareIndexProperty);
+          this.jsonToIndexes.set(JSON.stringify(index), index);
+        }
       }
     }
     let mergedIndexes = new Array<CompositeIndex>();
