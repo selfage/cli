@@ -52,6 +52,21 @@ Options:
   -h, --help                  display help for command
 ```
 
+## Run forever
+
+```
+$ selfae frun -h
+Usage: selfage runForever|frun [options] <file>
+
+Compile and run the specified file under Node environment while auto-restart when it crashes/ends. Its file ext can be neglected and is always fixed as .ts. Pass through arguments to the executable file after --.
+
+Options:
+  -c, --tsconfig-file <file>  The file path to tsconfig.json. If not provided, it will try to look for it at the current working directory.
+  -h, --help                  display help for command
+```
+
+It's a minimalist version that does nothing more than auto-restarting crashed/ended Node program. 
+
 ## Format
 
 On top of `prettier`, add support to sort imports in a deterministic way but will not keep comments between import statements in place. Please leave comments on top of all import statements.
