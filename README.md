@@ -58,11 +58,10 @@ Options:
 $ selfae frun -h
 Usage: selfage runForever|frun [options] <file>
 
-Compile and run the specified file under Node environment while auto-restart when it crashes/ends. Its file ext can be neglected and is always fixed as .ts. Pass through arguments to the executable file after --.
+Run the already compiled file under Node environment while auto restart when it crashes/ends. Its file ext can be neglected and is always fixed as .js. Pass through arguments to the executable file after --.
 
 Options:
-  -c, --tsconfig-file <file>  The file path to tsconfig.json. If not provided, it will try to look for it at the current working directory.
-  -h, --help                  display help for command
+  -h, --help  display help for command
 ```
 
 It's a minimalist version that does nothing more than auto-restarting crashed/ended Node program. 

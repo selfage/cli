@@ -2,10 +2,10 @@
 import packageConfig from "./package.json";
 import { clean } from "./build/cleaner";
 import { compile } from "./build/compiler";
-import { runForever } from "./build/forever_runner";
-import { run } from "./build/runner";
 import { format } from "./formatter";
 import { generate } from "./generate/generator";
+import { runForever } from "./run/forever_runner";
+import { run } from "./run/runner";
 import { Command } from "commander";
 import "source-map-support/register";
 
@@ -56,15 +56,12 @@ async function main(): Promise<void> {
     .command("runForever <file>")
     .alias("frun")
     .description(
-      `Compile and run the specified file under Node environment while auto ` +
+      `Run the already compiled file under Node environment while auto ` +
         `restart when it crashes/ends. Its file ext` +
         FIXED_FILE_EXT +
-        `.ts. Pass through arguments to the executable file after --.`
+        `.js. Pass through arguments to the executable file after --.`
     )
-    .option(TSCONFIG_FILE_OPTION[0], TSCONFIG_FILE_OPTION[1])
-    .action((file, options, extraArgs) =>
-      runForever(file, options.tsconfigFile, extraArgs)
-    );
+    .action((file, extraArgs) => runForever(file, extraArgs));
   program
     .command("format <file>")
     .alias("fmt")

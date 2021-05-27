@@ -1,5 +1,5 @@
+import { compile } from "../build/compiler";
 import { stripFileExtension } from "../io_helper";
-import { compile } from "./compiler";
 import { spawn } from "child_process";
 
 export async function run(

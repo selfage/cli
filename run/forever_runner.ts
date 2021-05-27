@@ -1,13 +1,7 @@
 import { stripFileExtension } from "../io_helper";
-import { compile } from "./compiler";
 import { spawn } from "child_process";
 
-export async function runForever(
-  file: string,
-  tsconfigFile?: string,
-  args = new Array<string>()
-): Promise<void> {
-  await compile(file, tsconfigFile);
+export function runForever(file: string, args: Array<string> = []): void {
   let jsFile = stripFileExtension(file) + ".js";
   new Spawner(jsFile, args).spawnChild();
 }
