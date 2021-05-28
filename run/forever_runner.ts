@@ -1,7 +1,7 @@
 import { stripFileExtension } from "../io_helper";
 import { spawn } from "child_process";
 
-export function runForever(file: string, args: Array<string> = []): void {
+export function runForever(file: string, args = new Array<string>()): void {
   let jsFile = stripFileExtension(file) + ".js";
   new Spawner(jsFile, args).spawnChild();
 }

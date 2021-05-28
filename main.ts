@@ -61,7 +61,7 @@ async function main(): Promise<void> {
         FIXED_FILE_EXT +
         `.js. Pass through arguments to the executable file after --.`
     )
-    .action((file, extraArgs) => runForever(file, extraArgs));
+    .action((file, options, extraArgs) => runForever(file, extraArgs));
   program
     .command("format <file>")
     .alias("fmt")
