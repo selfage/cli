@@ -89,11 +89,12 @@ See `@selfage/message`, `@selfage/datastore_client` and `@selfage/service_descri
 $ selfage generate -h
 Usage: selfage generate|gen [options] <file>
 
-Generate various descriptors from the specified source file. The source file type is fixed as '.json' and the destination file type is fixed as '.ts'.
+Generate various descriptors from the specified source file. The source file ext can be neglected and is always fixed as .json. The generated file will be <file>.ts.
 
 Options:
-  -i, --index-file <indexFile>  The index yaml file for Google Cloud Datastore composite index. The file type is fixed as
-                                '.yaml'. Requried only if your source file includes a datastore definition.
+  -i, --index-file <indexFile>  The index yaml file for Google Cloud Datastore composite index. Its file ext can be neglected and is always fixed
+                                as .yaml. Requried only if your definition file includes a datastore definition. You can also add
+                                '"datastoreIndex": "./your/index_file"' to your package.json file to save typings.
   --dry-run                     Print the generated content instead of writing it to the destination file.
   -h, --help                    display help for command
 ```
@@ -106,7 +107,9 @@ Please check out the corresponding .d.ts file for function signatures for each s
 
 `clean` -> `import { clean } from "@selfage/cli/build/cleaner";`
 
-`run` -> `import { run } from "@selfage/cli/build/runner";`
+`run` -> `import { run } from "@selfage/cli/run/runner";`
+
+`runForever` -> `import { run } from "@selfage/cli/run/forever_runner";`
 
 `format` -> `import { format } from "@selfage/cli/formatter";`
 

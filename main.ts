@@ -88,7 +88,8 @@ async function main(): Promise<void> {
         `file ext` +
         FIXED_FILE_EXT +
         `.yaml. Requried only if your definition file includes a datastore ` +
-        `definition.`
+        `definition. You can also add '"datastoreIndex": "./your/index_file"'` +
+        ` to your package.json file to save typings.`
     )
     .option(
       "--dry-run",

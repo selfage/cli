@@ -1,4 +1,5 @@
 import fs = require("fs");
+import path = require("path");
 import { stripFileExtension, writeFileSync } from "../io_helper";
 import { DatastoreIndexBuilder } from "./datastore_index_builder";
 import { generateDatastoreModel } from "./datastore_model_generator";
@@ -14,24 +15,27 @@ import { getNodeRelativePath } from "./util";
 export function generate(
   inputFile: string,
   inputIndexFile?: string,
-  dryRun?: boolean
+  dryRun?: boolean,
+  packageJsonFile = "./package.json"
 ): void {
   let modulePath = getNodeRelativePath(stripFileExtension(inputFile));
   let definitions = JSON.parse(
     fs.readFileSync(modulePath + ".json").toString()
   ) as Array<Definition>;
 
-  let hasDatastoreDefinition = false;
-  for (let definition of definitions) {
-    if (definition.message && definition.message.datastore) {
-      hasDatastoreDefinition = true;
-      break;
-    }
-  }
+  let hasDatastoreDefinition = definitions.some((definition) => {
+    return definition.message && definition.message.datastore;
+  });
   if (hasDatastoreDefinition && !inputIndexFile) {
-    throw new Error(
-      "An index file is required for generating datastore model."
-    );
+    let packageIndexFile = JSON.parse(
+      fs.readFileSync(packageJsonFile).toString()
+    ).datastoreIndex;
+    if (!packageJsonFile) {
+      throw new Error(
+        "An index file is required for generating datastore model."
+      );
+    }
+    inputIndexFile = path.join(path.dirname(packageJsonFile), packageIndexFile);
   }
 
   let indexBuilder = new DatastoreIndexBuilder();
