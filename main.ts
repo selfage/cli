@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import packageConfig from "./package.json";
+import fs = require("fs");
+import path = require("path");
 import { clean } from "./build/cleaner";
 import { compile } from "./build/compiler";
 import { format } from "./formatter";
@@ -17,6 +18,11 @@ let TSCONFIG_FILE_OPTION = [
 ];
 
 async function main(): Promise<void> {
+  let packageConfig = JSON.parse(
+    (
+      await fs.promises.readFile(path.join(__dirname, "package.json"))
+    ).toString()
+  );
   let program = new Command();
   program.version(packageConfig.version);
   program
