@@ -7,7 +7,7 @@ import { spawn } from "child_process";
 export async function compile(
   entryFile: string,
   tsconfigFile = "./tsconfig.json",
-  supplementaryFiles = new Array<string>()
+  extraFiles = new Array<string>()
 ): Promise<void> {
   let compilerOptions = await readCompilerOptions(tsconfigFile);
   let incremental = false;
@@ -22,14 +22,14 @@ export async function compile(
   if (incremental) {
     args.push("--tsBuildInfoFile", `${entryModulePath}.tsbuildinfo`);
   }
-  let entryFileSanizited = entryModulePath + ".ts";
-  let sanitizedFiles = supplementaryFiles.map(
+  let entryFileNormalized = entryModulePath + ".ts";
+  let extraFilesNormalized = extraFiles.map(
     (file) => stripFileExtension(file) + ".ts"
   );
 
   let childProcess = spawn(
     "npx",
-    ["tsc", ...args, ...sanitizedFiles, entryFileSanizited],
+    ["tsc", ...args, ...extraFilesNormalized, entryFileNormalized],
     {
       stdio: "inherit",
     }

@@ -16,15 +16,14 @@ Respect merging base tsconfig via `extends`.
 
 ```
 $ selfage compile -h
-
 Usage: selfage compile|cpl [options] <file>
 
 Compile a single TypeScript source file while respecting compilerOptions in tsconfig.json. Its file ext can be neglected and is always fixed as .ts.
 
 Options:
-  -c, --tsconfig-file <file>            The file path to tsconfig.json. If not provided, it will try to look for it at the current working directory.
-  -s, --supplementary-files <files...>  Supplementary files to be compiled together with the source file.
-  -h, --help                            display help for command
+  -c, --tsconfig-file <file>    The file path to tsconfig.json. If not provided, it will try to look for it at the current working directory.
+  -s, --extra-files <files...>  Extra files to be compiled together with and before the source file.
+  -h, --help                    display help for command
 ```
 
 ## Clean

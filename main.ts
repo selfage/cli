@@ -36,11 +36,11 @@ async function main(): Promise<void> {
     )
     .option(TSCONFIG_FILE_OPTION[0], TSCONFIG_FILE_OPTION[1])
     .option(
-      "-s, --supplementary-files <files...>",
-      `Supplementary files to be compiled together with the source file.`
+      "-s, --extra-files <files...>",
+      `Extra files to be compiled together with and before the source file.`
     )
     .action((file, options) =>
-      compile(file, options.tsconfigFile, options.supplementaryFiles)
+      compile(file, options.tsconfigFile, options.extraFiles)
     );
   program
     .command("clean")

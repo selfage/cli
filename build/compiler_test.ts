@@ -72,7 +72,7 @@ TEST_RUNNER.run({
         await compile(
           "./test_data/build/compiler/example.ts",
           "./test_data/build/compiler/tsconfig_another.json",
-          ["./test_data/build/compiler/sup_example.ts"]
+          ["./test_data/build/compiler/extra_example.ts"]
         );
 
         // Verify
@@ -82,15 +82,15 @@ TEST_RUNNER.run({
           "js file exists"
         );
         assertThat(
-          fs.existsSync("./test_data/build/compiler/sup_example.js"),
+          fs.existsSync("./test_data/build/compiler/extra_example.js"),
           eq(true),
-          "supplementary js file exists"
+          "extra js file exists"
         );
 
         // Cleanup
         await Promise.all([
           fs.promises.unlink("./test_data/build/compiler/example.js"),
-          fs.promises.unlink("./test_data/build/compiler/sup_example.js"),
+          fs.promises.unlink("./test_data/build/compiler/extra_example.js"),
         ]);
       },
     },
