@@ -163,6 +163,27 @@ export class BasicData extends EventEmitter {
     this.emit('stringArrayField', this.stringArrayField_, oldValue);
   }
 
+  public triggerInitialEvents(): void {
+    if (this.numberField_ !== undefined) {
+      this.emit('numberField', this.numberField_, undefined);
+    }
+    if (this.booleanField_ !== undefined) {
+      this.emit('booleanField', this.booleanField_, undefined);
+    }
+    if (this.stringField_ !== undefined) {
+      this.emit('stringField', this.stringField_, undefined);
+    }
+    if (this.numberArrayField_ !== undefined) {
+      this.emit('numberArrayField', this.numberArrayField_, undefined);
+    }
+    if (this.booleanArrayField_ !== undefined) {
+      this.emit('booleanArrayField', this.booleanArrayField_, undefined);
+    }
+    if (this.stringArrayField_ !== undefined) {
+      this.emit('stringArrayField', this.stringArrayField_, undefined);
+    }
+  }
+
   public toJSON(): Object {
     return {
       numberField: this.numberField,
@@ -275,6 +296,12 @@ export class WithComment extends EventEmitter {
     }
     this.numberField_ = value;
     this.emit('numberField', this.numberField_, oldValue);
+  }
+
+  public triggerInitialEvents(): void {
+    if (this.numberField_ !== undefined) {
+      this.emit('numberField', this.numberField_, undefined);
+    }
   }
 
   public toJSON(): Object {
@@ -462,6 +489,24 @@ export class NestedObj extends EventEmitter {
     }
     this.enumArray_ = value;
     this.emit('enumArray', this.enumArray_, oldValue);
+  }
+
+  public triggerInitialEvents(): void {
+    if (this.basicData_ !== undefined) {
+      this.emit('basicData', this.basicData_, undefined);
+    }
+    if (this.basicData2_ !== undefined) {
+      this.emit('basicData2', this.basicData2_, undefined);
+    }
+    if (this.testEnum_ !== undefined) {
+      this.emit('testEnum', this.testEnum_, undefined);
+    }
+    if (this.basicDataArray_ !== undefined) {
+      this.emit('basicDataArray', this.basicDataArray_, undefined);
+    }
+    if (this.enumArray_ !== undefined) {
+      this.emit('enumArray', this.enumArray_, undefined);
+    }
   }
 
   public toJSON(): Object {

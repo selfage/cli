@@ -55,6 +55,17 @@ export class ${messageName} extends EventEmitter {`);
 `);
   }
   outputContent.push(`
+  public triggerInitialEvents(): void {`);
+  for (let field of messageDefinition.fields) {
+    outputContent.push(`
+    if (this.${field.name}_ !== undefined) {
+      this.emit('${field.name}', this.${field.name}_, undefined);
+    }`);
+  }
+  outputContent.push(`
+  }
+`);
+  outputContent.push(`
   public toJSON(): Object {
     return {`);
   for (let field of messageDefinition.fields) {
