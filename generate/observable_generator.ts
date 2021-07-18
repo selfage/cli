@@ -1,7 +1,7 @@
 import { MessageDefinition } from "./definition";
 import { OutputContent } from "./output_content";
 import { TypeChecker } from "./type_checker";
-import { generateComment, toCapitalized, toUpperSnaked } from "./util";
+import { generateComment, toUpperSnaked } from "./util";
 
 export function generateObservableDescriptor(
   modulePath: string,
@@ -11,8 +11,8 @@ export function generateObservableDescriptor(
 ): void {
   let outputContent = OutputContent.get(contentMap, modulePath);
   let messageName = messageDefinition.name;
-  outputContent.push(`${generateComment(messageDefinition.comment)}
-export class ${messageName} {`);
+  outputContent.push(`
+export interface ${messageName} {`);
   for (let field of messageDefinition.fields) {
     let fieldTypeName: string;
     if (field.isArray) {
@@ -21,10 +21,25 @@ export class ${messageName} {`);
     } else {
       fieldTypeName = field.type;
     }
+    outputContent.push(`
+  on(event: '${field.name}', listener: (newValue: ${fieldTypeName}, oldValue: ${fieldTypeName}) => void): this;`);
+  }
+  outputContent.push(`
+  on(event: string, listener: Function): this;
+}
+`);
+
+  outputContent.importFromPath("events", "EventEmitter");
+  outputContent.push(`${generateComment(messageDefinition.comment)}
+export class ${messageName} extends EventEmitter {`);
+  for (let field of messageDefinition.fields) {
+    let fieldTypeName: string;
+    if (field.isArray) {
+      fieldTypeName = `ObservableArray<${field.type}>`;
+    } else {
+      fieldTypeName = field.type;
+    }
     outputContent.push(`${generateComment(field.comment)}
-  public on${toCapitalized(
-    field.name
-  )}Change: (newValue: ${fieldTypeName}, oldValue: ${fieldTypeName}) => void;
   private ${field.name}_?: ${fieldTypeName};
   get ${field.name}(): ${fieldTypeName} {
     return this.${field.name}_;
@@ -35,9 +50,7 @@ export class ${messageName} {`);
       return;
     }
     this.${field.name}_ = value;
-    if (this.on${toCapitalized(field.name)}Change) {
-      this.on${toCapitalized(field.name)}Change(this.${field.name}_, oldValue);
-    }
+    this.emit('${field.name}', this.${field.name}_, oldValue);
   }
 `);
   }

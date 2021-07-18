@@ -71,10 +71,20 @@ TEST_RUNNER.run({
         assertThat(
           contentMap.get("some_file").toString(),
           eq(`import { ObservableArray } from '@selfage/observable_array';
+import { EventEmitter } from 'events';
 import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
 
-export class BasicData {
-  public onNumberFieldChange: (newValue: number, oldValue: number) => void;
+export interface BasicData {
+  on(event: 'numberField', listener: (newValue: number, oldValue: number) => void): this;
+  on(event: 'booleanField', listener: (newValue: boolean, oldValue: boolean) => void): this;
+  on(event: 'stringField', listener: (newValue: string, oldValue: string) => void): this;
+  on(event: 'numberArrayField', listener: (newValue: ObservableArray<number>, oldValue: ObservableArray<number>) => void): this;
+  on(event: 'booleanArrayField', listener: (newValue: ObservableArray<boolean>, oldValue: ObservableArray<boolean>) => void): this;
+  on(event: 'stringArrayField', listener: (newValue: ObservableArray<string>, oldValue: ObservableArray<string>) => void): this;
+  on(event: string, listener: Function): this;
+}
+
+export class BasicData extends EventEmitter {
   private numberField_?: number;
   get numberField(): number {
     return this.numberField_;
@@ -85,12 +95,9 @@ export class BasicData {
       return;
     }
     this.numberField_ = value;
-    if (this.onNumberFieldChange) {
-      this.onNumberFieldChange(this.numberField_, oldValue);
-    }
+    this.emit('numberField', this.numberField_, oldValue);
   }
 
-  public onBooleanFieldChange: (newValue: boolean, oldValue: boolean) => void;
   private booleanField_?: boolean;
   get booleanField(): boolean {
     return this.booleanField_;
@@ -101,12 +108,9 @@ export class BasicData {
       return;
     }
     this.booleanField_ = value;
-    if (this.onBooleanFieldChange) {
-      this.onBooleanFieldChange(this.booleanField_, oldValue);
-    }
+    this.emit('booleanField', this.booleanField_, oldValue);
   }
 
-  public onStringFieldChange: (newValue: string, oldValue: string) => void;
   private stringField_?: string;
   get stringField(): string {
     return this.stringField_;
@@ -117,12 +121,9 @@ export class BasicData {
       return;
     }
     this.stringField_ = value;
-    if (this.onStringFieldChange) {
-      this.onStringFieldChange(this.stringField_, oldValue);
-    }
+    this.emit('stringField', this.stringField_, oldValue);
   }
 
-  public onNumberArrayFieldChange: (newValue: ObservableArray<number>, oldValue: ObservableArray<number>) => void;
   private numberArrayField_?: ObservableArray<number>;
   get numberArrayField(): ObservableArray<number> {
     return this.numberArrayField_;
@@ -133,12 +134,9 @@ export class BasicData {
       return;
     }
     this.numberArrayField_ = value;
-    if (this.onNumberArrayFieldChange) {
-      this.onNumberArrayFieldChange(this.numberArrayField_, oldValue);
-    }
+    this.emit('numberArrayField', this.numberArrayField_, oldValue);
   }
 
-  public onBooleanArrayFieldChange: (newValue: ObservableArray<boolean>, oldValue: ObservableArray<boolean>) => void;
   private booleanArrayField_?: ObservableArray<boolean>;
   get booleanArrayField(): ObservableArray<boolean> {
     return this.booleanArrayField_;
@@ -149,12 +147,9 @@ export class BasicData {
       return;
     }
     this.booleanArrayField_ = value;
-    if (this.onBooleanArrayFieldChange) {
-      this.onBooleanArrayFieldChange(this.booleanArrayField_, oldValue);
-    }
+    this.emit('booleanArrayField', this.booleanArrayField_, oldValue);
   }
 
-  public onStringArrayFieldChange: (newValue: ObservableArray<string>, oldValue: ObservableArray<string>) => void;
   private stringArrayField_?: ObservableArray<string>;
   get stringArrayField(): ObservableArray<string> {
     return this.stringArrayField_;
@@ -165,9 +160,7 @@ export class BasicData {
       return;
     }
     this.stringArrayField_ = value;
-    if (this.onStringArrayFieldChange) {
-      this.onStringArrayFieldChange(this.stringArrayField_, oldValue);
-    }
+    this.emit('stringArrayField', this.stringArrayField_, oldValue);
   }
 
   public toJSON(): Object {
@@ -260,12 +253,17 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
         // Verify
         assertThat(
           contentMap.get("some_file").toString(),
-          eq(`import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
+          eq(`import { EventEmitter } from 'events';
+import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
+
+export interface WithComment {
+  on(event: 'numberField', listener: (newValue: number, oldValue: number) => void): this;
+  on(event: string, listener: Function): this;
+}
 
 /* Comment2 */
-export class WithComment {
+export class WithComment extends EventEmitter {
 /* Comment1 */
-  public onNumberFieldChange: (newValue: number, oldValue: number) => void;
   private numberField_?: number;
   get numberField(): number {
     return this.numberField_;
@@ -276,9 +274,7 @@ export class WithComment {
       return;
     }
     this.numberField_ = value;
-    if (this.onNumberFieldChange) {
-      this.onNumberFieldChange(this.numberField_, oldValue);
-    }
+    this.emit('numberField', this.numberField_, oldValue);
   }
 
   public toJSON(): Object {
@@ -389,11 +385,20 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
         assertThat(
           contentMap.get("some_file").toString(),
           eq(`import { ObservableArray } from '@selfage/observable_array';
+import { EventEmitter } from 'events';
 import { MessageDescriptor } from '@selfage/message/descriptor';
 import { BasicData2, BASIC_DATA2 } from './another_file';
 
-export class NestedObj {
-  public onBasicDataChange: (newValue: BasicData, oldValue: BasicData) => void;
+export interface NestedObj {
+  on(event: 'basicData', listener: (newValue: BasicData, oldValue: BasicData) => void): this;
+  on(event: 'basicData2', listener: (newValue: BasicData2, oldValue: BasicData2) => void): this;
+  on(event: 'testEnum', listener: (newValue: TestEnum, oldValue: TestEnum) => void): this;
+  on(event: 'basicDataArray', listener: (newValue: ObservableArray<BasicData>, oldValue: ObservableArray<BasicData>) => void): this;
+  on(event: 'enumArray', listener: (newValue: ObservableArray<TestEnum>, oldValue: ObservableArray<TestEnum>) => void): this;
+  on(event: string, listener: Function): this;
+}
+
+export class NestedObj extends EventEmitter {
   private basicData_?: BasicData;
   get basicData(): BasicData {
     return this.basicData_;
@@ -404,12 +409,9 @@ export class NestedObj {
       return;
     }
     this.basicData_ = value;
-    if (this.onBasicDataChange) {
-      this.onBasicDataChange(this.basicData_, oldValue);
-    }
+    this.emit('basicData', this.basicData_, oldValue);
   }
 
-  public onBasicData2Change: (newValue: BasicData2, oldValue: BasicData2) => void;
   private basicData2_?: BasicData2;
   get basicData2(): BasicData2 {
     return this.basicData2_;
@@ -420,12 +422,9 @@ export class NestedObj {
       return;
     }
     this.basicData2_ = value;
-    if (this.onBasicData2Change) {
-      this.onBasicData2Change(this.basicData2_, oldValue);
-    }
+    this.emit('basicData2', this.basicData2_, oldValue);
   }
 
-  public onTestEnumChange: (newValue: TestEnum, oldValue: TestEnum) => void;
   private testEnum_?: TestEnum;
   get testEnum(): TestEnum {
     return this.testEnum_;
@@ -436,12 +435,9 @@ export class NestedObj {
       return;
     }
     this.testEnum_ = value;
-    if (this.onTestEnumChange) {
-      this.onTestEnumChange(this.testEnum_, oldValue);
-    }
+    this.emit('testEnum', this.testEnum_, oldValue);
   }
 
-  public onBasicDataArrayChange: (newValue: ObservableArray<BasicData>, oldValue: ObservableArray<BasicData>) => void;
   private basicDataArray_?: ObservableArray<BasicData>;
   get basicDataArray(): ObservableArray<BasicData> {
     return this.basicDataArray_;
@@ -452,12 +448,9 @@ export class NestedObj {
       return;
     }
     this.basicDataArray_ = value;
-    if (this.onBasicDataArrayChange) {
-      this.onBasicDataArrayChange(this.basicDataArray_, oldValue);
-    }
+    this.emit('basicDataArray', this.basicDataArray_, oldValue);
   }
 
-  public onEnumArrayChange: (newValue: ObservableArray<TestEnum>, oldValue: ObservableArray<TestEnum>) => void;
   private enumArray_?: ObservableArray<TestEnum>;
   get enumArray(): ObservableArray<TestEnum> {
     return this.enumArray_;
@@ -468,9 +461,7 @@ export class NestedObj {
       return;
     }
     this.enumArray_ = value;
-    if (this.onEnumArrayChange) {
-      this.onEnumArrayChange(this.enumArray_, oldValue);
-    }
+    this.emit('enumArray', this.enumArray_, oldValue);
   }
 
   public toJSON(): Object {
