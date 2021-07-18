@@ -1,8 +1,8 @@
 import { TypeChecker } from "./type_checker";
 import { assertThat, assertThrow, eq, eqError } from "@selfage/test_matcher";
-import { TEST_RUNNER } from "@selfage/test_runner";
+import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
-TEST_RUNNER.run({
+NODE_TEST_RUNNER.run({
   name: "TypeCheckerTest",
   cases: [
     {

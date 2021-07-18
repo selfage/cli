@@ -47,27 +47,27 @@ async function main(): Promise<void> {
     .description("Clean all ignored files by .gitignore, except node_modules/.")
     .action(() => clean());
   program
-    .command("run <file>")
+    .command("run <file> [pass-through-args...]")
     .description(
       `Compile and run the specified file under Node environment. Its file ` +
         `ext` +
         FIXED_FILE_EXT +
-        `.ts. Pass through arguments to the executable file after --.`
+        `.ts. "--" is needed in between <file> and pass through arguments.`
     )
     .option(TSCONFIG_FILE_OPTION[0], TSCONFIG_FILE_OPTION[1])
-    .action((file, options, extraArgs) =>
-      run(file, options.tsconfigFile, extraArgs)
+    .action((file, passThroughArgs, options) =>
+      run(file, options.tsconfigFile, passThroughArgs)
     );
   program
-    .command("runForever <file>")
+    .command("runForever <file> [pass-through-args...]")
     .alias("frun")
     .description(
       `Run the already compiled file under Node environment while auto ` +
         `restart when it crashes/ends. Its file ext` +
         FIXED_FILE_EXT +
-        `.js. Pass through arguments to the executable file after --.`
+        `.js. "--" is needed in between <file> and pass through arguments.`
     )
-    .action((file, options, extraArgs) => runForever(file, extraArgs));
+    .action((file, passThroughArgs) => runForever(file, passThroughArgs));
   program
     .command("format <file>")
     .alias("fmt")
