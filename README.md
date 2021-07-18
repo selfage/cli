@@ -42,22 +42,23 @@ Options:
 
 ```
 $ selfage run -h
-Usage: selfage run [options] <file>
+Usage: selfage run [options] <file> [pass-through-args...]
 
-Compile and run the specified file under Node environment. Its file ext can be neglected and is always fixed as .ts. Pass through arguments to the executable file after --.
+Compile and run the specified file under Node environment. Its file ext can be neglected and is always fixed as .ts. "--" is needed in between <file> and pass through arguments.
 
 Options:
-  -c, --tsconfig-file <file>  The file path to tsconfig.json. If not provided, it will try to look for it at the current working directory.
+  -c, --tsconfig-file <file>  The file path to tsconfig.json. If not provided, it will try to look for it at the current
+                              working directory.
   -h, --help                  display help for command
 ```
 
 ## Run forever
 
 ```
-$ selfae frun -h
-Usage: selfage runForever|frun [options] <file>
+$ selfage runForever -h
+Usage: selfage runForever|frun [options] <file> [pass-through-args...]
 
-Run the already compiled file under Node environment while auto restart when it crashes/ends. Its file ext can be neglected and is always fixed as .js. Pass through arguments to the executable file after --.
+Run the already compiled file under Node environment while auto restart when it crashes/ends. Its file ext can be neglected and is always fixed as .js. "--" is needed in between <file> and pass through arguments.
 
 Options:
   -h, --help  display help for command
