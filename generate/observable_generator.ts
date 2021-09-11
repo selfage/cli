@@ -25,7 +25,6 @@ export interface ${messageName} {`);
   on(event: '${field.name}', listener: (newValue: ${fieldTypeName}, oldValue: ${fieldTypeName}) => void): this;`);
   }
   outputContent.push(`
-  on(event: string, listener: Function): this;
 }
 `);
 

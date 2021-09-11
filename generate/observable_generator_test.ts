@@ -81,7 +81,6 @@ export interface BasicData {
   on(event: 'numberArrayField', listener: (newValue: ObservableArray<number>, oldValue: ObservableArray<number>) => void): this;
   on(event: 'booleanArrayField', listener: (newValue: ObservableArray<boolean>, oldValue: ObservableArray<boolean>) => void): this;
   on(event: 'stringArrayField', listener: (newValue: ObservableArray<string>, oldValue: ObservableArray<string>) => void): this;
-  on(event: string, listener: Function): this;
 }
 
 export class BasicData extends EventEmitter {
@@ -279,7 +278,6 @@ import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
 
 export interface WithComment {
   on(event: 'numberField', listener: (newValue: number, oldValue: number) => void): this;
-  on(event: string, listener: Function): this;
 }
 
 /* Comment2 */
@@ -422,7 +420,6 @@ export interface NestedObj {
   on(event: 'testEnum', listener: (newValue: TestEnum, oldValue: TestEnum) => void): this;
   on(event: 'basicDataArray', listener: (newValue: ObservableArray<BasicData>, oldValue: ObservableArray<BasicData>) => void): this;
   on(event: 'enumArray', listener: (newValue: ObservableArray<TestEnum>, oldValue: ObservableArray<TestEnum>) => void): this;
-  on(event: string, listener: Function): this;
 }
 
 export class NestedObj extends EventEmitter {
