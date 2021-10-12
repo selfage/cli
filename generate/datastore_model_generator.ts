@@ -1,6 +1,11 @@
 import path = require("path");
 import { DatastoreIndexBuilder } from "./datastore_index_builder";
-import { MessageDefinition, MessageFieldDefinition } from "./definition";
+import {
+  DatastoreFilterTemplate,
+  DatastoreOrdering,
+  MessageDefinition,
+  MessageFieldDefinition,
+} from "./definition";
 import { OutputContent } from "./output_content";
 import { PRIMITIVE_TYPE_STRING, TypeChecker } from "./type_checker";
 import {
@@ -9,6 +14,14 @@ import {
   toCapitalized,
   toUpperSnaked,
 } from "./util";
+
+let OPERATOR_NAME_MAP = new Map<string, string>([
+  ["=", "equalTo"],
+  [">", "greaterThan"],
+  ["<", "lessThan"],
+  [">=", "greaterThanOrEqualTo"],
+  ["<=", "lessThanOrEqualTo"],
+]);
 
 export function generateDatastoreModel(
   modulePath: string,
@@ -33,36 +46,95 @@ export function generateDatastoreModel(
   }
 
   let indexContentList = new Array<string>();
-  if (messageDefinition.datastore.indexes) {
-    indexBuilder.addIndex(messageName, messageDefinition.datastore.indexes);
-    for (let index of messageDefinition.datastore.indexes) {
-      outputContent.importFromDatastoreModelDescriptor(
-        "DatastoreQuery",
-        "DatastoreFilter",
-        "Operator"
-      );
-      indexContentList.push(`
-export class ${index.name}QueryBuilder {
-  private datastoreQuery: DatastoreQuery<${messageName}>;
-
-  public constructor() {
-    this.datastoreQuery = {
-      modelDescriptor: ${messageDescriptorName}_MODEL,
-      filters: new Array<DatastoreFilter>(),
-      orderings: [`);
-      for (let property of index.fields) {
-        if (property.descending !== undefined) {
-          indexContentList.push(`
-        {
-          fieldName: "${property.fieldName}",
-          descending: ${property.descending}
-        },`);
+  if (messageDefinition.datastore.queries) {
+    for (let query of messageDefinition.datastore.queries) {
+      if (!query.filters) {
+        query.filters = new Array<DatastoreFilterTemplate>();
+      }
+      if (!query.orderings) {
+        query.orderings = new Array<DatastoreOrdering>();
+      }
+      let inequalityFilteredFieldNames = new Set<string>();
+      for (let filter of query.filters) {
+        if (!OPERATOR_NAME_MAP.has(filter.operator)) {
+          throw new Error(
+            `Unknown operator ${filter.operator} on query ${query.name}.`
+          );
+        }
+        if (filter.operator !== "=") {
+          inequalityFilteredFieldNames.add(filter.fieldName);
         }
       }
+      if (inequalityFilteredFieldNames.size > 1) {
+        throw new Error(
+          `Query ${query.name} uses more than 1 field in inequality ` +
+            `filters. Datastore only allows at most one field to be used ` +
+            `in inequality filters.`
+        );
+      }
+
+      if (query.filters.length > 0) {
+        let lastFilter = query.filters[query.filters.length - 1];
+        if (query.orderings && lastFilter.operator !== "=") {
+          for (let i = 1; i < query.orderings.length; i++) {
+            if (lastFilter.fieldName === query.orderings[i].fieldName) {
+              throw new Error(
+                `Order by ${lastFilter.fieldName} for query ${query.name} ` +
+                  `has to be immediately after its use as inequality filter.`
+              );
+            }
+          }
+        }
+      }
+
+      indexBuilder.addIndex(messageName, query);
+      outputContent.importFromDatastoreModelDescriptor(
+        "DatastoreQuery",
+        "DatastoreFilter"
+      );
+      indexContentList.push(`${generateComment(query.comment)}
+export class ${query.name}QueryBuilder {`);
+      for (let filter of query.filters) {
+        indexContentList.push(`
+  private ${filter.fieldName}${toCapitalized(
+          OPERATOR_NAME_MAP.get(filter.operator)
+        )}: DatastoreFilter = {
+    fieldName: "${filter.fieldName}",
+    operator: "${filter.operator}",
+    fieldValue: undefined
+  };`);
+      }
       indexContentList.push(`
-      ]
-    }
-  }
+  private datastoreQuery: DatastoreQuery<${messageName}> = {
+    modelDescriptor: ${messageDescriptorName}_MODEL,
+    filters: [`);
+      for (let filter of query.filters) {
+        indexContentList.push(`
+      this.${filter.fieldName}${toCapitalized(
+          OPERATOR_NAME_MAP.get(filter.operator)
+        )},`);
+      }
+      indexContentList.push(`
+    ],
+    orderings: [`);
+      for (let ordering of query.orderings) {
+        validateFieldAndNeedsToBeIndexed(
+          ordering.fieldName,
+          fieldToDefinitions,
+          typeChecker,
+          excludedIndexes
+        );
+        indexContentList.push(`
+      {
+        fieldName: "${ordering.fieldName}",
+        descending: ${ordering.descending}
+      },`);
+        excludedIndexes.delete(ordering.fieldName);
+      }
+      indexContentList.push(`
+    ]
+  };
+
   public start(cursor: string): this {
     this.datastoreQuery.startCursor = cursor;
     return this;
@@ -71,41 +143,26 @@ export class ${index.name}QueryBuilder {
     this.datastoreQuery.limit = num;
     return this;
   }`);
-      for (let property of index.fields) {
-        if (!fieldToDefinitions.has(property.fieldName)) {
-          throw new Error(
-            `Indexed field ${property.fieldName} is not defined from ` +
-              `${messageName}.`
-          );
-        }
-
-        let fieldDefinition = fieldToDefinitions.get(property.fieldName);
-        let { isEnum, isMessage } = typeChecker.categorizeType(
-          fieldDefinition.type,
-          fieldDefinition.import
+      for (let filter of query.filters) {
+        let { fieldDefinition, isEnum } = validateFieldAndNeedsToBeIndexed(
+          filter.fieldName,
+          fieldToDefinitions,
+          typeChecker,
+          excludedIndexes
         );
-        if (isMessage) {
-          throw new Error(
-            `${fieldDefinition.type} cannot be used as a filter in Datastore.`
-          );
-        }
         if (isEnum) {
           outputContent.importFromPath(
             transitImport(importMessagePath, fieldDefinition.import),
             fieldDefinition.type
           );
         }
-        excludedIndexes.delete(property.fieldName);
-
         indexContentList.push(`
-  public filterBy${toCapitalized(
-    property.fieldName
-  )}(operator: Operator, value: ${fieldDefinition.type}): this {
-    this.datastoreQuery.filters.push({
-      fieldName: "${property.fieldName}",
-      fieldValue: value,
-      operator: operator,
-    });
+  public ${OPERATOR_NAME_MAP.get(filter.operator)}${toCapitalized(
+          filter.fieldName
+        )}(value: ${fieldDefinition.type}): this {
+    this.${filter.fieldName}${toCapitalized(
+          OPERATOR_NAME_MAP.get(filter.operator)
+        )}.fieldValue = value;
     return this;
   }`);
       }
@@ -178,4 +235,32 @@ function transitImport(
     importPath = firstImport;
   }
   return importPath;
+}
+
+function validateFieldAndNeedsToBeIndexed(
+  fieldName: string,
+  fieldToDefinitions: Map<string, MessageFieldDefinition>,
+  typeChecker: TypeChecker,
+  excludedIndexes: Set<string>
+): { fieldDefinition: MessageFieldDefinition; isEnum: boolean } {
+  if (!fieldToDefinitions.has(fieldName)) {
+    throw new Error(
+      `Field ${fieldName} is not defined and cannot be used to be ordered by ` +
+        `or filtered by.`
+    );
+  }
+
+  let fieldDefinition = fieldToDefinitions.get(fieldName);
+  let { isEnum, isMessage } = typeChecker.categorizeType(
+    fieldDefinition.type,
+    fieldDefinition.import
+  );
+  if (isMessage) {
+    throw new Error(
+      `${fieldName} is of ${fieldDefinition.type} which cannot be used to be ` +
+        `ordered by or filtered by in Datastore.`
+    );
+  }
+  excludedIndexes.delete(fieldName);
+  return { fieldDefinition, isEnum };
 }

@@ -1,8 +1,6 @@
-import { MessageDefinition } from "./definition";
 import { generateMessageDescriptor } from "./message_generator";
+import { MockTypeChecker } from "./mocks";
 import { OutputContent } from "./output_content";
-import { TypeChecker } from "./type_checker";
-import { Counter } from "@selfage/counter";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
@@ -14,15 +12,9 @@ NODE_TEST_RUNNER.run({
       execute: () => {
         // Prepare
         let contentMap = new Map<string, OutputContent>();
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
-          }
-
-          public getMessage(): MessageDefinition {
-            counter.increment("getMessage");
-            return undefined;
+        let mockTypeChecker = new (class extends MockTypeChecker {
+          public categorizeType() {
+            return { isPrimitive: true };
           }
         })();
 
@@ -61,12 +53,11 @@ NODE_TEST_RUNNER.run({
               },
             ],
           },
-          typeCheckerMock,
+          mockTypeChecker,
           contentMap
         );
 
         // Verify
-        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
         assertThat(
           contentMap.get("some_file").toString(),
           eq(`import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
@@ -131,9 +122,9 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
       execute: () => {
         // Prepare
         let contentMap = new Map<string, OutputContent>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
+        let mockTypeChecker = new (class extends MockTypeChecker {
+          public categorizeType() {
+            return { isPrimitive: true };
           }
         })();
 
@@ -151,7 +142,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
             ],
             comment: "Comment2\nComment3",
           },
-          typeCheckerMock,
+          mockTypeChecker,
           contentMap
         );
 
@@ -189,38 +180,29 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
       execute: () => {
         // Prepare
         let contentMap = new Map<string, OutputContent>();
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
-          }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
-            counter.increment("getMessage");
-            switch (counter.get("getMessage")) {
+        let mockTypeChecker = new (class extends MockTypeChecker {
+          public categorizeType(typeName: string, importPath?: string) {
+            switch (this.called.increment("categorizeType")) {
               case 1:
                 assertThat(typeName, eq("BasicData"), `1st typeName`);
                 assertThat(importPath, eq(undefined), `1st importPath`);
-                return { name: "any", fields: [] };
+                return { isMessage: true };
               case 2:
                 assertThat(typeName, eq("BasicData2"), `2nd typeName`);
                 assertThat(importPath, eq("./another_file"), `2nd importPath`);
-                return { name: "any", fields: [] };
+                return { isMessage: true };
               case 3:
                 assertThat(typeName, eq("TestEnum"), `3rd typeName`);
                 assertThat(importPath, eq(undefined), `3rd importPath`);
-                return undefined;
+                return { isEnum: true };
               case 4:
                 assertThat(typeName, eq("BasicData"), `4th typeName`);
                 assertThat(importPath, eq(undefined), `4th importPath`);
-                return { name: "any", fields: [] };
+                return { isMessage: true };
               case 5:
                 assertThat(typeName, eq("TestEnum"), `5th typeName`);
                 assertThat(importPath, eq(undefined), `5th importPath`);
-                return undefined;
+                return { isEnum: true };
               default:
                 throw new Error("Unpexpected");
             }
@@ -258,12 +240,16 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
               },
             ],
           },
-          typeCheckerMock,
+          mockTypeChecker,
           contentMap
         );
 
         // Verify
-        assertThat(counter.get("getMessage"), eq(5), "getMessage called");
+        assertThat(
+          mockTypeChecker.called.get("categorizeType"),
+          eq(5),
+          "categorizeType called"
+        );
         assertThat(
           contentMap.get("some_file").toString(),
           eq(`import { MessageDescriptor } from '@selfage/message/descriptor';

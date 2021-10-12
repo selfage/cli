@@ -1,6 +1,7 @@
 import fs = require("fs");
 import YAML = require("yaml");
-import { IndexDefinition } from "./definition";
+import { writeFileSync } from "../io_helper";
+import { DatastoreQueryTemplate } from "./definition";
 
 // Mimic the structure of datastore composite index yaml.
 interface CompositeIndexProperty {
@@ -20,82 +21,66 @@ interface CompositeIndexList {
 export class DatastoreIndexBuilder {
   private jsonToIndexes = new Map<string, CompositeIndex>();
 
-  public addIndex(
-    messageName: string,
-    indexDefinitions: Array<IndexDefinition>
-  ): void {
-    for (let index of indexDefinitions) {
-      if (index.fields.length < 2) {
-        continue;
-      }
+  public constructor(private indexFile: string) {}
 
-      let compositeIndexProperties = new Array<CompositeIndexProperty>();
-      for (let property of index.fields) {
-        if (property.descending !== undefined) {
-          let direction: string;
-          if (property.descending) {
-            direction = "desc";
-          } else {
-            direction = "asc";
-          }
-          compositeIndexProperties.push({
-            name: property.fieldName,
-            direction: direction,
-          });
-        } else {
-          compositeIndexProperties.push({
-            name: property.fieldName,
-          });
-        }
-      }
-      compositeIndexProperties.sort(DatastoreIndexBuilder.compareIndexProperty);
-      let compsiteIndex = {
-        kind: messageName,
-        properties: compositeIndexProperties,
-      };
-      this.jsonToIndexes.set(JSON.stringify(compsiteIndex), compsiteIndex);
-    }
+  public static create(indexFile: string) {
+    return new DatastoreIndexBuilder(indexFile).init();
   }
 
-  public mergeIndexes(indexFile: string): string {
-    if (fs.existsSync(indexFile)) {
+  public init(): this {
+    if (fs.existsSync(this.indexFile)) {
       let indexList = YAML.parse(
-        fs.readFileSync(indexFile).toString()
+        fs.readFileSync(this.indexFile).toString()
       ) as CompositeIndexList;
       if (indexList && indexList.indexes) {
         for (let index of indexList.indexes) {
-          index.properties.sort(DatastoreIndexBuilder.compareIndexProperty);
           this.jsonToIndexes.set(JSON.stringify(index), index);
         }
       }
     }
-    let mergedIndexes = new Array<CompositeIndex>();
-    for (let key of Array.from(this.jsonToIndexes.keys()).sort()) {
-      mergedIndexes.push(this.jsonToIndexes.get(key));
-    }
-    let mergedIndexList: CompositeIndexList = {
-      indexes: mergedIndexes,
-    };
-    return YAML.stringify(mergedIndexList);
+    return this;
   }
 
-  private static compareIndexProperty(
-    left: CompositeIndexProperty,
-    right: CompositeIndexProperty
-  ): number {
-    let nameRes = left.name.localeCompare(right.name);
-    if (nameRes !== 0) {
-      return nameRes;
+  public addIndex(messageName: string, query: DatastoreQueryTemplate): void {
+    // Relies on ES6 Map to keep insertion order.
+    let fieldToDirections = new Map<string, boolean>();
+    if (query.filters) {
+      for (let filter of query.filters) {
+        fieldToDirections.set(filter.fieldName, undefined);
+      }
     }
-    if (left.direction === right.direction) {
-      return 0;
+    if (query.orderings) {
+      for (let ordering of query.orderings) {
+        fieldToDirections.set(ordering.fieldName, ordering.descending);
+      }
     }
-    if (left.direction === undefined) {
-      return -1;
+    if (fieldToDirections.size < 2) {
+      return;
     }
-    if (right.direction === undefined) {
-      return 1;
+
+    let compositeIndexProperties = new Array<CompositeIndexProperty>();
+    for (let [name, descending] of fieldToDirections) {
+      let direction: string;
+      if (descending) {
+        direction = "desc";
+      } else {
+        direction = "asc";
+      }
+      compositeIndexProperties.push({ name, direction });
     }
-    return left.direction.localeCompare(right.direction);
+    let compsiteIndex = {
+      kind: messageName,
+      properties: compositeIndexProperties,
+    };
+    this.jsonToIndexes.set(JSON.stringify(compsiteIndex), compsiteIndex);
+  }
+
+  public writeFileSync(dryRun?: boolean): void {
+    let sortedIndexes = new Array<CompositeIndex>();
+    for (let key of Array.from(this.jsonToIndexes.keys()).sort()) {
+      sortedIndexes.push(this.jsonToIndexes.get(key));
+    }
+    let indexContent = YAML.stringify({ indexes: sortedIndexes });
+    writeFileSync(this.indexFile, indexContent, dryRun);
   }
 }

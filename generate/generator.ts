@@ -26,19 +26,25 @@ export function generate(
   let hasDatastoreDefinition = definitions.some((definition) => {
     return definition.message && definition.message.datastore;
   });
-  if (hasDatastoreDefinition && !inputIndexFile) {
-    let packageIndexFile = JSON.parse(
-      fs.readFileSync(packageJsonFile).toString()
-    ).datastoreIndex;
-    if (!packageJsonFile) {
-      throw new Error(
-        "An index file is required for generating datastore model."
-      );
+  let indexBuilder: DatastoreIndexBuilder;
+  if (hasDatastoreDefinition) {
+    let indexFile = inputIndexFile;
+    if (!indexFile) {
+      let packageIndexFile = JSON.parse(
+        fs.readFileSync(packageJsonFile).toString()
+      ).datastoreIndex;
+      if (!packageIndexFile) {
+        throw new Error(
+          "An index file is required for generating datastore model."
+        );
+      }
+      indexFile = path.join(path.dirname(packageJsonFile), packageIndexFile);
     }
-    inputIndexFile = path.join(path.dirname(packageJsonFile), packageIndexFile);
+    indexBuilder = DatastoreIndexBuilder.create(
+      stripFileExtension(indexFile) + ".yaml"
+    );
   }
 
-  let indexBuilder = new DatastoreIndexBuilder();
   let typeChecker = new TypeChecker(modulePath);
   let contentMap = new Map<string, OutputContent>();
   for (let definition of definitions) {
@@ -79,10 +85,8 @@ export function generate(
     }
   }
 
-  if (hasDatastoreDefinition) {
-    let indexFile = stripFileExtension(inputIndexFile) + ".yaml";
-    let indexContent = indexBuilder.mergeIndexes(indexFile);
-    writeFileSync(indexFile, indexContent, dryRun);
+  if (indexBuilder) {
+    indexBuilder.writeFileSync(dryRun);
   }
   for (let [outputModulePath, outputContent] of contentMap) {
     writeFileSync(outputModulePath + ".ts", outputContent.toString(), dryRun);

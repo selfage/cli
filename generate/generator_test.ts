@@ -1,6 +1,6 @@
 import fs = require("fs");
 import { generate } from "./generator";
-import { NODE_TEST_RUNNER } from "@selfage/test_runner";
+import { NODE_TEST_RUNNER, TestCase } from "@selfage/test_runner";
 import { spawnSync } from "child_process";
 
 function assertCompile(file: string): void {
@@ -13,6 +13,14 @@ function assertCompile(file: string): void {
   );
   if (compilingRes.status !== 0) {
     throw new Error(`Failed to compile ${file}.`);
+  }
+}
+
+async function unlinkSilently(path: string): Promise<void> {
+  try {
+    await fs.promises.unlink(path);
+  } catch (e) {
+    // Swallow errors.
   }
 }
 
@@ -39,19 +47,19 @@ NODE_TEST_RUNNER.run({
 
         // Verify
         assertCompile("./test_data/generate/generator/user.ts");
-
-        // Cleanup
+      },
+      tearDown: async () => {
         await Promise.all([
-          fs.promises.unlink(
+          unlinkSilently(
             "./test_data/generate/generator/inside/credit_card.ts"
           ),
-          fs.promises.unlink(
+          unlinkSilently(
             "./test_data/generate/generator/inside/credit_card.js"
           ),
-          fs.promises.unlink("./test_data/generate/generator/user_info.ts"),
-          fs.promises.unlink("./test_data/generate/generator/user_info.js"),
-          fs.promises.unlink("./test_data/generate/generator/user.ts"),
-          fs.promises.unlink("./test_data/generate/generator/user.js"),
+          unlinkSilently("./test_data/generate/generator/user_info.ts"),
+          unlinkSilently("./test_data/generate/generator/user_info.js"),
+          unlinkSilently("./test_data/generate/generator/user.ts"),
+          unlinkSilently("./test_data/generate/generator/user.js"),
         ]);
       },
     },
@@ -75,23 +83,25 @@ NODE_TEST_RUNNER.run({
 
         // Verify
         assertCompile("./test_data/generate/generator/cart.ts");
-
-        // Cleanup
+      },
+      tearDown: async () => {
         await Promise.all([
-          fs.promises.unlink("./test_data/generate/generator/inside/money.ts"),
-          fs.promises.unlink("./test_data/generate/generator/inside/money.js"),
-          fs.promises.unlink("./test_data/generate/generator/item.ts"),
-          fs.promises.unlink("./test_data/generate/generator/item.js"),
-          fs.promises.unlink("./test_data/generate/generator/cart.ts"),
-          fs.promises.unlink("./test_data/generate/generator/cart.js"),
+          unlinkSilently("./test_data/generate/generator/inside/money.ts"),
+          unlinkSilently("./test_data/generate/generator/inside/money.js"),
+          unlinkSilently("./test_data/generate/generator/item.ts"),
+          unlinkSilently("./test_data/generate/generator/item.js"),
+          unlinkSilently("./test_data/generate/generator/cart.ts"),
+          unlinkSilently("./test_data/generate/generator/cart.js"),
         ]);
       },
     },
-    {
-      name: "GenerateDatastoreModel",
-      execute: async () => {
+    new (class implements TestCase {
+      public name = "GenerateDatastoreModel";
+
+      private originalIndexes: Buffer;
+      public async execute() {
         // Prepare
-        let originalIndexes = fs.readFileSync(
+        this.originalIndexes = fs.readFileSync(
           "./test_data/generate/generator/index.yaml"
         );
 
@@ -103,29 +113,27 @@ NODE_TEST_RUNNER.run({
 
         // Verify
         assertCompile("./test_data/generate/generator/inside/task_model.ts");
-
-        // Cleanup
+      }
+      public async tearDown() {
         await Promise.all([
-          fs.promises.unlink("./test_data/generate/generator/task.ts"),
-          fs.promises.unlink("./test_data/generate/generator/task.js"),
-          fs.promises.unlink(
-            "./test_data/generate/generator/inside/task_model.ts"
-          ),
-          fs.promises.unlink(
-            "./test_data/generate/generator/inside/task_model.js"
-          ),
+          unlinkSilently("./test_data/generate/generator/task.ts"),
+          unlinkSilently("./test_data/generate/generator/task.js"),
+          unlinkSilently("./test_data/generate/generator/inside/task_model.ts"),
+          unlinkSilently("./test_data/generate/generator/inside/task_model.js"),
           fs.promises.writeFile(
             "./test_data/generate/generator/index.yaml",
-            originalIndexes
+            this.originalIndexes
           ),
         ]);
-      },
-    },
-    {
-      name: "GenerateDatastoreModelWithPackageJsonFile",
-      execute: async () => {
+      }
+    })(),
+    new (class implements TestCase {
+      public name = "GenerateDatastoreModelWithPackageJsonFile";
+
+      private originalIndexes: Buffer;
+      public async execute() {
         // Prepare
-        let originalIndexes = fs.readFileSync(
+        this.originalIndexes = fs.readFileSync(
           "./test_data/generate/generator/index.yaml"
         );
 
@@ -139,24 +147,20 @@ NODE_TEST_RUNNER.run({
 
         // Verify
         assertCompile("./test_data/generate/generator/inside/task_model.ts");
-
-        // Cleanup
+      }
+      public async tearDown() {
         await Promise.all([
-          fs.promises.unlink("./test_data/generate/generator/task.ts"),
-          fs.promises.unlink("./test_data/generate/generator/task.js"),
-          fs.promises.unlink(
-            "./test_data/generate/generator/inside/task_model.ts"
-          ),
-          fs.promises.unlink(
-            "./test_data/generate/generator/inside/task_model.js"
-          ),
+          unlinkSilently("./test_data/generate/generator/task.ts"),
+          unlinkSilently("./test_data/generate/generator/task.js"),
+          unlinkSilently("./test_data/generate/generator/inside/task_model.ts"),
+          unlinkSilently("./test_data/generate/generator/inside/task_model.js"),
           fs.promises.writeFile(
             "./test_data/generate/generator/index.yaml",
-            originalIndexes
+            this.originalIndexes
           ),
         ]);
-      },
-    },
+      }
+    })(),
     {
       name: "GenerateServiceDescriptor",
       execute: async () => {
@@ -171,14 +175,10 @@ NODE_TEST_RUNNER.run({
 
         // Cleanup
         await Promise.all([
-          fs.promises.unlink("./test_data/generate/generator/service.ts"),
-          fs.promises.unlink("./test_data/generate/generator/service.js"),
-          fs.promises.unlink(
-            "./test_data/generate/generator/inside/history.ts"
-          ),
-          fs.promises.unlink(
-            "./test_data/generate/generator/inside/history.js"
-          ),
+          unlinkSilently("./test_data/generate/generator/service.ts"),
+          unlinkSilently("./test_data/generate/generator/service.js"),
+          unlinkSilently("./test_data/generate/generator/inside/history.ts"),
+          unlinkSilently("./test_data/generate/generator/inside/history.js"),
         ]);
       },
     },

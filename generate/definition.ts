@@ -23,16 +23,25 @@ export interface MessageFieldDefinition {
   comment?: string;
 }
 
-export interface IndexField {
+export interface DatastoreFilterTemplate {
   // The name of a `MessageFieldDefinition`.
   fieldName: string;
-  descending?: boolean;
+  // One of "=", ">", "<", ">=" and "<=".
+  operator: string;
 }
 
-export interface IndexDefinition {
+export interface DatastoreOrdering {
+  // The name of a `MessageFieldDefinition`.
+  fieldName: string;
+  descending: boolean;
+}
+
+export interface DatastoreQueryTemplate {
   // Recommended to be CamelCase, which will be part of the name of a class.
   name: string;
-  fields: Array<IndexField>;
+  filters?: Array<DatastoreFilterTemplate>;
+  orderings?: Array<DatastoreOrdering>
+  comment?: string;
 }
 
 export interface DatastoreDefinition {
@@ -41,7 +50,7 @@ export interface DatastoreDefinition {
   // definition. Do not include '.ts'.
   output: string;
   key: string;
-  indexes?: Array<IndexDefinition>;
+  queries?: Array<DatastoreQueryTemplate>;
   comment?: string;
 }
 

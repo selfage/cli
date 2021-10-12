@@ -1,40 +1,22 @@
-import { DatastoreIndexBuilder } from "./datastore_index_builder";
 import { generateDatastoreModel } from "./datastore_model_generator";
-import { IndexDefinition, MessageDefinition } from "./definition";
+import { DatastoreQueryTemplate } from "./definition";
+import { MockDatastoreIndexBuilder, MockTypeChecker } from "./mocks";
 import { OutputContent } from "./output_content";
-import { TypeChecker } from "./type_checker";
-import { Counter } from "@selfage/counter";
-import { assertThat, assertThrow, eq, eqError, containStr } from "@selfage/test_matcher";
+import {
+  assertThat,
+  assertThrow,
+  containStr,
+  eq,
+  eqError,
+} from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
 NODE_TEST_RUNNER.run({
   name: "DatastoreModelGeneratorTest",
   cases: [
     {
-      name: "IndexedFieldNotFound",
+      name: "InvalidFilteringOperator",
       execute: () => {
-        // Prepare
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
-          }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
-            counter.increment("getMessage");
-            return undefined;
-          }
-        })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {
-          public addIndex(
-            messageName: string,
-            indexDefinitions: Array<IndexDefinition>
-          ): void {}
-        })();
-
         // Execute
         let error = assertThrow(() =>
           generateDatastoreModel(
@@ -45,20 +27,61 @@ NODE_TEST_RUNNER.run({
               datastore: {
                 output: "./output_file",
                 key: "id",
-                indexes: [
+                queries: [
                   {
-                    name: "TaskDone",
-                    fields: [
+                    name: "Tasks",
+                    filters: [
                       {
-                        fieldName: "done",
+                        fieldName: "created",
+                        operator: ">>",
                       },
                     ],
                   },
                 ],
               },
             },
-            typeCheckerMock,
-            indexBuilderMock,
+            new MockTypeChecker(),
+            new MockDatastoreIndexBuilder(),
+            new Map<string, OutputContent>()
+          )
+        );
+
+        // Verify
+        assertThat(error, eqError(new Error("Unknown operator >>")), `error`);
+      },
+    },
+    {
+      name: "TooManyInequalityFilters",
+      execute: () => {
+        // Execute
+        let error = assertThrow(() =>
+          generateDatastoreModel(
+            "./some_file",
+            {
+              name: "Task",
+              fields: [],
+              datastore: {
+                output: "./output_file",
+                key: "id",
+                queries: [
+                  {
+                    name: "Tasks",
+                    filters: [
+                      {
+                        fieldName: "created",
+                        operator: ">=",
+                      },
+                      {
+                        fieldName: "updated",
+                        operator: ">=",
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+            new MockTypeChecker(),
+            new MockDatastoreIndexBuilder(),
             new Map<string, OutputContent>()
           )
         );
@@ -66,40 +89,109 @@ NODE_TEST_RUNNER.run({
         // Verify
         assertThat(
           error,
-          eqError(new Error("Indexed field done is not defined")),
+          eqError(new Error("Datastore only allows at most one field")),
           `error`
         );
-        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
       },
     },
     {
-      name: "IndexedFieldCannotBeAMessage",
+      name: "OrderedFieldNotImmediatelyAfterInequalityFilter",
+      execute: () => {
+        // Execute
+        let error = assertThrow(() =>
+          generateDatastoreModel(
+            "./some_file",
+            {
+              name: "Task",
+              fields: [],
+              datastore: {
+                output: "./output_file",
+                key: "id",
+                queries: [
+                  {
+                    name: "Tasks",
+                    filters: [
+                      {
+                        fieldName: "created",
+                        operator: ">=",
+                      },
+                    ],
+                    orderings: [
+                      {
+                        fieldName: "updated",
+                        descending: true,
+                      },
+                      {
+                        fieldName: "created",
+                        descending: true,
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+            new MockTypeChecker(),
+            new MockDatastoreIndexBuilder(),
+            new Map<string, OutputContent>()
+          )
+        );
+
+        // Verify
+        assertThat(
+          error,
+          eqError(new Error("immediately after its use as inequality filter.")),
+          `error`
+        );
+      },
+    },
+    {
+      name: "OrderingFieldNotFound",
+      execute: () => {
+        // Execute
+        let error = assertThrow(() =>
+          generateDatastoreModel(
+            "./some_file",
+            {
+              name: "Task",
+              fields: [],
+              datastore: {
+                output: "./output_file",
+                key: "id",
+                queries: [
+                  {
+                    name: "Tasks",
+                    orderings: [
+                      {
+                        fieldName: "created",
+                        descending: true,
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+            new MockTypeChecker(),
+            new MockDatastoreIndexBuilder(),
+            new Map<string, OutputContent>()
+          )
+        );
+
+        // Verify
+        assertThat(
+          error,
+          eqError(new Error("Field created is not defined")),
+          `error`
+        );
+      },
+    },
+    {
+      name: "FilteringFieldCannotBeAMessage",
       execute: () => {
         // Prepare
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
+        let mockTypeChecker = new (class extends MockTypeChecker {
+          public categorizeType(typeName: string, importPath?: string) {
+            return { isMessage: true };
           }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
-            counter.increment("getMessage");
-            assertThat(typeName, eq("Payload"), `typeName for getMessage`);
-            assertThat(importPath, eq(undefined), `importPath for getMessage`);
-            return {
-              name: "any",
-              fields: [],
-            };
-          }
-        })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {
-          public addIndex(
-            messageName: string,
-            indexDefinitions: Array<IndexDefinition>
-          ): void {}
         })();
 
         // Execute
@@ -121,20 +213,21 @@ NODE_TEST_RUNNER.run({
               datastore: {
                 output: "./output_file",
                 key: "id",
-                indexes: [
+                queries: [
                   {
                     name: "TaskPayload",
-                    fields: [
+                    filters: [
                       {
                         fieldName: "payload",
+                        operator: "=",
                       },
                     ],
                   },
                 ],
               },
             },
-            typeCheckerMock,
-            indexBuilderMock,
+            mockTypeChecker,
+            new MockDatastoreIndexBuilder(),
             new Map<string, OutputContent>()
           )
         );
@@ -142,32 +235,14 @@ NODE_TEST_RUNNER.run({
         // Verify
         assertThat(
           error,
-          eqError(new Error("Payload cannot be used as a filter")),
+          eqError(new Error("Payload which cannot be used to be ordered")),
           `error`
         );
-        assertThat(counter.get("getMessage"), eq(1), `getMessage called`);
       },
     },
     {
       name: "KeyNotFound",
       execute: () => {
-        // Prepare
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
-          }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
-            counter.increment("getMessage");
-            return undefined;
-          }
-        })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {})();
-
         // Execute
         let error = assertThrow(() =>
           generateDatastoreModel(
@@ -180,37 +255,19 @@ NODE_TEST_RUNNER.run({
                 key: "id",
               },
             },
-            typeCheckerMock,
-            indexBuilderMock,
+            new MockTypeChecker(),
+            new MockDatastoreIndexBuilder(),
             new Map<string, OutputContent>()
           )
         );
 
         // Verify
         assertThat(error, eqError(new Error("key id is not found")), `error`);
-        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
       },
     },
     {
       name: "KeyCannotBeBoolean",
       execute: () => {
-        // Prepare
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
-          }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
-            counter.increment("getMessage");
-            return undefined;
-          }
-        })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {})();
-
         // Execute
         let error = assertThrow(() =>
           generateDatastoreModel(
@@ -228,8 +285,8 @@ NODE_TEST_RUNNER.run({
                 key: "id",
               },
             },
-            typeCheckerMock,
-            indexBuilderMock,
+            new MockTypeChecker(),
+            new MockDatastoreIndexBuilder(),
             new Map<string, OutputContent>()
           )
         );
@@ -240,29 +297,11 @@ NODE_TEST_RUNNER.run({
           eqError(new Error("key can only be a string")),
           `error`
         );
-        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
       },
     },
     {
       name: "KeyCannotBeAnArray",
       execute: () => {
-        // Prepare
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
-          }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
-            counter.increment("getMessage");
-            return undefined;
-          }
-        })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {})();
-
         // Execute
         let error = assertThrow(() =>
           generateDatastoreModel(
@@ -281,8 +320,8 @@ NODE_TEST_RUNNER.run({
                 key: "id",
               },
             },
-            typeCheckerMock,
-            indexBuilderMock,
+            new MockTypeChecker(),
+            new MockDatastoreIndexBuilder(),
             new Map<string, OutputContent>()
           )
         );
@@ -293,72 +332,55 @@ NODE_TEST_RUNNER.run({
           eqError(new Error("key cannot be an array")),
           `error`
         );
-        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
       },
     },
     {
-      name: "ArrayAndSimpleImportsAndComments",
+      name: "ArrayAndSimpleImportAndComments",
       execute: () => {
         // Prepare
         let contentMap = new Map<string, OutputContent>();
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
-          }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
+        let mockTypeChecker = new (class extends MockTypeChecker {
+          public categorizeType(typeName: string, importPath?: string) {
             if (typeName === "Priority") {
-              counter.increment("Priority for getMessage");
               assertThat(
                 importPath,
                 eq("./task_priority"),
-                `Priority path for getMessage`
+                `Priority path for categorizeType`
               );
-              return undefined;
+              return { isEnum: true };
             } else if (typeName === "SubPriority") {
-              counter.increment("SubPriority for getMessage");
               assertThat(
                 importPath,
                 eq(undefined),
-                `SubPriority path for getMessage`
+                `SubPriority path for categorizeType`
               );
-              return undefined;
+              return { isEnum: true };
             } else {
-              throw new Error("Unexpected typeName.");
+              return {};
             }
           }
         })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {
+        let mockIndexBuilder = new (class extends MockDatastoreIndexBuilder {
           public addIndex(
             messageName: string,
-            indexDefinitions: Array<IndexDefinition>
+            query: DatastoreQueryTemplate
           ): void {
-            counter.increment("addIndex");
-            assertThat(indexDefinitions.length, eq(4), `index length`);
-            assertThat(
-              indexDefinitions[0].name,
-              eq(`TaskDone`),
-              `0th name of indexes`
-            );
-            assertThat(
-              indexDefinitions[1].name,
-              eq(`TaskDonePriority`),
-              `1th name of indexes`
-            );
-            assertThat(
-              indexDefinitions[2].name,
-              eq(`TaskCollbas`),
-              `2th name of indexes`
-            );
-            assertThat(
-              indexDefinitions[3].name,
-              eq(`CreatedTime`),
-              `3th name of indexes`
-            );
+            switch (this.called.increment("addIndex")) {
+              case 1:
+                assertThat(query.name, eq(`TaskDone`), `1st index`);
+                return;
+              case 2:
+                assertThat(query.name, eq(`TaskDonePriority`), `2nd index`);
+                return;
+              case 3:
+                assertThat(query.name, eq(`TaskCollbas`), `3rd index`);
+                return;
+              case 4:
+                assertThat(query.name, eq(`CreatedTime`), `4th index`);
+                return;
+              default:
+                throw new Error("Unexpected");
+            }
           }
         })();
 
@@ -407,46 +429,58 @@ NODE_TEST_RUNNER.run({
             datastore: {
               output: "./task_model",
               key: "id",
-              indexes: [
+              queries: [
                 {
                   name: "TaskDone",
-                  fields: [
+                  filters: [
                     {
                       fieldName: "done",
+                      operator: "=",
                     },
                   ],
+                  comment: "Comment1",
                 },
                 {
                   name: "TaskDonePriority",
-                  fields: [
+                  filters: [
                     {
                       fieldName: "done",
+                      operator: "=",
                     },
+                  ],
+                  orderings: [
                     {
                       fieldName: "priority",
                       descending: true,
                     },
                     {
                       fieldName: "subPriority",
-                      descending: true,
-                    },
-                  ],
-                },
-                {
-                  name: "TaskCollbas",
-                  fields: [
-                    {
-                      fieldName: "collaborators",
-                    },
-                    {
-                      fieldName: "created",
                       descending: false,
                     },
                   ],
                 },
                 {
+                  name: "TaskCollbas",
+                  filters: [
+                    {
+                      fieldName: "collaborators",
+                      operator: "=",
+                    },
+                    {
+                      fieldName: "created",
+                      operator: ">",
+                    },
+                  ],
+                  orderings: [
+                    {
+                      fieldName: "created",
+                      descending: true,
+                    },
+                  ],
+                },
+                {
                   name: "CreatedTime",
-                  fields: [
+                  orderings: [
                     {
                       fieldName: "created",
                       descending: true,
@@ -454,33 +488,26 @@ NODE_TEST_RUNNER.run({
                   ],
                 },
               ],
-              comment: "Comment1",
+              comment: "Comment2",
             },
           },
-          typeCheckerMock,
-          indexBuilderMock,
+          mockTypeChecker,
+          mockIndexBuilder,
           contentMap
         );
 
         // Verify
         assertThat(
-          counter.get("Priority for getMessage"),
-          eq(1),
-          `Priority for getMessage called`
+          mockIndexBuilder.called.get("addIndex"),
+          eq(4),
+          `addIndex called`
         );
-        assertThat(
-          counter.get("SubPriority for getMessage"),
-          eq(1),
-          `SubPriority for getMessage called`
-        );
-        assertThat(counter.get("addIndex"), eq(1), `addIndex called`);
         assertThat(
           contentMap.get("./task_model").toString(),
-          eq(`import { DatastoreQuery, DatastoreFilter, Operator, DatastoreModelDescriptor } from '@selfage/datastore_client/model_descriptor';
-import { Priority } from './task_priority';
-import { SubPriority, Task, TASK } from './task_def';
+          eq(`import { DatastoreQuery, DatastoreFilter, DatastoreModelDescriptor } from '@selfage/datastore_client/model_descriptor';
+import { Task, TASK } from './task_def';
 
-/* Comment1 */
+/* Comment2 */
 export let TASK_MODEL: DatastoreModelDescriptor<Task> = {
   name: "Task",
   key: "id",
@@ -488,17 +515,22 @@ export let TASK_MODEL: DatastoreModelDescriptor<Task> = {
   valueDescriptor: TASK,
 }
 
+/* Comment1 */
 export class TaskDoneQueryBuilder {
-  private datastoreQuery: DatastoreQuery<Task>;
+  private doneEqualTo: DatastoreFilter = {
+    fieldName: "done",
+    operator: "=",
+    fieldValue: undefined
+  };
+  private datastoreQuery: DatastoreQuery<Task> = {
+    modelDescriptor: TASK_MODEL,
+    filters: [
+      this.doneEqualTo,
+    ],
+    orderings: [
+    ]
+  };
 
-  public constructor() {
-    this.datastoreQuery = {
-      modelDescriptor: TASK_MODEL,
-      filters: new Array<DatastoreFilter>(),
-      orderings: [
-      ]
-    }
-  }
   public start(cursor: string): this {
     this.datastoreQuery.startCursor = cursor;
     return this;
@@ -507,12 +539,8 @@ export class TaskDoneQueryBuilder {
     this.datastoreQuery.limit = num;
     return this;
   }
-  public filterByDone(operator: Operator, value: boolean): this {
-    this.datastoreQuery.filters.push({
-      fieldName: "done",
-      fieldValue: value,
-      operator: operator,
-    });
+  public equalToDone(value: boolean): this {
+    this.doneEqualTo.fieldValue = value;
     return this;
   }
   public build(): DatastoreQuery<Task> {
@@ -521,24 +549,28 @@ export class TaskDoneQueryBuilder {
 }
 
 export class TaskDonePriorityQueryBuilder {
-  private datastoreQuery: DatastoreQuery<Task>;
+  private doneEqualTo: DatastoreFilter = {
+    fieldName: "done",
+    operator: "=",
+    fieldValue: undefined
+  };
+  private datastoreQuery: DatastoreQuery<Task> = {
+    modelDescriptor: TASK_MODEL,
+    filters: [
+      this.doneEqualTo,
+    ],
+    orderings: [
+      {
+        fieldName: "priority",
+        descending: true
+      },
+      {
+        fieldName: "subPriority",
+        descending: false
+      },
+    ]
+  };
 
-  public constructor() {
-    this.datastoreQuery = {
-      modelDescriptor: TASK_MODEL,
-      filters: new Array<DatastoreFilter>(),
-      orderings: [
-        {
-          fieldName: "priority",
-          descending: true
-        },
-        {
-          fieldName: "subPriority",
-          descending: true
-        },
-      ]
-    }
-  }
   public start(cursor: string): this {
     this.datastoreQuery.startCursor = cursor;
     return this;
@@ -547,28 +579,8 @@ export class TaskDonePriorityQueryBuilder {
     this.datastoreQuery.limit = num;
     return this;
   }
-  public filterByDone(operator: Operator, value: boolean): this {
-    this.datastoreQuery.filters.push({
-      fieldName: "done",
-      fieldValue: value,
-      operator: operator,
-    });
-    return this;
-  }
-  public filterByPriority(operator: Operator, value: Priority): this {
-    this.datastoreQuery.filters.push({
-      fieldName: "priority",
-      fieldValue: value,
-      operator: operator,
-    });
-    return this;
-  }
-  public filterBySubPriority(operator: Operator, value: SubPriority): this {
-    this.datastoreQuery.filters.push({
-      fieldName: "subPriority",
-      fieldValue: value,
-      operator: operator,
-    });
+  public equalToDone(value: boolean): this {
+    this.doneEqualTo.fieldValue = value;
     return this;
   }
   public build(): DatastoreQuery<Task> {
@@ -577,20 +589,30 @@ export class TaskDonePriorityQueryBuilder {
 }
 
 export class TaskCollbasQueryBuilder {
-  private datastoreQuery: DatastoreQuery<Task>;
+  private collaboratorsEqualTo: DatastoreFilter = {
+    fieldName: "collaborators",
+    operator: "=",
+    fieldValue: undefined
+  };
+  private createdGreaterThan: DatastoreFilter = {
+    fieldName: "created",
+    operator: ">",
+    fieldValue: undefined
+  };
+  private datastoreQuery: DatastoreQuery<Task> = {
+    modelDescriptor: TASK_MODEL,
+    filters: [
+      this.collaboratorsEqualTo,
+      this.createdGreaterThan,
+    ],
+    orderings: [
+      {
+        fieldName: "created",
+        descending: true
+      },
+    ]
+  };
 
-  public constructor() {
-    this.datastoreQuery = {
-      modelDescriptor: TASK_MODEL,
-      filters: new Array<DatastoreFilter>(),
-      orderings: [
-        {
-          fieldName: "created",
-          descending: false
-        },
-      ]
-    }
-  }
   public start(cursor: string): this {
     this.datastoreQuery.startCursor = cursor;
     return this;
@@ -599,20 +621,12 @@ export class TaskCollbasQueryBuilder {
     this.datastoreQuery.limit = num;
     return this;
   }
-  public filterByCollaborators(operator: Operator, value: string): this {
-    this.datastoreQuery.filters.push({
-      fieldName: "collaborators",
-      fieldValue: value,
-      operator: operator,
-    });
+  public equalToCollaborators(value: string): this {
+    this.collaboratorsEqualTo.fieldValue = value;
     return this;
   }
-  public filterByCreated(operator: Operator, value: number): this {
-    this.datastoreQuery.filters.push({
-      fieldName: "created",
-      fieldValue: value,
-      operator: operator,
-    });
+  public greaterThanCreated(value: number): this {
+    this.createdGreaterThan.fieldValue = value;
     return this;
   }
   public build(): DatastoreQuery<Task> {
@@ -621,34 +635,24 @@ export class TaskCollbasQueryBuilder {
 }
 
 export class CreatedTimeQueryBuilder {
-  private datastoreQuery: DatastoreQuery<Task>;
+  private datastoreQuery: DatastoreQuery<Task> = {
+    modelDescriptor: TASK_MODEL,
+    filters: [
+    ],
+    orderings: [
+      {
+        fieldName: "created",
+        descending: true
+      },
+    ]
+  };
 
-  public constructor() {
-    this.datastoreQuery = {
-      modelDescriptor: TASK_MODEL,
-      filters: new Array<DatastoreFilter>(),
-      orderings: [
-        {
-          fieldName: "created",
-          descending: true
-        },
-      ]
-    }
-  }
   public start(cursor: string): this {
     this.datastoreQuery.startCursor = cursor;
     return this;
   }
   public limit(num: number): this {
     this.datastoreQuery.limit = num;
-    return this;
-  }
-  public filterByCreated(operator: Operator, value: number): this {
-    this.datastoreQuery.filters.push({
-      fieldName: "created",
-      fieldValue: value,
-      operator: operator,
-    });
     return this;
   }
   public build(): DatastoreQuery<Task> {
@@ -665,27 +669,16 @@ export class CreatedTimeQueryBuilder {
       execute: () => {
         // Prepare
         let contentMap = new Map<string, OutputContent>();
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
+        let mockTypeChecker = new (class extends MockTypeChecker {
+          public categorizeType(typeName: string, importPath?: string) {
+            assertThat(typeName, eq("Priority"), "typeName for categorizeType");
+            assertThat(
+              importPath,
+              eq("./another_side/task_priority"),
+              "importPath for categorizeType"
+            );
+            return { isEnum: true };
           }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
-            counter.increment('getMessage');
-            assertThat(typeName, eq('Priority'), 'typeName for getMessage');
-            assertThat(importPath, eq('./another_side/task_priority'), 'importPath for getMessage');
-            return undefined;
-          }
-        })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {
-          public addIndex(
-            messageName: string,
-            indexDefinitions: Array<IndexDefinition>
-          ): void {}
         })();
 
         // Execute
@@ -707,21 +700,25 @@ export class CreatedTimeQueryBuilder {
             datastore: {
               output: "./other_side/task_model",
               key: "id",
-              indexes: [{
-                name: "Priority",
-                fields: [{
-                  fieldName: "priority"
-                }]
-              }]
+              queries: [
+                {
+                  name: "Priority",
+                  filters: [
+                    {
+                      fieldName: "priority",
+                      operator: "=",
+                    },
+                  ],
+                },
+              ],
             },
           },
-          typeCheckerMock,
-          indexBuilderMock,
+          mockTypeChecker,
+          new MockDatastoreIndexBuilder(),
           contentMap
         );
 
         // Verify
-        assertThat(counter.get('getMessage'), eq(1), `getMessage called`);
         assertThat(
           contentMap.get("./inside/other_side/task_model").toString(),
           containStr(`import { Priority } from '../another_side/task_priority';
@@ -735,27 +732,16 @@ import { Task, TASK } from '../task_def';`),
       execute: () => {
         // Prepare
         let contentMap = new Map<string, OutputContent>();
-        let counter = new Counter<string>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          constructor() {
-            super("");
+        let mockTypeChecker = new (class extends MockTypeChecker {
+          public categorizeType(typeName: string, importPath?: string) {
+            assertThat(typeName, eq("Priority"), "typeName for categorizeType");
+            assertThat(
+              importPath,
+              eq("../another_side/task_priority"),
+              "importPath for categorizeType"
+            );
+            return { isEnum: true };
           }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition {
-            counter.increment('getMessage');
-            assertThat(typeName, eq('Priority'), 'typeName for getMessage');
-            assertThat(importPath, eq('../another_side/task_priority'), 'importPath for getMessage');
-            return undefined;
-          }
-        })();
-        let indexBuilderMock = new (class extends DatastoreIndexBuilder {
-          public addIndex(
-            messageName: string,
-            indexDefinitions: Array<IndexDefinition>
-          ): void {}
         })();
 
         // Execute
@@ -777,21 +763,25 @@ import { Task, TASK } from '../task_def';`),
             datastore: {
               output: "../other_side/task_model",
               key: "id",
-              indexes: [{
-                name: "Priority",
-                fields: [{
-                  fieldName: "priority"
-                }]
-              }]
+              queries: [
+                {
+                  name: "Priority",
+                  filters: [
+                    {
+                      fieldName: "priority",
+                      operator: "=",
+                    },
+                  ],
+                },
+              ],
             },
           },
-          typeCheckerMock,
-          indexBuilderMock,
+          mockTypeChecker,
+          new MockDatastoreIndexBuilder(),
           contentMap
         );
 
         // Verify
-        assertThat(counter.get('getMessage'), eq(1), `getMessage called`);
         assertThat(
           contentMap.get("./other_side/task_model").toString(),
           containStr(`import { Priority } from '../another_side/task_priority';

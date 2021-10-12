@@ -46,29 +46,34 @@
     "datastore": {
       "output": "./inside/task_model",
       "key": "id",
-      "indexes": [{
+      "queries": [{
         "name": "TaskDone",
-        "fields": [{
-          "fieldName": "done"
-        }, {
+        "filters": [{
+          "fieldName": "done",
+          "operator": "="
+        }], 
+        "orderings": [{
           "fieldName": "created",
           "descending": true
         }]
       }, {
         "name": "TaskDonePriority",
-        "fields": [{
-          "fieldName": "done"
-        }, {
+        "filters": [{
+          "fieldName": "done",
+          "operator": "<="
+        }], 
+        "orderings": [{
           "fieldName": "priority",
-          "descending": true
+          "descending": false
         }, {
           "fieldName": "created",
           "descending": true
         }]
       }, {
         "name": "Tags",
-        "fields": [{
-          "fieldName": "tags"
+        "filters": [{
+          "fieldName": "tags",
+          "operator": "="
         }]
       }]
     }

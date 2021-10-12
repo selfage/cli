@@ -1,8 +1,7 @@
 import { MessageDefinition } from "./definition";
+import { MockTypeChecker } from "./mocks";
 import { OutputContent } from "./output_content";
 import { generateServiceDescriptr } from "./service_generator";
-import { TypeChecker } from "./type_checker";
-import { Counter } from "@selfage/counter";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
@@ -13,18 +12,13 @@ NODE_TEST_RUNNER.run({
       name: "GenerateUnauthedService",
       execute: () => {
         // Prepare
-        let counter = new Counter<string>();
         let contentMap = new Map<string, OutputContent>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          public constructor() {
-            super("");
-          }
-
+        let mockTypeChecker = new (class extends MockTypeChecker {
           public getMessage(
             typeName: string,
             importPath?: string
-          ): MessageDefinition | undefined {
-            counter.increment("getMessage");
+          ): MessageDefinition {
+            this.called.increment("getMessage");
             assertThat(typeName, eq("GetCommentsRequest"), `typeName`);
             assertThat(importPath, eq(undefined), `importPath`);
             return {
@@ -43,11 +37,16 @@ NODE_TEST_RUNNER.run({
             request: "GetCommentsRequest",
             response: "GetCommentsResponse",
           },
-          typeCheckerMock,
+          mockTypeChecker,
           contentMap
         );
 
         // Verify
+        assertThat(
+          mockTypeChecker.called.get("getMessage"),
+          eq(1),
+          "getMessage called"
+        );
         assertThat(
           contentMap.get("./some_file").toString(),
           eq(`import { UnauthedServiceDescriptor } from '@selfage/service_descriptor';
@@ -67,18 +66,10 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
       name: "GenerateAuthedServiceWithImports",
       execute: () => {
         // Prepare
-        let counter = new Counter<string>();
         let contentMap = new Map<string, OutputContent>();
-        let typeCheckerMock = new (class extends TypeChecker {
-          public constructor() {
-            super("");
-          }
-
-          public getMessage(
-            typeName: string,
-            importPath?: string
-          ): MessageDefinition | undefined {
-            counter.increment("getMessage");
+        let mockTypeChecker = new (class extends MockTypeChecker {
+          public getMessage(typeName: string, importPath?: string) {
+            this.called.increment("getMessage");
             assertThat(typeName, eq("GetHistoryequest"), `typeName`);
             assertThat(importPath, eq("./some_request"), `importPath`);
             return {
@@ -104,11 +95,16 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
             response: "GetHistoryResponse",
             importResponse: "./some_response",
           },
-          typeCheckerMock,
+          mockTypeChecker,
           contentMap
         );
 
         // Verify
+        assertThat(
+          mockTypeChecker.called.get("getMessage"),
+          eq(1),
+          "getMessage called"
+        );
         assertThat(
           contentMap.get("./some_file").toString(),
           eq(`import { AuthedServiceDescriptor } from '@selfage/service_descriptor';

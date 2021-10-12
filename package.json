@@ -1,6 +1,6 @@
 {
   "name": "@selfage/cli",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Basic CLI to help develop apps in TypeScript.",
   "repository": {
     "type": "git",
@@ -40,7 +40,7 @@
     "@selfage/observable_array": "^2.0.0",
     "@selfage/service_descriptor": "^2.0.0",
     "@selfage/test_matcher": "^1.0.3",
-    "@selfage/test_runner": "^2.0.1",
+    "@selfage/test_runner": "^2.1.0",
     "@selfage/tsconfig": "^1.0.7",
     "@types/node": "^16.3.3",
     "@types/prettier": "^2.1.6",
