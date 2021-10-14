@@ -54,7 +54,7 @@ export function generateDatastoreModel(
       if (!query.orderings) {
         query.orderings = new Array<DatastoreOrdering>();
       }
-      let inequalityFilteredFieldNames = new Set<string>();
+      let inequalityFilteredFieldName: string;
       for (let filter of query.filters) {
         if (!OPERATOR_NAME_MAP.has(filter.operator)) {
           throw new Error(
@@ -62,27 +62,13 @@ export function generateDatastoreModel(
           );
         }
         if (filter.operator !== "=") {
-          inequalityFilteredFieldNames.add(filter.fieldName);
-        }
-      }
-      if (inequalityFilteredFieldNames.size > 1) {
-        throw new Error(
-          `Query ${query.name} uses more than 1 field in inequality ` +
-            `filters. Datastore only allows at most one field to be used ` +
-            `in inequality filters.`
-        );
-      }
-
-      if (query.filters.length > 0) {
-        let lastFilter = query.filters[query.filters.length - 1];
-        if (query.orderings && lastFilter.operator !== "=") {
-          for (let i = 1; i < query.orderings.length; i++) {
-            if (lastFilter.fieldName === query.orderings[i].fieldName) {
-              throw new Error(
-                `Order by ${lastFilter.fieldName} for query ${query.name} ` +
-                  `has to be immediately after its use as inequality filter.`
-              );
-            }
+          if (!inequalityFilteredFieldName) {
+            inequalityFilteredFieldName = filter.fieldName;
+          } else if (inequalityFilteredFieldName !== filter.fieldName) {
+            throw new Error(
+              `More than 1 fields are used in inequality filters in query ` +
+                `${query.name} which is not allowed by Datastore.`
+            );
           }
         }
       }
@@ -93,29 +79,10 @@ export function generateDatastoreModel(
         "DatastoreFilter"
       );
       indexContentList.push(`${generateComment(query.comment)}
-export class ${query.name}QueryBuilder {`);
-      for (let filter of query.filters) {
-        indexContentList.push(`
-  private ${filter.fieldName}${toCapitalized(
-          OPERATOR_NAME_MAP.get(filter.operator)
-        )}: DatastoreFilter = {
-    fieldName: "${filter.fieldName}",
-    operator: "${filter.operator}",
-    fieldValue: undefined
-  };`);
-      }
-      indexContentList.push(`
+export class ${query.name}QueryBuilder {
   private datastoreQuery: DatastoreQuery<${messageName}> = {
     modelDescriptor: ${messageDescriptorName}_MODEL,
-    filters: [`);
-      for (let filter of query.filters) {
-        indexContentList.push(`
-      this.${filter.fieldName}${toCapitalized(
-          OPERATOR_NAME_MAP.get(filter.operator)
-        )},`);
-      }
-      indexContentList.push(`
-    ],
+    filters: [],
     orderings: [`);
       for (let ordering of query.orderings) {
         validateFieldAndNeedsToBeIndexed(
@@ -160,9 +127,11 @@ export class ${query.name}QueryBuilder {`);
   public ${OPERATOR_NAME_MAP.get(filter.operator)}${toCapitalized(
           filter.fieldName
         )}(value: ${fieldDefinition.type}): this {
-    this.${filter.fieldName}${toCapitalized(
-          OPERATOR_NAME_MAP.get(filter.operator)
-        )}.fieldValue = value;
+    this.datastoreQuery.filters.push({
+      fieldName: "${filter.fieldName}",
+      fieldValue: value,
+      operator: "${filter.operator}",
+    });
     return this;
   }`);
       }

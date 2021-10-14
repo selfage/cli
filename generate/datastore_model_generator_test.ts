@@ -89,57 +89,7 @@ NODE_TEST_RUNNER.run({
         // Verify
         assertThat(
           error,
-          eqError(new Error("Datastore only allows at most one field")),
-          `error`
-        );
-      },
-    },
-    {
-      name: "OrderedFieldNotImmediatelyAfterInequalityFilter",
-      execute: () => {
-        // Execute
-        let error = assertThrow(() =>
-          generateDatastoreModel(
-            "./some_file",
-            {
-              name: "Task",
-              fields: [],
-              datastore: {
-                output: "./output_file",
-                key: "id",
-                queries: [
-                  {
-                    name: "Tasks",
-                    filters: [
-                      {
-                        fieldName: "created",
-                        operator: ">=",
-                      },
-                    ],
-                    orderings: [
-                      {
-                        fieldName: "updated",
-                        descending: true,
-                      },
-                      {
-                        fieldName: "created",
-                        descending: true,
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-            new MockTypeChecker(),
-            new MockDatastoreIndexBuilder(),
-            new Map<string, OutputContent>()
-          )
-        );
-
-        // Verify
-        assertThat(
-          error,
-          eqError(new Error("immediately after its use as inequality filter.")),
+          eqError(new Error("fields are used in inequality filters")),
           `error`
         );
       },
@@ -517,16 +467,9 @@ export let TASK_MODEL: DatastoreModelDescriptor<Task> = {
 
 /* Comment1 */
 export class TaskDoneQueryBuilder {
-  private doneEqualTo: DatastoreFilter = {
-    fieldName: "done",
-    operator: "=",
-    fieldValue: undefined
-  };
   private datastoreQuery: DatastoreQuery<Task> = {
     modelDescriptor: TASK_MODEL,
-    filters: [
-      this.doneEqualTo,
-    ],
+    filters: [],
     orderings: [
     ]
   };
@@ -540,7 +483,11 @@ export class TaskDoneQueryBuilder {
     return this;
   }
   public equalToDone(value: boolean): this {
-    this.doneEqualTo.fieldValue = value;
+    this.datastoreQuery.filters.push({
+      fieldName: "done",
+      fieldValue: value,
+      operator: "=",
+    });
     return this;
   }
   public build(): DatastoreQuery<Task> {
@@ -549,16 +496,9 @@ export class TaskDoneQueryBuilder {
 }
 
 export class TaskDonePriorityQueryBuilder {
-  private doneEqualTo: DatastoreFilter = {
-    fieldName: "done",
-    operator: "=",
-    fieldValue: undefined
-  };
   private datastoreQuery: DatastoreQuery<Task> = {
     modelDescriptor: TASK_MODEL,
-    filters: [
-      this.doneEqualTo,
-    ],
+    filters: [],
     orderings: [
       {
         fieldName: "priority",
@@ -580,7 +520,11 @@ export class TaskDonePriorityQueryBuilder {
     return this;
   }
   public equalToDone(value: boolean): this {
-    this.doneEqualTo.fieldValue = value;
+    this.datastoreQuery.filters.push({
+      fieldName: "done",
+      fieldValue: value,
+      operator: "=",
+    });
     return this;
   }
   public build(): DatastoreQuery<Task> {
@@ -589,22 +533,9 @@ export class TaskDonePriorityQueryBuilder {
 }
 
 export class TaskCollbasQueryBuilder {
-  private collaboratorsEqualTo: DatastoreFilter = {
-    fieldName: "collaborators",
-    operator: "=",
-    fieldValue: undefined
-  };
-  private createdGreaterThan: DatastoreFilter = {
-    fieldName: "created",
-    operator: ">",
-    fieldValue: undefined
-  };
   private datastoreQuery: DatastoreQuery<Task> = {
     modelDescriptor: TASK_MODEL,
-    filters: [
-      this.collaboratorsEqualTo,
-      this.createdGreaterThan,
-    ],
+    filters: [],
     orderings: [
       {
         fieldName: "created",
@@ -622,11 +553,19 @@ export class TaskCollbasQueryBuilder {
     return this;
   }
   public equalToCollaborators(value: string): this {
-    this.collaboratorsEqualTo.fieldValue = value;
+    this.datastoreQuery.filters.push({
+      fieldName: "collaborators",
+      fieldValue: value,
+      operator: "=",
+    });
     return this;
   }
   public greaterThanCreated(value: number): this {
-    this.createdGreaterThan.fieldValue = value;
+    this.datastoreQuery.filters.push({
+      fieldName: "created",
+      fieldValue: value,
+      operator: ">",
+    });
     return this;
   }
   public build(): DatastoreQuery<Task> {
@@ -637,8 +576,7 @@ export class TaskCollbasQueryBuilder {
 export class CreatedTimeQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task> = {
     modelDescriptor: TASK_MODEL,
-    filters: [
-    ],
+    filters: [],
     orderings: [
       {
         fieldName: "created",

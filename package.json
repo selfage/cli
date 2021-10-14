@@ -1,6 +1,6 @@
 {
   "name": "@selfage/cli",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Basic CLI to help develop apps in TypeScript.",
   "repository": {
     "type": "git",
@@ -34,7 +34,7 @@
   ],
   "devDependencies": {
     "@selfage/counter": "^1.0.8",
-    "@selfage/datastore_client": "^2.0.0",
+    "@selfage/datastore_client": "^2.0.3",
     "@selfage/message": "^2.0.0",
     "@selfage/nested_error": "^1.0.6",
     "@selfage/observable_array": "^2.0.0",
