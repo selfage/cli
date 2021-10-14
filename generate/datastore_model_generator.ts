@@ -82,7 +82,7 @@ export function generateDatastoreModel(
 export class ${query.name}QueryBuilder {
   private datastoreQuery: DatastoreQuery<${messageName}> = {
     modelDescriptor: ${messageDescriptorName}_MODEL,
-    filters: [],
+    filters: new Array<DatastoreFilter>(),
     orderings: [`);
       for (let ordering of query.orderings) {
         validateFieldAndNeedsToBeIndexed(

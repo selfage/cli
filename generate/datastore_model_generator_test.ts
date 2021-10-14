@@ -469,7 +469,7 @@ export let TASK_MODEL: DatastoreModelDescriptor<Task> = {
 export class TaskDoneQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task> = {
     modelDescriptor: TASK_MODEL,
-    filters: [],
+    filters: new Array<DatastoreFilter>(),
     orderings: [
     ]
   };
@@ -498,7 +498,7 @@ export class TaskDoneQueryBuilder {
 export class TaskDonePriorityQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task> = {
     modelDescriptor: TASK_MODEL,
-    filters: [],
+    filters: new Array<DatastoreFilter>(),
     orderings: [
       {
         fieldName: "priority",
@@ -535,7 +535,7 @@ export class TaskDonePriorityQueryBuilder {
 export class TaskCollbasQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task> = {
     modelDescriptor: TASK_MODEL,
-    filters: [],
+    filters: new Array<DatastoreFilter>(),
     orderings: [
       {
         fieldName: "created",
@@ -576,7 +576,7 @@ export class TaskCollbasQueryBuilder {
 export class CreatedTimeQueryBuilder {
   private datastoreQuery: DatastoreQuery<Task> = {
     modelDescriptor: TASK_MODEL,
-    filters: [],
+    filters: new Array<DatastoreFilter>(),
     orderings: [
       {
         fieldName: "created",
