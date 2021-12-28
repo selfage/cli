@@ -23,23 +23,20 @@ export async function cleanDir(dir: string): Promise<void> {
 }
 
 async function findFilesRecursively(dir: string): Promise<Array<string>> {
-  let items = await fs.promises.readdir(dir);
+  let items = await fs.promises.readdir(dir, { withFileTypes: true });
   let files: string[] = [];
-  let promisesOfFiles = items.map(
-    async (item): Promise<void> => {
-      let fullPath = path.join(dir, item);
-      let fileStats = await fs.promises.stat(fullPath);
-      if (fileStats.isDirectory()) {
-        if (item === "node_modules") {
-          return;
-        }
-        let filesFromSubDirectory = await findFilesRecursively(fullPath);
-        files.push(...filesFromSubDirectory);
-      } else {
-        files.push(fullPath);
+  let promisesOfFiles = items.map(async (item): Promise<void> => {
+    let fullPath = path.join(dir, item.name);
+    if (item.isDirectory()) {
+      if (item.name === "node_modules") {
+        return;
       }
+      let filesFromSubDirectory = await findFilesRecursively(fullPath);
+      files.push(...filesFromSubDirectory);
+    } else {
+      files.push(fullPath);
     }
-  );
+  });
   await Promise.all(promisesOfFiles);
   return files;
 }

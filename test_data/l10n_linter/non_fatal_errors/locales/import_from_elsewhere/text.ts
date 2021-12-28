@@ -1,0 +1,1 @@
+import DefaultText from '../named_import/text';

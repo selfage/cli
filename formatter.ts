@@ -23,7 +23,7 @@ export function format(file: string, dryRun?: boolean): void {
   writeFileSync(tsFile, formattedContent, dryRun);
 }
 
-export function sortImports(tsFile: string) {
+export function sortImports(tsFile: string): string {
   let rawContent = fs.readFileSync(tsFile).toString();
   let sourceFile = createSourceFile(
     "placeholder",
