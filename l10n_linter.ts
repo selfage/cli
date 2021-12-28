@@ -229,21 +229,17 @@ async function lintPerLocaleFile(
     return true;
   }
 
-  console.log("localeDir:" + localeDir);
-  console.log("Default:" + Array.from(defaultTexts).join());
-  console.log("Found:" + Array.from(texts).join());
-
-  let pendingTranslation = new Array<string>();
+  let pendingTexts = new Array<string>();
   for (let text of defaultTexts) {
     if (!texts.delete(text)) {
-      pendingTranslation.push(text);
+      pendingTexts.push(text);
     }
   }
-  if (pendingTranslation.length > 0) {
+  if (pendingTexts.length > 0) {
     hasError = true;
     logs.push(
       toYellow(
-        `${localeDir}: Missing the following translations:\n\n${pendingTranslation.join(
+        `${localeDir}: Missing the following keys:\n\n${pendingTexts.join(
           "\n"
         )}\n`
       )
@@ -253,7 +249,7 @@ async function lintPerLocaleFile(
     hasError = true;
     logs.push(
       toYellow(
-        `${localeDir}: The following translations need to be removed:\n\n${Array.from(
+        `${localeDir}: The following keys need to be removed:\n\n${Array.from(
           texts
         ).join("\n")}\n`
       )

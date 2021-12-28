@@ -64,7 +64,7 @@ Options:
   -h, --help  display help for command
 ```
 
-It's a minimalist version that does nothing more than auto-restarting crashed/ended Node program. 
+It's a minimalist version that does nothing more than auto-restarting crashed/ended Node program.
 
 ## Format
 
@@ -78,6 +78,20 @@ Format the specified file. The file type is always fixed as '.ts'.
 
 Options:
   --dry-run   Print the formatted content instead of overwriting the file.
+  -h, --help  display help for command
+```
+
+## L10n lint
+
+TBD: Detailed explanation of L10n pattern.
+
+```
+$ selfage lln -h
+Usage: main lintL10n|lln [options] <baseDir>
+
+Checks localization pattern compliance, such as file structure, and missing, duplicated or redundant keys.
+
+Options:
   -h, --help  display help for command
 ```
 
@@ -112,6 +126,8 @@ Please check out the corresponding .d.ts file for function signatures for each s
 `runForever` -> `import { run } from "@selfage/cli/run/forever_runner";`
 
 `format` -> `import { format } from "@selfage/cli/formatter";`
+
+`lintL10n` -> `import { lintL10n } from "./l10n_linter";`
 
 `generate` -> `import { generate } from "@selfage/cli/generate/generator"`
 
