@@ -110,10 +110,10 @@ NODE_TEST_RUNNER.run({
               'test_data/l10n_linter/non_fatal_errors/locales/multi_files/text.ts:\n\nDeclare the class Text with "export default".\nDo not declare class members other than getter and function.\nOnly declare one class and/or import one class at top-level.'
             ),
             containStr(
-              "test_data/l10n_linter/non_fatal_errors/locales/multi_files: Missing the following translations:\n\ncc\nccc"
+              "test_data/l10n_linter/non_fatal_errors/locales/multi_files: Missing the following keys:\n\ncc\nccc"
             ),
             containStr(
-              "test_data/l10n_linter/non_fatal_errors/locales/multi_files: The following translations need to be removed:\n\nzz\nzzz\nyyy"
+              "test_data/l10n_linter/non_fatal_errors/locales/multi_files: The following keys need to be removed:\n\nzz\nzzz\nyyy"
             ),
             containStr(
               "test_data/l10n_linter/non_fatal_errors/locales/multi_imports/text.ts: Only import one class."

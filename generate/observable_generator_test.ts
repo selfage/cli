@@ -162,25 +162,13 @@ export class BasicData extends EventEmitter {
     this.emit('stringArrayField', this.stringArrayField_, oldValue);
   }
 
-  public triggerInitialEvents(): void {
-    if (this.numberField_ !== undefined) {
-      this.emit('numberField', this.numberField_, undefined);
-    }
-    if (this.booleanField_ !== undefined) {
-      this.emit('booleanField', this.booleanField_, undefined);
-    }
-    if (this.stringField_ !== undefined) {
-      this.emit('stringField', this.stringField_, undefined);
-    }
-    if (this.numberArrayField_ !== undefined) {
-      this.emit('numberArrayField', this.numberArrayField_, undefined);
-    }
-    if (this.booleanArrayField_ !== undefined) {
-      this.emit('booleanArrayField', this.booleanArrayField_, undefined);
-    }
-    if (this.stringArrayField_ !== undefined) {
-      this.emit('stringArrayField', this.stringArrayField_, undefined);
-    }
+  public triggerAllFields(): void {
+    this.emit('numberField', this.numberField_, this.numberField_);
+    this.emit('booleanField', this.booleanField_, this.booleanField_);
+    this.emit('stringField', this.stringField_, this.stringField_);
+    this.emit('numberArrayField', this.numberArrayField_, this.numberArrayField_);
+    this.emit('booleanArrayField', this.booleanArrayField_, this.booleanArrayField_);
+    this.emit('stringArrayField', this.stringArrayField_, this.stringArrayField_);
   }
 
   public toJSON(): Object {
@@ -296,10 +284,8 @@ export class WithComment extends EventEmitter {
     this.emit('numberField', this.numberField_, oldValue);
   }
 
-  public triggerInitialEvents(): void {
-    if (this.numberField_ !== undefined) {
-      this.emit('numberField', this.numberField_, undefined);
-    }
+  public triggerAllFields(): void {
+    this.emit('numberField', this.numberField_, this.numberField_);
   }
 
   public toJSON(): Object {
@@ -488,22 +474,12 @@ export class NestedObj extends EventEmitter {
     this.emit('enumArray', this.enumArray_, oldValue);
   }
 
-  public triggerInitialEvents(): void {
-    if (this.basicData_ !== undefined) {
-      this.emit('basicData', this.basicData_, undefined);
-    }
-    if (this.basicData2_ !== undefined) {
-      this.emit('basicData2', this.basicData2_, undefined);
-    }
-    if (this.testEnum_ !== undefined) {
-      this.emit('testEnum', this.testEnum_, undefined);
-    }
-    if (this.basicDataArray_ !== undefined) {
-      this.emit('basicDataArray', this.basicDataArray_, undefined);
-    }
-    if (this.enumArray_ !== undefined) {
-      this.emit('enumArray', this.enumArray_, undefined);
-    }
+  public triggerAllFields(): void {
+    this.emit('basicData', this.basicData_, this.basicData_);
+    this.emit('basicData2', this.basicData2_, this.basicData2_);
+    this.emit('testEnum', this.testEnum_, this.testEnum_);
+    this.emit('basicDataArray', this.basicDataArray_, this.basicDataArray_);
+    this.emit('enumArray', this.enumArray_, this.enumArray_);
   }
 
   public toJSON(): Object {

@@ -54,12 +54,10 @@ export class ${messageName} extends EventEmitter {`);
 `);
   }
   outputContent.push(`
-  public triggerInitialEvents(): void {`);
+  public triggerAllFields(): void {`);
   for (let field of messageDefinition.fields) {
     outputContent.push(`
-    if (this.${field.name}_ !== undefined) {
-      this.emit('${field.name}', this.${field.name}_, undefined);
-    }`);
+    this.emit('${field.name}', this.${field.name}_, this.${field.name}_);`);
   }
   outputContent.push(`
   }
