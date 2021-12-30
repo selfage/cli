@@ -1,6 +1,6 @@
 {
   "name": "@selfage/cli",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Basic CLI to help develop apps in TypeScript.",
   "repository": {
     "type": "git",

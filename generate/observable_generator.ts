@@ -25,6 +25,7 @@ export interface ${messageName} {`);
   on(event: '${field.name}', listener: (newValue: ${fieldTypeName}, oldValue: ${fieldTypeName}) => void): this;`);
   }
   outputContent.push(`
+  on(event: 'init', listener: () => void): this;
 }
 `);
 
@@ -54,12 +55,15 @@ export class ${messageName} extends EventEmitter {`);
 `);
   }
   outputContent.push(`
-  public triggerAllFields(): void {`);
+  public triggerInitialEvents(): void {`);
   for (let field of messageDefinition.fields) {
     outputContent.push(`
-    this.emit('${field.name}', this.${field.name}_, this.${field.name}_);`);
+    if (this.${field.name}_ !== undefined) {
+      this.emit('${field.name}', this.${field.name}_, undefined);
+    }`);
   }
   outputContent.push(`
+    this.emit('init');
   }
 `);
   outputContent.push(`

@@ -81,6 +81,7 @@ export interface BasicData {
   on(event: 'numberArrayField', listener: (newValue: ObservableArray<number>, oldValue: ObservableArray<number>) => void): this;
   on(event: 'booleanArrayField', listener: (newValue: ObservableArray<boolean>, oldValue: ObservableArray<boolean>) => void): this;
   on(event: 'stringArrayField', listener: (newValue: ObservableArray<string>, oldValue: ObservableArray<string>) => void): this;
+  on(event: 'init', listener: () => void): this;
 }
 
 export class BasicData extends EventEmitter {
@@ -162,13 +163,26 @@ export class BasicData extends EventEmitter {
     this.emit('stringArrayField', this.stringArrayField_, oldValue);
   }
 
-  public triggerAllFields(): void {
-    this.emit('numberField', this.numberField_, this.numberField_);
-    this.emit('booleanField', this.booleanField_, this.booleanField_);
-    this.emit('stringField', this.stringField_, this.stringField_);
-    this.emit('numberArrayField', this.numberArrayField_, this.numberArrayField_);
-    this.emit('booleanArrayField', this.booleanArrayField_, this.booleanArrayField_);
-    this.emit('stringArrayField', this.stringArrayField_, this.stringArrayField_);
+  public triggerInitialEvents(): void {
+    if (this.numberField_ !== undefined) {
+      this.emit('numberField', this.numberField_, undefined);
+    }
+    if (this.booleanField_ !== undefined) {
+      this.emit('booleanField', this.booleanField_, undefined);
+    }
+    if (this.stringField_ !== undefined) {
+      this.emit('stringField', this.stringField_, undefined);
+    }
+    if (this.numberArrayField_ !== undefined) {
+      this.emit('numberArrayField', this.numberArrayField_, undefined);
+    }
+    if (this.booleanArrayField_ !== undefined) {
+      this.emit('booleanArrayField', this.booleanArrayField_, undefined);
+    }
+    if (this.stringArrayField_ !== undefined) {
+      this.emit('stringArrayField', this.stringArrayField_, undefined);
+    }
+    this.emit('init');
   }
 
   public toJSON(): Object {
@@ -266,6 +280,7 @@ import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
 
 export interface WithComment {
   on(event: 'numberField', listener: (newValue: number, oldValue: number) => void): this;
+  on(event: 'init', listener: () => void): this;
 }
 
 /* Comment2 */
@@ -284,8 +299,11 @@ export class WithComment extends EventEmitter {
     this.emit('numberField', this.numberField_, oldValue);
   }
 
-  public triggerAllFields(): void {
-    this.emit('numberField', this.numberField_, this.numberField_);
+  public triggerInitialEvents(): void {
+    if (this.numberField_ !== undefined) {
+      this.emit('numberField', this.numberField_, undefined);
+    }
+    this.emit('init');
   }
 
   public toJSON(): Object {
@@ -406,6 +424,7 @@ export interface NestedObj {
   on(event: 'testEnum', listener: (newValue: TestEnum, oldValue: TestEnum) => void): this;
   on(event: 'basicDataArray', listener: (newValue: ObservableArray<BasicData>, oldValue: ObservableArray<BasicData>) => void): this;
   on(event: 'enumArray', listener: (newValue: ObservableArray<TestEnum>, oldValue: ObservableArray<TestEnum>) => void): this;
+  on(event: 'init', listener: () => void): this;
 }
 
 export class NestedObj extends EventEmitter {
@@ -474,12 +493,23 @@ export class NestedObj extends EventEmitter {
     this.emit('enumArray', this.enumArray_, oldValue);
   }
 
-  public triggerAllFields(): void {
-    this.emit('basicData', this.basicData_, this.basicData_);
-    this.emit('basicData2', this.basicData2_, this.basicData2_);
-    this.emit('testEnum', this.testEnum_, this.testEnum_);
-    this.emit('basicDataArray', this.basicDataArray_, this.basicDataArray_);
-    this.emit('enumArray', this.enumArray_, this.enumArray_);
+  public triggerInitialEvents(): void {
+    if (this.basicData_ !== undefined) {
+      this.emit('basicData', this.basicData_, undefined);
+    }
+    if (this.basicData2_ !== undefined) {
+      this.emit('basicData2', this.basicData2_, undefined);
+    }
+    if (this.testEnum_ !== undefined) {
+      this.emit('testEnum', this.testEnum_, undefined);
+    }
+    if (this.basicDataArray_ !== undefined) {
+      this.emit('basicDataArray', this.basicDataArray_, undefined);
+    }
+    if (this.enumArray_ !== undefined) {
+      this.emit('enumArray', this.enumArray_, undefined);
+    }
+    this.emit('init');
   }
 
   public toJSON(): Object {
