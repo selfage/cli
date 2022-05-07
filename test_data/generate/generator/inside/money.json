@@ -1,6 +1,6 @@
 [{
+  "name": "Money",
   "message": {
-    "name": "Money",
     "fields": [{
       "name": "integral",
       "type": "number"

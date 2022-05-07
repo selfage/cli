@@ -21,8 +21,8 @@ NODE_TEST_RUNNER.run({
         // Execute
         generateMessageDescriptor(
           "some_file",
+          "BasicData",
           {
-            name: "BasicData",
             fields: [
               {
                 name: "numberField",
@@ -131,8 +131,8 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
         // Execute
         generateMessageDescriptor(
           "some_file",
+          "BasicData",
           {
-            name: "BasicData",
             fields: [
               {
                 name: "numberField",
@@ -212,8 +212,8 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
         // Execute
         generateMessageDescriptor(
           "some_file",
+          "NestedObj",
           {
-            name: "NestedObj",
             fields: [
               {
                 name: "basicData",

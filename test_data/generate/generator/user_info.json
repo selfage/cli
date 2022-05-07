@@ -1,6 +1,6 @@
 [{
+  "name": "Color",
   "enum": {
-    "name": "Color",
     "values": [{
       "name": "RED",
       "value": 10
@@ -13,8 +13,8 @@
     }]
   }
 }, {
+  "name": "UserInfo",
   "message": {
-    "name": "UserInfo",
     "fields": [{
       "name": "isPaid",
       "type": "boolean"

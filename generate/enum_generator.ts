@@ -4,11 +4,11 @@ import { generateComment, toUpperSnaked } from "./util";
 
 export function generateEnumDescriptor(
   modulePath: string,
+  enumName: string,
   enumDefinition: EnumDefinition,
   contentMap: Map<string, OutputContent>
 ): void {
   let outputContent = OutputContent.get(contentMap, modulePath);
-  let enumName = enumDefinition.name;
   outputContent.push(`${generateComment(enumDefinition.comment)}
 export enum ${enumName} {`);
   for (let value of enumDefinition.values) {

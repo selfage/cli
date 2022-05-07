@@ -15,8 +15,8 @@ NODE_TEST_RUNNER.run({
         // Execute
         generateEnumDescriptor(
           "some_file",
+          "Color",
           {
-            name: "Color",
             values: [
               {
                 name: "RED",
@@ -68,8 +68,8 @@ export let COLOR: EnumDescriptor<Color> = {
         // Execute
         generateEnumDescriptor(
           "some_file",
+          "Color",
           {
-            name: "Color",
             values: [{ name: "RED", value: 1, comment: "Red!" }],
             comment: "Pick!",
           },

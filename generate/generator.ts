@@ -49,11 +49,12 @@ export function generate(
   let contentMap = new Map<string, OutputContent>();
   for (let definition of definitions) {
     if (definition.enum) {
-      generateEnumDescriptor(modulePath, definition.enum, contentMap);
+      generateEnumDescriptor(modulePath, definition.name, definition.enum, contentMap);
     } else if (definition.message) {
       if (!definition.message.isObservable) {
         generateMessageDescriptor(
           modulePath,
+          definition.name,
           definition.message,
           typeChecker,
           contentMap
@@ -61,6 +62,7 @@ export function generate(
       } else {
         generateObservableDescriptor(
           modulePath,
+          definition.name,
           definition.message,
           typeChecker,
           contentMap
@@ -69,6 +71,7 @@ export function generate(
       if (definition.message.datastore) {
         generateDatastoreModel(
           modulePath,
+          definition.name,
           definition.message,
           typeChecker,
           indexBuilder,
@@ -78,6 +81,7 @@ export function generate(
     } else if (definition.service) {
       generateServiceDescriptr(
         modulePath,
+        definition.name,
         definition.service,
         typeChecker,
         contentMap

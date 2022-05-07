@@ -5,19 +5,28 @@ import { toUpperSnaked } from "./util";
 
 export function generateServiceDescriptr(
   modulePath: string,
+  serviceName: string,
   serviceDefinition: ServiceDefinition,
   typeChecker: TypeChecker,
   contentMap: Map<string, OutputContent>
 ): void {
   let outputContent = OutputContent.get(contentMap, modulePath);
 
-  let requestDefinition = typeChecker.getMessage(
+  let requestDefinition = typeChecker.getDefinition(
     serviceDefinition.request,
     serviceDefinition.importRequest
   );
+  if (!requestDefinition.message) {
+    console.warn(
+      `Request ${serviceDefinition.request} is not found or not a message.`
+    );
+    return;
+  }
   let descriptorName: string;
   if (
-    requestDefinition.fields.find((field) => field.name === "signedSession")
+    requestDefinition.message.fields.find(
+      (field) => field.name === "signedSession"
+    )
   ) {
     descriptorName = "AuthedServiceDescriptor";
   } else {
@@ -25,7 +34,7 @@ export function generateServiceDescriptr(
   }
   outputContent.importFromServiceDescriptor(descriptorName);
 
-  let serviceDescriptorName = toUpperSnaked(serviceDefinition.name);
+  let serviceDescriptorName = toUpperSnaked(serviceName);
   outputContent.push(`
 export let ${serviceDescriptorName}: ${descriptorName}<${serviceDefinition.request}, ${serviceDefinition.response}> = {`);
 
@@ -42,7 +51,7 @@ export let ${serviceDescriptorName}: ${descriptorName}<${serviceDefinition.reque
     responseDescriptorName
   );
   outputContent.push(`
-  name: "${serviceDefinition.name}",
+  name: "${serviceName}",
   path: "${serviceDefinition.path}",
   requestDescriptor: ${requestDescriptorName},
   responseDescriptor: ${responseDescriptorName},

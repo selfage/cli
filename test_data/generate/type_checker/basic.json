@@ -1,15 +1,14 @@
 [{
-  "enum": {
-    "name": "SomeEnum"
-  }
+  "name": "SomeEnum",
+  "enum": {}
 }, {
+  "name": "BasicDataData",
   "message": {
-    "name": "BasicDataData",
     "comment": "Test data data"
   }
 }, {
+  "name": "BasicData",
   "message": {
-    "name": "BasicData",
     "comment": "Test data"
   }
 }]

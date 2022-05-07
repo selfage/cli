@@ -25,6 +25,7 @@ let OPERATOR_NAME_MAP = new Map<string, string>([
 
 export function generateDatastoreModel(
   modulePath: string,
+  messageName: string,
   messageDefinition: MessageDefinition,
   typeChecker: TypeChecker,
   indexBuilder: DatastoreIndexBuilder,
@@ -35,7 +36,6 @@ export function generateDatastoreModel(
   );
   let outputContent = OutputContent.get(contentMap, outputPath);
   let importMessagePath = reverseImport(modulePath, outputPath);
-  let messageName = messageDefinition.name;
   let messageDescriptorName = toUpperSnaked(messageName);
 
   let fieldToDefinitions = new Map<string, MessageFieldDefinition>();

@@ -1,4 +1,4 @@
-import { MessageDefinition } from "./definition";
+import { Definition } from "./definition";
 import { MockTypeChecker } from "./mocks";
 import { OutputContent } from "./output_content";
 import { generateServiceDescriptr } from "./service_generator";
@@ -14,16 +14,18 @@ NODE_TEST_RUNNER.run({
         // Prepare
         let contentMap = new Map<string, OutputContent>();
         let mockTypeChecker = new (class extends MockTypeChecker {
-          public getMessage(
+          public getDefinition(
             typeName: string,
             importPath?: string
-          ): MessageDefinition {
-            this.called.increment("getMessage");
+          ): Definition {
+            this.called.increment("getDefinition");
             assertThat(typeName, eq("GetCommentsRequest"), `typeName`);
             assertThat(importPath, eq(undefined), `importPath`);
             return {
               name: "GetCommentsRequest",
-              fields: [],
+              message: {
+                fields: [],
+              },
             };
           }
         })();
@@ -31,8 +33,8 @@ NODE_TEST_RUNNER.run({
         // Execute
         generateServiceDescriptr(
           "./some_file",
+          "GetComments",
           {
-            name: "GetComments",
             path: "/get_comments",
             request: "GetCommentsRequest",
             response: "GetCommentsResponse",
@@ -43,9 +45,9 @@ NODE_TEST_RUNNER.run({
 
         // Verify
         assertThat(
-          mockTypeChecker.called.get("getMessage"),
+          mockTypeChecker.called.get("getDefinition"),
           eq(1),
-          "getMessage called"
+          "getDefinition called"
         );
         assertThat(
           contentMap.get("./some_file").toString(),
@@ -68,18 +70,23 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
         // Prepare
         let contentMap = new Map<string, OutputContent>();
         let mockTypeChecker = new (class extends MockTypeChecker {
-          public getMessage(typeName: string, importPath?: string) {
-            this.called.increment("getMessage");
+          public getDefinition(
+            typeName: string,
+            importPath?: string
+          ): Definition {
+            this.called.increment("getDefinition");
             assertThat(typeName, eq("GetHistoryequest"), `typeName`);
             assertThat(importPath, eq("./some_request"), `importPath`);
             return {
               name: "GetCommentsRequest",
-              fields: [
-                {
-                  name: "signedSession",
-                  type: "string",
-                },
-              ],
+              message: {
+                fields: [
+                  {
+                    name: "signedSession",
+                    type: "string",
+                  },
+                ],
+              },
             };
           }
         })();
@@ -87,8 +94,8 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
         // Execute
         generateServiceDescriptr(
           "./some_file",
+          "GetHistory",
           {
-            name: "GetHistory",
             path: "/get_history",
             request: "GetHistoryequest",
             importRequest: "./some_request",
@@ -101,9 +108,9 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
 
         // Verify
         assertThat(
-          mockTypeChecker.called.get("getMessage"),
+          mockTypeChecker.called.get("getDefinition"),
           eq(1),
-          "getMessage called"
+          "getDefinition called"
         );
         assertThat(
           contentMap.get("./some_file").toString(),

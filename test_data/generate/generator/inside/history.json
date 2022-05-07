@@ -1,6 +1,6 @@
 [{
+  "name": "GetHistoryRequest",
   "message": {
-    "name": "GetHistoryRequest",
     "fields": [{
       "name": "signedSession",
       "type": "string"
@@ -10,8 +10,8 @@
     }]
   }
 }, {
+  "name": "GetHistoryResponse",
   "message": {
-    "name": "GetHistoryResponse",
     "fields": [{
       "name": "text",
       "type": "string",

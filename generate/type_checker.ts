@@ -1,7 +1,7 @@
 import fs = require("fs");
 import path = require("path");
 import resolve = require("resolve");
-import { Definition, MessageDefinition } from "./definition";
+import { Definition } from "./definition";
 
 export let PRIMITIVE_TYPE_STRING = "string";
 export let PRIMITIVE_TYPE_NUMBER = "number";
@@ -10,9 +10,9 @@ export let PRIMITIVE_TYPE_BOOLEAN = "boolean";
 export class TypeChecker {
   private currentDir: string;
   private currentModuleBase: string;
-  private cachedPathToNameToMessages = new Map<
+  private cachedPathToNameToDefinitions = new Map<
     string,
-    Map<string, MessageDefinition>
+    Map<string, Definition>
   >();
 
   public constructor(currentModulePath: string) {
@@ -21,10 +21,7 @@ export class TypeChecker {
     this.currentModuleBase = "./" + pathObj.base;
   }
 
-  public getMessage(
-    typeName: string,
-    importPath?: string
-  ): MessageDefinition | undefined {
+  public getDefinition(typeName: string, importPath?: string): Definition {
     if (!importPath) {
       importPath = this.currentModuleBase;
     }
@@ -32,10 +29,10 @@ export class TypeChecker {
       basedir: this.currentDir,
       extensions: [".json"],
     });
-    let nameToMessages = this.cachedPathToNameToMessages.get(filePath);
-    if (!nameToMessages) {
-      nameToMessages = new Map<string, MessageDefinition>();
-      this.cachedPathToNameToMessages.set(filePath, nameToMessages);
+    let nameToDefinitions = this.cachedPathToNameToDefinitions.get(filePath);
+    if (!nameToDefinitions) {
+      nameToDefinitions = new Map<string, Definition>();
+      this.cachedPathToNameToDefinitions.set(filePath, nameToDefinitions);
 
       let jsonStr = fs.readFileSync(filePath).toString();
       let definitions: Array<Definition>;
@@ -47,12 +44,10 @@ export class TypeChecker {
         throw e;
       }
       for (let definition of definitions) {
-        if (definition.message) {
-          nameToMessages.set(definition.message.name, definition.message);
-        }
+        nameToDefinitions.set(definition.name, definition);
       }
     }
-    return nameToMessages.get(typeName);
+    return nameToDefinitions.get(typeName);
   }
 
   public categorizeType(
@@ -72,10 +67,14 @@ export class TypeChecker {
         isPrimitive: true,
       };
     }
-    if (this.getMessage(typeName, importPath)) {
+    let definition = this.getDefinition(typeName, importPath);
+    if (definition.message) {
       return { isMessage: true };
-    } else {
+    } else if (definition.enum) {
       return { isEnum: true };
+    } else {
+      console.warn(`Type ${typeName} is not found in ${importPath}.`);
+      return {};
     }
   }
 }

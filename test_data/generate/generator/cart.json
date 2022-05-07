@@ -1,6 +1,6 @@
 [{
+  "name": "Shop",
   "enum": {
-    "name": "Shop",
     "values": [{
       "name": "Supermarket",
       "value": 1
@@ -10,8 +10,8 @@
     }]
   }
 }, {
+  "name": "Cart",
   "message": {
-    "name": "Cart",
     "fields": [{
       "name": "userId",
       "type": "string"

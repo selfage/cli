@@ -5,12 +5,12 @@ import { generateComment, toUpperSnaked } from "./util";
 
 export function generateObservableDescriptor(
   modulePath: string,
+  messageName: string,
   messageDefinition: MessageDefinition,
   typeChecker: TypeChecker,
   contentMap: Map<string, OutputContent>
 ): void {
   let outputContent = OutputContent.get(contentMap, modulePath);
-  let messageName = messageDefinition.name;
   outputContent.push(`
 export interface ${messageName} {`);
   for (let field of messageDefinition.fields) {

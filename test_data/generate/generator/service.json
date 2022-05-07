@@ -1,14 +1,14 @@
 [{
+  "name": "GetCommentsRequest",
   "message": {
-    "name": "GetCommentsRequest",
     "fields": [{
       "name": "videoId",
       "type": "string"
     }]
   }
 }, {
+  "name": "GetCommentsResponse",
   "message": {
-    "name": "GetCommentsResponse",
     "fields": [{
       "name": "text",
       "type": "string",
@@ -16,15 +16,15 @@
     }]
   }
 }, {
+  "name": "GetComments",
   "service": {
-    "name": "GetComments",
     "path": "/get_comments",
     "request": "GetCommentsRequest",
     "response": "GetCommentsResponse"
   }
 }, {
+  "name": "GetHistory",
   "service": {
-    "name": "GetHistory",
     "path": "/get_history",
     "request": "GetHistoryRequest",
     "importRequest": "./inside/history",

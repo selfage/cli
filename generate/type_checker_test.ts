@@ -14,7 +14,7 @@ NODE_TEST_RUNNER.run({
         );
 
         // Execute
-        let err = assertThrow(() => typeChecker.getMessage("BasicData"));
+        let err = assertThrow(() => typeChecker.getDefinition("BasicData"));
 
         // Verify
         assertThat(err, eqError(new Error("Cannot find module")), `err`);
@@ -29,7 +29,7 @@ NODE_TEST_RUNNER.run({
         );
 
         // Execute
-        let err = assertThrow(() => typeChecker.getMessage("BasicData"));
+        let err = assertThrow(() => typeChecker.getDefinition("BasicData"));
 
         // Verify
         assertThat(
@@ -56,12 +56,12 @@ NODE_TEST_RUNNER.run({
         assertThat(category.isMessage, eq(undefined), "string isMessage");
 
         // Execute
-        let messageDefinition = typeChecker.getMessage("BasicData");
+        let definition = typeChecker.getDefinition("BasicData");
 
         // Verify
-        assertThat(messageDefinition.name, eq("BasicData"), "BasicData.name");
+        assertThat(definition.name, eq("BasicData"), "BasicData.name");
         assertThat(
-          messageDefinition.comment,
+          definition.message.comment,
           eq("Test data"),
           "BasicData.comment"
         );
@@ -87,25 +87,25 @@ NODE_TEST_RUNNER.run({
         assertThat(category.isMessage, eq(undefined), "SomeEnum isMessage");
 
         // Execute
-        let messageDefinition2 = typeChecker.getMessage("BasicData");
+        let definition2 = typeChecker.getDefinition("BasicData");
 
         // Verify
-        assertThat(messageDefinition2, eq(messageDefinition), "Same BasicData");
+        assertThat(definition2, eq(definition), "Same BasicData");
 
         // Execute
-        let messageDefinition3 = typeChecker.getMessage(
+        let definition3 = typeChecker.getDefinition(
           "AnotherData",
           "./inside/another"
         );
 
         // Verify
         assertThat(
-          messageDefinition3.name,
+          definition3.name,
           eq("AnotherData"),
           "AnotherData.name"
         );
         assertThat(
-          messageDefinition3.comment,
+          definition3.message.comment,
           eq("Another data"),
           "AnotherData.comment"
         );

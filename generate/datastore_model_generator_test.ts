@@ -21,8 +21,8 @@ NODE_TEST_RUNNER.run({
         let error = assertThrow(() =>
           generateDatastoreModel(
             "./some_file",
+            "Task",
             {
-              name: "Task",
               fields: [],
               datastore: {
                 output: "./output_file",
@@ -57,8 +57,8 @@ NODE_TEST_RUNNER.run({
         let error = assertThrow(() =>
           generateDatastoreModel(
             "./some_file",
+            "Task",
             {
-              name: "Task",
               fields: [],
               datastore: {
                 output: "./output_file",
@@ -101,8 +101,8 @@ NODE_TEST_RUNNER.run({
         let error = assertThrow(() =>
           generateDatastoreModel(
             "./some_file",
+            "Task",
             {
-              name: "Task",
               fields: [],
               datastore: {
                 output: "./output_file",
@@ -148,8 +148,8 @@ NODE_TEST_RUNNER.run({
         let error = assertThrow(() =>
           generateDatastoreModel(
             "./some_file",
+            "Task",
             {
-              name: "Task",
               fields: [
                 {
                   name: "id",
@@ -197,8 +197,8 @@ NODE_TEST_RUNNER.run({
         let error = assertThrow(() =>
           generateDatastoreModel(
             "./some_file",
+            "Task",
             {
-              name: "Task",
               fields: [],
               datastore: {
                 output: "./output_file",
@@ -222,8 +222,8 @@ NODE_TEST_RUNNER.run({
         let error = assertThrow(() =>
           generateDatastoreModel(
             "./some_file",
+            "Task",
             {
-              name: "Task",
               fields: [
                 {
                   name: "id",
@@ -256,8 +256,8 @@ NODE_TEST_RUNNER.run({
         let error = assertThrow(() =>
           generateDatastoreModel(
             "./some_file",
+            "Task",
             {
-              name: "Task",
               fields: [
                 {
                   name: "id",
@@ -337,8 +337,8 @@ NODE_TEST_RUNNER.run({
         // Execute
         generateDatastoreModel(
           "./task_def",
+          "Task",
           {
-            name: "Task",
             fields: [
               {
                 name: "id",
@@ -622,8 +622,8 @@ export class CreatedTimeQueryBuilder {
         // Execute
         generateDatastoreModel(
           "./inside/task_def",
+          "Task",
           {
-            name: "Task",
             fields: [
               {
                 name: "id",
@@ -685,8 +685,8 @@ import { Task, TASK } from '../task_def';`),
         // Execute
         generateDatastoreModel(
           "./inside/task_def",
+          "Task",
           {
-            name: "Task",
             fields: [
               {
                 name: "id",

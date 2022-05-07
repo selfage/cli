@@ -1,6 +1,6 @@
 [{
+  "name": "Priority",
   "enum": {
-    "name": "Priority",
     "values": [{
       "name": "HIGH",
       "value": 1
@@ -10,8 +10,8 @@
     }]
   }
 }, {
+  "name": "Payload",
   "message": {
-    "name": "Payload",
     "fields": [{
       "name": "operation",
       "type": "string"
@@ -21,8 +21,8 @@
     }]
   }
 }, {
+  "name": "Task",
   "message": {
-    "name": "Task",
     "fields": [{
       "name": "id",
       "type": "string"
@@ -51,7 +51,7 @@
         "filters": [{
           "fieldName": "done",
           "operator": "="
-        }], 
+        }],
         "orderings": [{
           "fieldName": "created",
           "descending": true
@@ -61,7 +61,7 @@
         "filters": [{
           "fieldName": "done",
           "operator": "<="
-        }], 
+        }],
         "orderings": [{
           "fieldName": "priority",
           "descending": false

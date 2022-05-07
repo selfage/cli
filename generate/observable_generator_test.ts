@@ -1,4 +1,4 @@
-import { MessageDefinition } from "./definition";
+import { Definition } from "./definition";
 import { generateObservableDescriptor } from "./observable_generator";
 import { OutputContent } from "./output_content";
 import { TypeChecker } from "./type_checker";
@@ -20,8 +20,8 @@ NODE_TEST_RUNNER.run({
             super("");
           }
 
-          public getMessage(): MessageDefinition {
-            counter.increment("getMessage");
+          public getDefinition(): Definition {
+            counter.increment("getDefinition");
             return undefined;
           }
         })();
@@ -29,8 +29,8 @@ NODE_TEST_RUNNER.run({
         // Execute
         generateObservableDescriptor(
           "some_file",
+          "BasicData",
           {
-            name: "BasicData",
             fields: [
               {
                 name: "numberField",
@@ -67,7 +67,7 @@ NODE_TEST_RUNNER.run({
         );
 
         // Verify
-        assertThat(counter.get("getMessage"), eq(0), `getMessage called`);
+        assertThat(counter.get("getDefinition"), eq(0), `getDefinition called`);
         assertThat(
           contentMap.get("some_file").toString(),
           eq(`import { ObservableArray } from '@selfage/observable_array';
@@ -257,8 +257,8 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
         // Execute
         generateObservableDescriptor(
           "some_file",
+          "WithComment",
           {
-            name: "WithComment",
             fields: [
               {
                 name: "numberField",
@@ -341,32 +341,32 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
             super("");
           }
 
-          public getMessage(
+          public getDefinition(
             typeName: string,
             importPath?: string
-          ): MessageDefinition {
-            counter.increment("getMessage");
-            switch (counter.get("getMessage")) {
+          ): Definition {
+            counter.increment("getDefinition");
+            switch (counter.get("getDefinition")) {
               case 1:
                 assertThat(typeName, eq("BasicData"), `1st typeName`);
                 assertThat(importPath, eq(undefined), `1st importPath`);
-                return { name: "any", fields: [] };
+                return { name: "any", message: { fields: [] } };
               case 2:
                 assertThat(typeName, eq("BasicData2"), `2nd typeName`);
                 assertThat(importPath, eq("./another_file"), `2nd importPath`);
-                return { name: "any", fields: [] };
+                return { name: "any", message: { fields: [] } };
               case 3:
                 assertThat(typeName, eq("TestEnum"), `3rd typeName`);
                 assertThat(importPath, eq(undefined), `3rd importPath`);
-                return undefined;
+                return { name: "any", enum: { values: [] } };
               case 4:
                 assertThat(typeName, eq("BasicData"), `4th typeName`);
                 assertThat(importPath, eq(undefined), `4th importPath`);
-                return { name: "any", fields: [] };
+                return { name: "any", message: { fields: [] } };
               case 5:
                 assertThat(typeName, eq("TestEnum"), `5th typeName`);
                 assertThat(importPath, eq(undefined), `5th importPath`);
-                return undefined;
+                return { name: "any", enum: { values: [] } };
               default:
                 throw new Error(`Unexpected.`);
             }
@@ -376,8 +376,8 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
         // Execute
         generateObservableDescriptor(
           "some_file",
+          "NestedObj",
           {
-            name: "NestedObj",
             fields: [
               {
                 name: "basicData",
@@ -410,7 +410,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
         );
 
         // Verify
-        assertThat(counter.get("getMessage"), eq(5), "getMessage called");
+        assertThat(counter.get("getDefinition"), eq(5), "getDefinition called");
         assertThat(
           contentMap.get("some_file").toString(),
           eq(`import { ObservableArray } from '@selfage/observable_array';

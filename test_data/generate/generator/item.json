@@ -1,6 +1,6 @@
 [{
+  "name": "ProductCategory",
   "enum": {
-    "name": "ProductCategory",
     "values": [{
       "name": "Veges",
       "value": 1
@@ -13,8 +13,8 @@
     }]
   }
 }, {
+  "name": "Item",
   "message": {
-    "name": "Item",
     "fields": [{
       "name": "productName",
       "type": "string"

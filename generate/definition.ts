@@ -6,8 +6,6 @@ export interface EnumValue {
 }
 
 export interface EnumDefinition {
-  // Must be of CamelCase.
-  name: string;
   values: Array<EnumValue>;
   comment?: string;
 }
@@ -55,8 +53,6 @@ export interface DatastoreDefinition {
 }
 
 export interface MessageDefinition {
-  // Must be of CamelCase, which will be the name of a class or interface.
-  name: string;
   fields: Array<MessageFieldDefinition>;
   isObservable?: true;
   comment?: string;
@@ -65,8 +61,6 @@ export interface MessageDefinition {
 }
 
 export interface ServiceDefinition {
-  // Must be of CamelCase, which will be the name for the descriptor.
-  name: string;
   // The pathname of a url. Must start with "/".
   path: string;
   // The name of a `MessageFieldDefinition` used for request.
@@ -80,6 +74,8 @@ export interface ServiceDefinition {
 }
 
 export interface Definition {
+  // Must be of CamelCase.
+  name: string;
   // One of the below.
   // Requires package `@selfage/message`.
   enum?: EnumDefinition;
