@@ -53,8 +53,18 @@ export function build${spannerSqlName}Statement(`);
     sql: "${spannerSqlDefinition.sql}",
     params: {`);
     for (let param of spannerSqlDefinition.params) {
+      if (param.type === 'timestamp') {
+        if (!param.isArray) {
+          outputContentBuilder.push(`
+      ${param.name}: new Date(${param.name}).toISOString(),`);
+        } else {
+          outputContentBuilder.push(`
+      ${param.name}: ${param.name}.map((ele) => new Date(ele).toISOString()),`);
+        }
+      } else {
       outputContentBuilder.push(`
       ${param.name},`);
+      }
     }
     outputContentBuilder.push(`
     },
@@ -112,9 +122,7 @@ export function parse${spannerSqlName}Row(row: any): ${spannerSqlName}Row {
   obj.${column.name} = Date.parse(obj.${column.name});`);
         } else {
           outputContentBuilder.push(`
-  for (let i = 0; i < obj.${column.name}.length; i++) {
-    obj.${column.name}[i] = Date.parse(obj.${column.name}[i]);
-  }`);
+  obj.${column.name} = obj.${column.name}.map((ele) => Date.parse(ele));`);
         }
       }
     }

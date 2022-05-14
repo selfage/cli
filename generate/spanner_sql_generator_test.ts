@@ -87,8 +87,8 @@ export function buildQueryStuffStatement(
     params: {
       intValue,
       floatValue,
-      timestampValue,
-      timestampValueArray,
+      timestampValue: new Date(timestampValue).toISOString(),
+      timestampValueArray: timestampValueArray.map((ele) => new Date(ele).toISOString()),
       stringValue,
     },
     types: {
@@ -129,9 +129,7 @@ export function parseQueryStuffRow(row: any): QueryStuffRow {
   // No need to wrap number until we want to support int64 as bigint.
   let obj = row.toJSON();
   obj.outputTimestampValue = Date.parse(obj.outputTimestampValue);
-  for (let i = 0; i < obj.outputTimestampValueArray.length; i++) {
-    obj.outputTimestampValueArray[i] = Date.parse(obj.outputTimestampValueArray[i]);
-  }
+  obj.outputTimestampValueArray = obj.outputTimestampValueArray.map((ele) => Date.parse(ele));
   return obj;
 }
 `),
