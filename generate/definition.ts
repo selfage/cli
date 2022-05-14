@@ -73,14 +73,42 @@ export interface ServiceDefinition {
   importResponse?: string;
 }
 
+export interface SpannerVariable {
+  name: string;
+  // Supports the following types: string, bool, int53, float, timestamp, and
+  // bytes.
+  // float maps to float64 in Spanner and number in JS/TS.
+  // timestamp maps to timestamp in Spanner and number in milliseconds in JS/TS.
+  // string and bool are the same in Spanner and JS/TS.
+  // bytes maps to bytes in Spanner and Nodejs Buffer in JS/TS.
+  // int53 maps to int64 in Spanner and number in JS/TS. By specifying int53,
+  // it means that you can guarantee the number stored won't exceed the max
+  // number in JS which is 2^53 - 1.
+  // int64 is left out here until bigint is better supported in all browsers.
+  // Other types, including struct and array of array, are not supported.
+  type: string;
+  isArray?: boolean;
+}
+
+export interface SpannerSqlDefinition {
+  // Following Spanner SQL syntax, optionally with params.
+  sql: string;
+  // Must match the params specified in SQL statements.
+  params?: Array<SpannerVariable>;
+  // Must match the output columns, if the SQL statement is a query statement.
+  outputColumns?: Array<SpannerVariable>;
+}
+
 export interface Definition {
   // Must be of CamelCase.
   name: string;
   // One of the below.
-  // Requires package `@selfage/message`.
+  // Generated code requires package `@selfage/message`.
   enum?: EnumDefinition;
-  // Requires package `@selfage/message`.
+  // Generated code requires package `@selfage/message`.
   message?: MessageDefinition;
-  // Requires package `@selfage/service_descriptor`.
+  // Generated code requires package `@selfage/service_descriptor`.
   service?: ServiceDefinition;
+  // Generated code requires package `@selfage/spanner_client`.
+  spannerSql?: SpannerSqlDefinition;
 }

@@ -6,7 +6,7 @@ import {
   MessageDefinition,
   MessageFieldDefinition,
 } from "./definition";
-import { OutputContent } from "./output_content";
+import { OutputContentBuilder } from "./output_content_builder";
 import { PRIMITIVE_TYPE_STRING, TypeChecker } from "./type_checker";
 import {
   generateComment,
@@ -29,12 +29,12 @@ export function generateDatastoreModel(
   messageDefinition: MessageDefinition,
   typeChecker: TypeChecker,
   indexBuilder: DatastoreIndexBuilder,
-  contentMap: Map<string, OutputContent>
+  contentMap: Map<string, OutputContentBuilder>
 ): void {
   let outputPath = getNodeRelativePath(
     path.join(path.dirname(modulePath), messageDefinition.datastore.output)
   );
-  let outputContent = OutputContent.get(contentMap, outputPath);
+  let outputContentBuilder = OutputContentBuilder.get(contentMap, outputPath);
   let importMessagePath = reverseImport(modulePath, outputPath);
   let messageDescriptorName = toUpperSnaked(messageName);
 
@@ -74,7 +74,7 @@ export function generateDatastoreModel(
       }
 
       indexBuilder.addIndex(messageName, query);
-      outputContent.importFromDatastoreModelDescriptor(
+      outputContentBuilder.importFromDatastoreModelDescriptor(
         "DatastoreQuery",
         "DatastoreFilter"
       );
@@ -118,7 +118,7 @@ export class ${query.name}QueryBuilder {
           excludedIndexes
         );
         if (isEnum) {
-          outputContent.importFromPath(
+          outputContentBuilder.importFromPath(
             transitImport(importMessagePath, fieldDefinition.import),
             fieldDefinition.type
           );
@@ -160,13 +160,17 @@ export class ${query.name}QueryBuilder {
   if (keyDefinition.isArray) {
     throw new Error(`Datastore key cannot be an array.`);
   }
-  outputContent.importFromPath(
+  outputContentBuilder.importFromPath(
     importMessagePath,
     messageName,
     messageDescriptorName
   );
-  outputContent.importFromDatastoreModelDescriptor("DatastoreModelDescriptor");
-  outputContent.push(`${generateComment(messageDefinition.datastore.comment)}
+  outputContentBuilder.importFromDatastoreModelDescriptor(
+    "DatastoreModelDescriptor"
+  );
+  outputContentBuilder.push(`${generateComment(
+    messageDefinition.datastore.comment
+  )}
 export let ${messageDescriptorName}_MODEL: DatastoreModelDescriptor<${messageName}> = {
   name: "${messageName}",
   key: "${messageDefinition.datastore.key}",
@@ -174,7 +178,7 @@ export let ${messageDescriptorName}_MODEL: DatastoreModelDescriptor<${messageNam
   valueDescriptor: ${messageDescriptorName},
 }
 `);
-  outputContent.push(...indexContentList);
+  outputContentBuilder.push(...indexContentList);
 }
 
 // Both paths are relative path, where `basePath` is relative to CWD and

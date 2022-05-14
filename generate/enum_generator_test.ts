@@ -1,5 +1,5 @@
 import { generateEnumDescriptor } from "./enum_generator";
-import { OutputContent } from "./output_content";
+import { OutputContentBuilder } from "./output_content_builder";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
@@ -10,7 +10,7 @@ NODE_TEST_RUNNER.run({
       name: "GenerateMultipleValues",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
 
         // Execute
         generateEnumDescriptor(
@@ -63,7 +63,7 @@ export let COLOR: EnumDescriptor<Color> = {
       name: "GenerateWithComment",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
 
         // Execute
         generateEnumDescriptor(

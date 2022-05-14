@@ -1,6 +1,6 @@
 import { Definition } from "./definition";
 import { generateObservableDescriptor } from "./observable_generator";
-import { OutputContent } from "./output_content";
+import { OutputContentBuilder } from "./output_content_builder";
 import { TypeChecker } from "./type_checker";
 import { Counter } from "@selfage/counter";
 import { assertThat, eq } from "@selfage/test_matcher";
@@ -13,7 +13,7 @@ NODE_TEST_RUNNER.run({
       name: "SelfContainedData",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let counter = new Counter<string>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {
@@ -247,7 +247,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
       name: "GenerateWithComment",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {
             super("");
@@ -334,7 +334,7 @@ export let WITH_COMMENT: MessageDescriptor<WithComment> = {
       name: "NestedObjects",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let counter = new Counter<string>();
         let typeCheckerMock = new (class extends TypeChecker {
           constructor() {

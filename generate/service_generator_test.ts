@@ -1,7 +1,7 @@
 import { Definition } from "./definition";
 import { MockTypeChecker } from "./mocks";
-import { OutputContent } from "./output_content";
-import { generateServiceDescriptr } from "./service_generator";
+import { OutputContentBuilder } from "./output_content_builder";
+import { generateServiceDescriptor } from "./service_generator";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
@@ -12,7 +12,7 @@ NODE_TEST_RUNNER.run({
       name: "GenerateUnauthedService",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let mockTypeChecker = new (class extends MockTypeChecker {
           public getDefinition(
             typeName: string,
@@ -31,7 +31,7 @@ NODE_TEST_RUNNER.run({
         })();
 
         // Execute
-        generateServiceDescriptr(
+        generateServiceDescriptor(
           "./some_file",
           "GetComments",
           {
@@ -68,7 +68,7 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
       name: "GenerateAuthedServiceWithImports",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let mockTypeChecker = new (class extends MockTypeChecker {
           public getDefinition(
             typeName: string,
@@ -92,7 +92,7 @@ export let GET_COMMENTS: UnauthedServiceDescriptor<GetCommentsRequest, GetCommen
         })();
 
         // Execute
-        generateServiceDescriptr(
+        generateServiceDescriptor(
           "./some_file",
           "GetHistory",
           {

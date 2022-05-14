@@ -1,16 +1,16 @@
 import { ServiceDefinition } from "./definition";
-import { OutputContent } from "./output_content";
+import { OutputContentBuilder } from "./output_content_builder";
 import { TypeChecker } from "./type_checker";
 import { toUpperSnaked } from "./util";
 
-export function generateServiceDescriptr(
+export function generateServiceDescriptor(
   modulePath: string,
   serviceName: string,
   serviceDefinition: ServiceDefinition,
   typeChecker: TypeChecker,
-  contentMap: Map<string, OutputContent>
+  contentMap: Map<string, OutputContentBuilder>
 ): void {
-  let outputContent = OutputContent.get(contentMap, modulePath);
+  let outputContentBuilder = OutputContentBuilder.get(contentMap, modulePath);
 
   let requestDefinition = typeChecker.getDefinition(
     serviceDefinition.request,
@@ -32,25 +32,25 @@ export function generateServiceDescriptr(
   } else {
     descriptorName = "UnauthedServiceDescriptor";
   }
-  outputContent.importFromServiceDescriptor(descriptorName);
+  outputContentBuilder.importFromServiceDescriptor(descriptorName);
 
   let serviceDescriptorName = toUpperSnaked(serviceName);
-  outputContent.push(`
+  outputContentBuilder.push(`
 export let ${serviceDescriptorName}: ${descriptorName}<${serviceDefinition.request}, ${serviceDefinition.response}> = {`);
 
   let requestDescriptorName = toUpperSnaked(serviceDefinition.request);
-  outputContent.importFromPath(
+  outputContentBuilder.importFromPath(
     serviceDefinition.importRequest,
     serviceDefinition.request,
     requestDescriptorName
   );
   let responseDescriptorName = toUpperSnaked(serviceDefinition.response);
-  outputContent.importFromPath(
+  outputContentBuilder.importFromPath(
     serviceDefinition.importResponse,
     serviceDefinition.response,
     responseDescriptorName
   );
-  outputContent.push(`
+  outputContentBuilder.push(`
   name: "${serviceName}",
   path: "${serviceDefinition.path}",
   requestDescriptor: ${requestDescriptorName},

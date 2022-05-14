@@ -1,6 +1,6 @@
 import { generateMessageDescriptor } from "./message_generator";
 import { MockTypeChecker } from "./mocks";
-import { OutputContent } from "./output_content";
+import { OutputContentBuilder } from "./output_content_builder";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
@@ -11,7 +11,7 @@ NODE_TEST_RUNNER.run({
       name: "SelfContainedData",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let mockTypeChecker = new (class extends MockTypeChecker {
           public categorizeType() {
             return { isPrimitive: true };
@@ -121,7 +121,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
       name: "GenerateWithComment",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let mockTypeChecker = new (class extends MockTypeChecker {
           public categorizeType() {
             return { isPrimitive: true };
@@ -179,7 +179,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
       name: "NestedObjects",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let mockTypeChecker = new (class extends MockTypeChecker {
           public categorizeType(typeName: string, importPath?: string) {
             switch (this.called.increment("categorizeType")) {

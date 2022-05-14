@@ -7,10 +7,11 @@ import { Definition } from "./definition";
 import { generateEnumDescriptor } from "./enum_generator";
 import { generateMessageDescriptor } from "./message_generator";
 import { generateObservableDescriptor } from "./observable_generator";
-import { OutputContent } from "./output_content";
-import { generateServiceDescriptr } from "./service_generator";
+import { OutputContentBuilder } from "./output_content_builder";
+import { generateServiceDescriptor } from "./service_generator";
 import { TypeChecker } from "./type_checker";
 import { getNodeRelativePath } from "./util";
+import { generateSpannerSql } from "./spanner_sql_generator";
 
 export function generate(
   inputFile: string,
@@ -46,10 +47,15 @@ export function generate(
   }
 
   let typeChecker = new TypeChecker(modulePath);
-  let contentMap = new Map<string, OutputContent>();
+  let contentMap = new Map<string, OutputContentBuilder>();
   for (let definition of definitions) {
     if (definition.enum) {
-      generateEnumDescriptor(modulePath, definition.name, definition.enum, contentMap);
+      generateEnumDescriptor(
+        modulePath,
+        definition.name,
+        definition.enum,
+        contentMap
+      );
     } else if (definition.message) {
       if (!definition.message.isObservable) {
         generateMessageDescriptor(
@@ -79,11 +85,18 @@ export function generate(
         );
       }
     } else if (definition.service) {
-      generateServiceDescriptr(
+      generateServiceDescriptor(
         modulePath,
         definition.name,
         definition.service,
         typeChecker,
+        contentMap
+      );
+    } else if (definition.spannerSql) {
+      generateSpannerSql(
+        modulePath,
+        definition.name,
+        definition.spannerSql,
         contentMap
       );
     }
@@ -92,7 +105,11 @@ export function generate(
   if (indexBuilder) {
     indexBuilder.writeFileSync(dryRun);
   }
-  for (let [outputModulePath, outputContent] of contentMap) {
-    writeFileSync(outputModulePath + ".ts", outputContent.toString(), dryRun);
+  for (let [outputModulePath, outputContentBuilder] of contentMap) {
+    writeFileSync(
+      outputModulePath + ".ts",
+      outputContentBuilder.toString(),
+      dryRun
+    );
   }
 }

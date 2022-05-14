@@ -1,7 +1,7 @@
 import { generateDatastoreModel } from "./datastore_model_generator";
 import { DatastoreQueryTemplate } from "./definition";
 import { MockDatastoreIndexBuilder, MockTypeChecker } from "./mocks";
-import { OutputContent } from "./output_content";
+import { OutputContentBuilder } from "./output_content_builder";
 import {
   assertThat,
   assertThrow,
@@ -42,7 +42,7 @@ NODE_TEST_RUNNER.run({
             },
             new MockTypeChecker(),
             new MockDatastoreIndexBuilder(),
-            new Map<string, OutputContent>()
+            new Map<string, OutputContentBuilder>()
           )
         );
 
@@ -82,7 +82,7 @@ NODE_TEST_RUNNER.run({
             },
             new MockTypeChecker(),
             new MockDatastoreIndexBuilder(),
-            new Map<string, OutputContent>()
+            new Map<string, OutputContentBuilder>()
           )
         );
 
@@ -122,7 +122,7 @@ NODE_TEST_RUNNER.run({
             },
             new MockTypeChecker(),
             new MockDatastoreIndexBuilder(),
-            new Map<string, OutputContent>()
+            new Map<string, OutputContentBuilder>()
           )
         );
 
@@ -178,7 +178,7 @@ NODE_TEST_RUNNER.run({
             },
             mockTypeChecker,
             new MockDatastoreIndexBuilder(),
-            new Map<string, OutputContent>()
+            new Map<string, OutputContentBuilder>()
           )
         );
 
@@ -207,7 +207,7 @@ NODE_TEST_RUNNER.run({
             },
             new MockTypeChecker(),
             new MockDatastoreIndexBuilder(),
-            new Map<string, OutputContent>()
+            new Map<string, OutputContentBuilder>()
           )
         );
 
@@ -237,7 +237,7 @@ NODE_TEST_RUNNER.run({
             },
             new MockTypeChecker(),
             new MockDatastoreIndexBuilder(),
-            new Map<string, OutputContent>()
+            new Map<string, OutputContentBuilder>()
           )
         );
 
@@ -272,7 +272,7 @@ NODE_TEST_RUNNER.run({
             },
             new MockTypeChecker(),
             new MockDatastoreIndexBuilder(),
-            new Map<string, OutputContent>()
+            new Map<string, OutputContentBuilder>()
           )
         );
 
@@ -288,7 +288,7 @@ NODE_TEST_RUNNER.run({
       name: "ArrayAndSimpleImportAndComments",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let mockTypeChecker = new (class extends MockTypeChecker {
           public categorizeType(typeName: string, importPath?: string) {
             if (typeName === "Priority") {
@@ -606,7 +606,7 @@ export class CreatedTimeQueryBuilder {
       name: "DivingImports",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let mockTypeChecker = new (class extends MockTypeChecker {
           public categorizeType(typeName: string, importPath?: string) {
             assertThat(typeName, eq("Priority"), "typeName for categorizeType");
@@ -669,7 +669,7 @@ import { Task, TASK } from '../task_def';`),
       name: "JumpingImports",
       execute: () => {
         // Prepare
-        let contentMap = new Map<string, OutputContent>();
+        let contentMap = new Map<string, OutputContentBuilder>();
         let mockTypeChecker = new (class extends MockTypeChecker {
           public categorizeType(typeName: string, importPath?: string) {
             assertThat(typeName, eq("Priority"), "typeName for categorizeType");

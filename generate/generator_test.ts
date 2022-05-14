@@ -29,7 +29,7 @@ NODE_TEST_RUNNER.run({
   cases: [
     {
       name: "GenerateMessage",
-      execute: async () => {
+      execute: () => {
         // Execute
         generate("./test_data/generate/generator/inside/credit_card");
 
@@ -65,7 +65,7 @@ NODE_TEST_RUNNER.run({
     },
     {
       name: "GenerateObservable",
-      execute: async () => {
+      execute: () => {
         // Execute
         generate("./test_data/generate/generator/inside/money");
 
@@ -99,7 +99,7 @@ NODE_TEST_RUNNER.run({
       public name = "GenerateDatastoreModel";
 
       private originalIndexes: Buffer;
-      public async execute() {
+      public execute() {
         // Prepare
         this.originalIndexes = fs.readFileSync(
           "./test_data/generate/generator/index.yaml"
@@ -131,7 +131,7 @@ NODE_TEST_RUNNER.run({
       public name = "GenerateDatastoreModelWithPackageJsonFile";
 
       private originalIndexes: Buffer;
-      public async execute() {
+      public execute() {
         // Prepare
         this.originalIndexes = fs.readFileSync(
           "./test_data/generate/generator/index.yaml"
@@ -163,7 +163,7 @@ NODE_TEST_RUNNER.run({
     })(),
     {
       name: "GenerateServiceDescriptor",
-      execute: async () => {
+      execute: () => {
         // Prepare
         generate("./test_data/generate/generator/inside/history");
 
@@ -172,13 +172,29 @@ NODE_TEST_RUNNER.run({
 
         // Verify
         assertCompile("./test_data/generate/generator/service.ts");
-
-        // Cleanup
+      },
+      tearDown: async () => {
         await Promise.all([
           unlinkSilently("./test_data/generate/generator/service.ts"),
           unlinkSilently("./test_data/generate/generator/service.js"),
           unlinkSilently("./test_data/generate/generator/inside/history.ts"),
           unlinkSilently("./test_data/generate/generator/inside/history.js"),
+        ]);
+      },
+    },
+    {
+      name: "GenerateSpannerSql",
+      execute: () => {
+        // Execute
+        generate("./test_data/generate/generator/spanner_query");
+
+        // Verify
+        assertCompile("./test_data/generate/generator/spanner_query.ts");
+      },
+      tearDown: async () => {
+        await Promise.all([
+          unlinkSilently("./test_data/generate/generator/spanner_query.js"),
+          unlinkSilently("./test_data/generate/generator/spanner_query.ts"),
         ]);
       },
     },

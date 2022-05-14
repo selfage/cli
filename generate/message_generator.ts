@@ -1,5 +1,5 @@
 import { MessageDefinition } from "./definition";
-import { OutputContent } from "./output_content";
+import { OutputContentBuilder } from "./output_content_builder";
 import { TypeChecker } from "./type_checker";
 import { generateComment, toUpperSnaked } from "./util";
 
@@ -8,10 +8,10 @@ export function generateMessageDescriptor(
   messageName: string,
   messageDefinition: MessageDefinition,
   typeChecker: TypeChecker,
-  contentMap: Map<string, OutputContent>
+  contentMap: Map<string, OutputContentBuilder>
 ): void {
-  let outputContent = OutputContent.get(contentMap, modulePath);
-  outputContent.push(`${generateComment(messageDefinition.comment)}
+  let outputContentBuilder = OutputContentBuilder.get(contentMap, modulePath);
+  outputContentBuilder.push(`${generateComment(messageDefinition.comment)}
 export interface ${messageName} {`);
   for (let field of messageDefinition.fields) {
     let fieldTypeName: string;
@@ -20,16 +20,16 @@ export interface ${messageName} {`);
     } else {
       fieldTypeName = field.type;
     }
-    outputContent.push(`${generateComment(field.comment)}
+    outputContentBuilder.push(`${generateComment(field.comment)}
   ${field.name}?: ${fieldTypeName},`);
   }
-  outputContent.push(`
+  outputContentBuilder.push(`
 }
 `);
 
-  outputContent.importFromMessageDescriptor("MessageDescriptor");
+  outputContentBuilder.importFromMessageDescriptor("MessageDescriptor");
   let descriptorName = toUpperSnaked(messageName);
-  outputContent.push(`
+  outputContentBuilder.push(`
 export let ${descriptorName}: MessageDescriptor<${messageName}> = {
   name: '${messageName}',
   factoryFn: () => {
@@ -37,7 +37,7 @@ export let ${descriptorName}: MessageDescriptor<${messageName}> = {
   },
   fields: [`);
   for (let field of messageDefinition.fields) {
-    outputContent.push(`
+    outputContentBuilder.push(`
     {
       name: '${field.name}',`);
     let { isPrimitive, isEnum, isMessage } = typeChecker.categorizeType(
@@ -45,38 +45,38 @@ export let ${descriptorName}: MessageDescriptor<${messageName}> = {
       field.import
     );
     if (isPrimitive) {
-      outputContent.importFromMessageDescriptor("PrimitiveType");
-      outputContent.push(`
+      outputContentBuilder.importFromMessageDescriptor("PrimitiveType");
+      outputContentBuilder.push(`
       primitiveType: PrimitiveType.${field.type.toUpperCase()},`);
     } else if (isEnum) {
       let enumDescriptorName = toUpperSnaked(field.type);
-      outputContent.importFromPath(
+      outputContentBuilder.importFromPath(
         field.import,
         field.type,
         enumDescriptorName
       );
-      outputContent.push(`
+      outputContentBuilder.push(`
       enumDescriptor: ${enumDescriptorName},`);
     } else if (isMessage) {
       let messageDescriptorName = toUpperSnaked(field.type);
-      outputContent.importFromPath(
+      outputContentBuilder.importFromPath(
         field.import,
         field.type,
         messageDescriptorName
       );
-      outputContent.push(`
+      outputContentBuilder.push(`
       messageDescriptor: ${messageDescriptorName},`);
     }
     if (field.isArray) {
-      outputContent.push(`
+      outputContentBuilder.push(`
       arrayFactoryFn: () => {
         return new Array<any>();
       },`);
     }
-    outputContent.push(`
+    outputContentBuilder.push(`
     },`);
   }
-  outputContent.push(`
+  outputContentBuilder.push(`
   ]
 };
 `);

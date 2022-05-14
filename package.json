@@ -38,6 +38,7 @@
     "!test_suite.*"
   ],
   "devDependencies": {
+    "@google-cloud/spanner": "^5.18.0",
     "@selfage/counter": "^1.0.8",
     "@selfage/datastore_client": "^2.0.3",
     "@selfage/message": "^2.0.0",
