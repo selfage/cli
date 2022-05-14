@@ -104,7 +104,7 @@ export interface ${spannerSqlName}Row {`);
 
 export function parse${spannerSqlName}Row(row: any): ${spannerSqlName}Row {
   // No need to wrap number until we want to support int64 as bigint.
-  let obj = row.toJson();`);
+  let obj = row.toJSON();`);
     for (let column of spannerSqlDefinition.outputColumns) {
       if (column.type === "timestamp") {
         if (!column.isArray) {

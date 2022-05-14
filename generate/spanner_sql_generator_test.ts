@@ -127,7 +127,7 @@ export interface QueryStuffRow {
 
 export function parseQueryStuffRow(row: any): QueryStuffRow {
   // No need to wrap number until we want to support int64 as bigint.
-  let obj = row.toJson();
+  let obj = row.toJSON();
   obj.outputTimestampValue = Date.parse(obj.outputTimestampValue);
   for (let i = 0; i < obj.outputTimestampValueArray.length; i++) {
     obj.outputTimestampValueArray[i] = Date.parse(obj.outputTimestampValueArray[i]);

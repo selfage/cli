@@ -109,6 +109,6 @@ export interface Definition {
   message?: MessageDefinition;
   // Generated code requires package `@selfage/service_descriptor`.
   service?: ServiceDefinition;
-  // Generated code requires package `@selfage/spanner_client`.
+  // Generated code requires package `@google-cloud/spanner`.
   spannerSql?: SpannerSqlDefinition;
 }
