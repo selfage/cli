@@ -1,9 +1,0 @@
-[{
-  "name": "CreditCard",
-  "message": {
-    "fields": [{
-      "name": "cardNumber",
-      "type": "number"
-    }]
-  }
-}]

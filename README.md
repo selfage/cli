@@ -95,24 +95,6 @@ Options:
   -h, --help  display help for command
 ```
 
-## Generate descriptors
-
-See `@selfage/message`, `@selfage/datastore_client` and `@selfage/service_descriptor` packages for detailed explanation of various generated descritpors.
-
-```
-$ selfage generate -h
-Usage: selfage generate|gen [options] <file>
-
-Generate various descriptors from the specified source file. The source file ext can be neglected and is always fixed as .json. The generated file will be <file>.ts.
-
-Options:
-  -i, --index-file <indexFile>  The index yaml file for Google Cloud Datastore composite index. Its file ext can be neglected and is always fixed
-                                as .yaml. Requried only if your definition file includes a datastore definition. You can also add
-                                '"datastoreIndex": "./your/index_file"' to your package.json file to save typings.
-  --dry-run                     Print the generated content instead of writing it to the destination file.
-  -h, --help                    display help for command
-```
-
 ## API access
 
 Please check out the corresponding .d.ts file for function signatures for each sub-command.
@@ -128,7 +110,5 @@ Please check out the corresponding .d.ts file for function signatures for each s
 `format` -> `import { format } from "@selfage/cli/formatter";`
 
 `lintL10n` -> `import { lintL10n } from "./l10n_linter";`
-
-`generate` -> `import { generate } from "@selfage/cli/generate/generator"`
 
 E.g., you could `import { compile } from '@selfage/cli/build/compiler';` and call `await compile('some_source', 'tsconfig.json')` to compile a single file.

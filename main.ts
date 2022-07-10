@@ -4,7 +4,6 @@ import path = require("path");
 import { clean } from "./build/cleaner";
 import { compile } from "./build/compiler";
 import { format } from "./formatter";
-import { generate } from "./generate/generator";
 import { lintL10n } from "./l10n_linter";
 import { runForever } from "./run/forever_runner";
 import { run } from "./run/runner";
@@ -87,32 +86,6 @@ async function main(): Promise<void> {
       `Checks localization pattern compliance, and missing, duplicated or redundant keys.`
     )
     .action((baseDir) => lintL10n(baseDir));
-  program
-    .command("generate <file>")
-    .alias("gen")
-    .description(
-      `Generate various descriptors from the specified source file. The ` +
-        `source file ext` +
-        FIXED_FILE_EXT +
-        `.json. The generated file will be <file>.ts.`
-    )
-    .option(
-      "-i, --index-file <indexFile>",
-      `The index yaml file for Google Cloud Datastore composite index. Its ` +
-        `file ext` +
-        FIXED_FILE_EXT +
-        `.yaml. Requried only if your definition file includes a datastore ` +
-        `definition. You can also add '"datastoreIndex": "./your/index_file"'` +
-        ` to your package.json file to save typings.`
-    )
-    .option(
-      "--dry-run",
-      "Print the generated content instead of writing it to the destination " +
-        "file."
-    )
-    .action((file, options) =>
-      generate(file, options.indexFile, options.dryRun)
-    );
   await program.parseAsync();
 }
 

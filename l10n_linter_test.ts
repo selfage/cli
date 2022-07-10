@@ -1,8 +1,8 @@
 import { lintL10nReturnLogs } from "./l10n_linter";
 import { assertThat, containStr, eqArray } from "@selfage/test_matcher";
-import { NODE_TEST_RUNNER } from "@selfage/test_runner";
+import { TEST_RUNNER } from "@selfage/test_runner";
 
-NODE_TEST_RUNNER.run({
+TEST_RUNNER.run({
   name: "L10nLinterTest",
   cases: [
     {

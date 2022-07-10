@@ -1,7 +1,7 @@
 {
   "name": "@selfage/cli",
-  "version": "3.0.2",
-  "description": "Basic CLI to help develop apps in TypeScript.",
+  "version": "4.0.0",
+  "description": "Basic CLI to buid, run and format TypeScript code.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/selfage/cli.git"
@@ -12,8 +12,6 @@
     "Run",
     "Forever",
     "Format",
-    "Descriptor",
-    "Metaprogramming",
     "Localization",
     "l10n",
     "Internationalization",
@@ -38,22 +36,15 @@
     "!test_suite.*"
   ],
   "devDependencies": {
-    "@google-cloud/spanner": "^5.18.0",
-    "@selfage/counter": "^1.0.8",
-    "@selfage/datastore_client": "^2.0.3",
-    "@selfage/message": "^2.0.0",
-    "@selfage/nested_error": "^1.0.6",
-    "@selfage/observable_array": "^2.0.0",
-    "@selfage/service_descriptor": "^2.0.0",
-    "@selfage/test_matcher": "^1.0.3",
-    "@selfage/test_runner": "^2.1.0",
+    "@selfage/test_matcher": "^1.1.2",
+    "@selfage/test_runner": "^3.0.0",
     "@selfage/tsconfig": "^1.0.7",
     "@types/node": "^16.3.3",
     "@types/prettier": "^2.1.6",
     "@types/resolve": "^1.19.0"
   },
   "dependencies": {
-    "commander": "^8.0.0",
+    "commander": "^8.3.0",
     "ignore": "^5.1.8",
     "prettier": "^2.2.1",
     "resolve": "^1.19.0",
