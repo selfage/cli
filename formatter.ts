@@ -14,11 +14,12 @@ import {
   createSourceFile,
 } from "typescript";
 
-export function format(file: string, dryRun?: boolean): void {
+export async function format(file: string, dryRun?: boolean): Promise<void> {
   let tsFile = stripFileExtension(file) + ".ts";
   let sortedContent = sortImports(tsFile);
-  let formattedContent = prettier.format(sortedContent, {
+  let formattedContent = await prettier.format(sortedContent, {
     parser: "typescript",
+    endOfLine: "lf",
   });
   writeFileSync(tsFile, formattedContent, dryRun);
 }
@@ -28,8 +29,8 @@ export function sortImports(tsFile: string): string {
   let sourceFile = createSourceFile(
     "placeholder",
     rawContent,
-    ScriptTarget.ES5,
-    true
+    ScriptTarget.ES2015,
+    true,
   );
 
   let equalImports = new Map<string, string>();
@@ -44,9 +45,11 @@ export function sortImports(tsFile: string): string {
     if (node.kind === SyntaxKind.ImportEqualsDeclaration) {
       let importNode = node as ImportEqualsDeclaration;
       equalImports.set(
-        ((importNode.moduleReference as ExternalModuleReference)
-          .expression as StringLiteral).text,
-        importNode.name.text
+        (
+          (importNode.moduleReference as ExternalModuleReference)
+            .expression as StringLiteral
+        ).text,
+        importNode.name.text,
       );
       writeUncapturedContentInBetween(node, contentList);
       (endPos = getEnd(node)), contentList;
@@ -70,7 +73,7 @@ export function sortImports(tsFile: string): string {
       ) {
         namespaceImports.set(
           importPath,
-          (importNode.importClause.namedBindings as NamespaceImport).name.text
+          (importNode.importClause.namedBindings as NamespaceImport).name.text,
         );
         writeUncapturedContentInBetween(node, contentList);
         endPos = getEnd(node);
@@ -82,8 +85,9 @@ export function sortImports(tsFile: string): string {
           namedImports.set(importPath, new Set());
         }
         let names = namedImports.get(importPath);
-        for (let specifier of (importNode.importClause
-          .namedBindings as NamedImports).elements) {
+        for (let specifier of (
+          importNode.importClause.namedBindings as NamedImports
+        ).elements) {
           names.add(specifier.getText());
         }
         writeUncapturedContentInBetween(node, contentList);
@@ -123,7 +127,7 @@ function getEnd(node: TsNode): number {
 
 function writeUncapturedContentInBetween(
   node: TsNode,
-  contentList: Array<string>
+  contentList: Array<string>,
 ): void {
   let newContent = node
     .getFullText()

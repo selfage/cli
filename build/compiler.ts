@@ -2,7 +2,7 @@ import fs = require("fs");
 import path = require("path");
 import resolve = require("resolve");
 import { stripFileExtension } from "../io_helper";
-import { spawn } from "child_process";
+import { execSync } from "child_process";
 
 export async function compile(
   entryFile: string,
@@ -27,21 +27,15 @@ export async function compile(
     (file) => stripFileExtension(file) + ".ts"
   );
 
-  let childProcess = spawn(
-    "npx",
-    ["tsc", ...args, ...extraFilesNormalized, entryFileNormalized],
+  execSync(
+    `npx tsc ${args.join(" ")} ${extraFilesNormalized.join(
+      " "
+    )} ${entryFileNormalized}`,
     {
-      stdio: "inherit",
-    }
+      stdio: 'inherit',
+      windowsHide: true,
+    },
   );
-  let exitCode = await new Promise<number>((resolve, reject) => {
-    childProcess.on("exit", (code) => {
-      resolve(code);
-    });
-  });
-  if (exitCode !== 0) {
-    throw new Error(`tsc completed with non-zero code: ${exitCode}.`);
-  }
 }
 
 export async function readCompilerOptions(tsconfigFile: string): Promise<any> {

@@ -34,7 +34,7 @@ TEST_RUNNER.run({
         );
 
         // Verify
-        assertThat(error, eqError(new Error("with non-zero code")), "error");
+        assertThat(error, eqError(new Error("Command failed")), "error");
         assertThat(
           fs.existsSync("./test_data/build/compiler/error_example.js"),
           eq(true),

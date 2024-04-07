@@ -20,7 +20,7 @@ import 'ts';
 import b from 'b';
 import a from 'a';
 import c from 'c';
-import {e, f, a, b, d, z, g, i, e} from 'alphbet
+import {e, f, a, b, d, z, g, i, e} from 'alphbet'
 
 // Comment 3
 class X {

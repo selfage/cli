@@ -4,7 +4,6 @@ import path = require("path");
 import { clean } from "./build/cleaner";
 import { compile } from "./build/compiler";
 import { format } from "./formatter";
-import { lintL10n } from "./l10n_linter";
 import { runForever } from "./run/forever_runner";
 import { run } from "./run/runner";
 import { Command } from "commander";
@@ -79,13 +78,6 @@ async function main(): Promise<void> {
       "Print the formatted content instead of overwriting the file."
     )
     .action((file, options) => format(file, options.dryRun));
-  program
-    .command("lintL10n <baseDir>")
-    .alias("lln")
-    .description(
-      `Checks localization pattern compliance, and missing, duplicated or redundant keys.`
-    )
-    .action((baseDir) => lintL10n(baseDir));
   await program.parseAsync();
 }
 

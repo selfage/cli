@@ -41,7 +41,7 @@ class X {
 
 import fs = require('fs');
 `),
-          "content"
+          "content",
         );
       },
     },
@@ -59,7 +59,7 @@ import fs = require('fs');
 import { ast,bba } from './typescript';
 import './side_effect';
 `),
-          "content"
+          "content",
         );
       },
     },
@@ -76,7 +76,7 @@ import './side_effect';
   public a = 10;
 }
 `),
-          "content"
+          "content",
         );
       },
     },
