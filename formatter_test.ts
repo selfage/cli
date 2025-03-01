@@ -20,6 +20,8 @@ TEST_RUNNER.run({
 // Comment 11
 // Comment1
 // comment 2
+import 'ts';
+import 'tsts';
 import ts = require('ts');
 import ts = require('typescript');
 import a from 'a';
@@ -32,8 +34,6 @@ import * as tss from 'typescripttypescript';
 import { TestColor2 as TestColor,TestObject,TestObjectObject } from './test_interface';
 import { TestObject } from './test_interface/ts';
 import { a,b,d,e,f,g,i,z } from 'alphbet';
-import 'ts';
-import 'tsts';
 
 // Comment 3
 class X {
@@ -56,8 +56,8 @@ import fs = require('fs');
           content,
           eq(`// Comment 1
 // Comment 10
-import { ast,bba } from './typescript';
 import './side_effect';
+import { ast,bba } from './typescript';
 `),
           "content",
         );

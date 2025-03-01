@@ -98,6 +98,9 @@ export function sortImports(tsFile: string): string {
     break;
   }
 
+  for (let path of [...sideEffectImports].sort()) {
+    contentList.push(`import '${path}';`);
+  }
   for (let path of [...equalImports.keys()].sort()) {
     let name = equalImports.get(path);
     contentList.push(`import ${name} = require('${path}');`);
@@ -114,9 +117,6 @@ export function sortImports(tsFile: string): string {
     let names = namedImports.get(path);
     let sortedNames = [...names].sort();
     contentList.push(`import { ${sortedNames.join(",")} } from '${path}';`);
-  }
-  for (let path of [...sideEffectImports].sort()) {
-    contentList.push(`import '${path}';`);
   }
   return contentList.join("\n") + rawContent.substring(endPos);
 }
