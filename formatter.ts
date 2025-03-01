@@ -98,7 +98,7 @@ export function sortImports(tsFile: string): string {
     break;
   }
 
-  for (let path of [...sideEffectImports].sort()) {
+  for (let path of sideEffectImports) {
     contentList.push(`import '${path}';`);
   }
   for (let path of [...equalImports.keys()].sort()) {
